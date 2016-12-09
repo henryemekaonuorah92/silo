@@ -94,17 +94,21 @@ class FeatureContext extends BehatContext
     {
         foreach (explode(",", $codes) as $code){
             $l = new Inventory\Location($code);
+
+            if ($table) {
+                $op = new Inventory\Operation(
+                    $this->getRef("User"),
+                    null,
+                    $l,
+                    $this->tableNodeToProductQuantities($table)
+                );
+                $op->execute($this->getRef("User"));
+                $this->em->persist($op);
+            }
+
             $this->em->persist($l);
         }
         $this->em->flush();
-
-        if ($table) {
-            $pqs = $this->tableNodeToProductQuantities($table);
-            $pqs->forAll(function($key, Inventory\Batch $productQuantity){
-                //echo $productQuantity->getQuantity();
-                // Bind here to LOCATION
-            });
-        }
     }
 
     /**
@@ -187,18 +191,21 @@ class FeatureContext extends BehatContext
     {
         $em = $this->app['em'];
         $locations = $em->getRepository('Inventory:Location');
-        $content = $locations->findOneBy(['code' => $code])->getBatches();
+        $location = $locations->findOneBy(['code' => $code]);
 
         if ($table) {
-            $expected = $this->tableNodeToProductQuantities($table);
-            foreach ($expected as $ex) {
-                if (!$ex->isMemberOf($content)) {
-                    throw new \Exception(sprintf("$code should contain %s", $ex->getProduct()->getSku()));
+            foreach ($this->tableNodeToProductQuantities($table) as $expected) {
+                if (!$location->contains($expected)) {
+                    throw new \Exception(sprintf(
+                        "$code should contain %s x %s",
+                        $expected->getQuantity(),
+                        $expected->getProduct()->getSku()
+                    ));
                 }
             }
         } else {
             // nothing
-            if (count($content) > 0) {
+            if (count($location->getBatches()) > 0) {
                 throw new \Exception("$code should not contain something");
             }
         }
@@ -220,37 +227,39 @@ class FeatureContext extends BehatContext
     }
 
     /**
-     * @Given /^show ([\w:]+)$/
+     * @Given /^show ([\w:,]+)$/
      */
-    public function showInventoryLocation($table)
+    public function showInventoryLocation($tables)
     {
-        //Place query here, let's say you want all the users that have blue as their favorite color
-        $tableName = $this->em->getClassMetadata($table)->getTableName();
-        $sql = "SELECT * FROM $tableName";
-        $stmt = $this->em->getConnection()->prepare($sql);
-        $stmt->execute();
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $output = new Symfony\Component\Console\Output\BufferedOutput();
 
-        if (empty($result)) {
-            $this->printDebug("No data in $table");
+        foreach(explode(',', $tables) as $table) {
+            $tableName = $this->em->getClassMetadata($table)->getTableName();
+            $sql = "SELECT * FROM $tableName";
+            $stmt = $this->em->getConnection()->prepare($sql);
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            return;
+            if (empty($result)) {
+                $this->printDebug("No data in $table");
+
+                return;
+            }
+
+            $rows = array_map(function ($row) {
+                return array_values($row);
+            }, $result);
+
+            $headers = array_keys($result[0]);
+
+            $output->writeln("$table");
+            $table = new Symfony\Component\Console\Helper\Table($output);
+            $table
+                ->setHeaders($headers)
+                ->setRows($rows);
+            $table->render();
         }
 
-        $rows = array_map(function($row){
-            return array_values($row);
-        }, $result);
-
-        $headers = array_keys($result[0]);
-
-        $output = new Symfony\Component\Console\Output\ConsoleOutput();
-        $output->writeln("<warn>$table</warn>");
-        $table = new Symfony\Component\Console\Helper\Table($output);
-        $table->setStyle('compact');
-        $table
-            ->setHeaders($headers)
-            ->setRows($rows)
-        ;
-        $table->render();
+        $this->printDebug($output->fetch());
     }
 }

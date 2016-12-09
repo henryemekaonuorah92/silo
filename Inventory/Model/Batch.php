@@ -96,12 +96,66 @@ class Batch
         foreach($productQuantities as $productQuantity) {
             if (
                 $productQuantity->getQuantity() == $this->getQuantity() &&
-                $productQuantity->getProduct()->getId() == $this->getProduct()->getId()
+                $productQuantity->getProduct()->getSku() == $this->getProduct()->getSku()
             ) {
                 $found = true;
             }
         }
 
         return $found;
+    }
+
+    /**
+     * @param mixed $operation
+     */
+    public function setOperation($operation)
+    {
+        $this->operation = $operation;
+    }
+
+    /**
+     * @param mixed $location
+     */
+    public function setLocation($location)
+    {
+        $this->location = $location;
+    }
+
+    public function copy()
+    {
+        return new self($this->product, $this->quantity);
+    }
+
+    public function copyOpposite()
+    {
+        return new self($this->product, -$this->quantity);
+    }
+
+    public function __toString()
+    {
+        return "Batch:".$this->operation.$this->location;
+    }
+
+    /**
+     * @param self|null $a
+     * @param self|null $b
+     * @return bool True if $a is same as $b
+     */
+    public static function compare($a, $b)
+    {
+        if (!is_null($a) && !$a instanceof self) {
+            throw new \InvalidArgumentException('$a should a location or null');
+        }
+        if (!is_null($b) && !$b instanceof self) {
+            throw new \InvalidArgumentException('$b should a location or null');
+        }
+        if (is_null($a) && is_null($b)) {
+            return true;
+        }
+        if (is_null($a) || is_null($b)) {
+            return false;
+        }
+
+        return $a->product == $b->product && $a->quantity == $b->quantity;
     }
 }

@@ -116,6 +116,10 @@ class Operation
             $this->location = $content;
         } else {
             $this->batches = $content;
+            $that = $this;
+            $this->batches->forAll(function($key, Batch $batch)use($that){
+                $batch->setOperation($that);
+            });
         }
     }
 
@@ -167,10 +171,10 @@ class Operation
     }
 
     /**
-     * @return ArrayCollection
+     * @return BatchCollection Copy of the contained Batches
      */
     public function getBatches()
     {
-        return $this->batches;
+        return BatchCollection::fromCollection($this->batches)->copy();
     }
 }

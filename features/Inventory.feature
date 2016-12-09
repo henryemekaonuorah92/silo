@@ -9,7 +9,6 @@ Feature: Inventory basic movements
     And an Operation "one" to A moving B
     When "one" is executed
     Then B parent is A
-    And show Inventory:Location
 
   Scenario: Batch can be created in a Location with an Operation
     Given Locations A
@@ -19,20 +18,19 @@ Feature: Inventory basic movements
     Then A contains:
       | X | 10 |
 
-
+  Scenario: Moving Batch from one Location to another
+    Given a Location A with:
+      | X | 10 |
+    And a Location B with:
+      | X | 1 |
+    And an Operation "three" from A to B with:
+      | X | 6 |
+    When "three" is executed
+    Then show Inventory:Location,Inventory:Batch,Inventory:Operation
+    Then A contains:
+      | X | 4 |
+    And B contains:
+      | X | 7 |
 
   Scenario: Location has to be moved with a credible Operation
-
-  Scenario: Basic movemement
-
-    And a Location "A" with:
-      | X | 10 |
-    And a Location "B"
-    Given an Operation "basic" from "A" to "B" with:
-      | X | 10 |
-    #When "basic" is executed
-    Then "A" contains nothing
-    And "B" contains:
-      | X | 10 |
-
   Scenario: Replay to any point in time for stock calculation

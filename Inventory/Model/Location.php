@@ -3,6 +3,7 @@
 namespace Silo\Inventory\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Util\Debug;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -46,12 +47,20 @@ class Location
     }
 
     /**
-     * @return ArrayCollection
+     * @return BatchCollection Copy of the contained Batches
      */
     public function getBatches()
     {
-        // @todo return a COPY ?
-        return $this->batches;
+        return BatchCollection::fromCollection($this->batches)->copy();
+    }
+
+    /**
+     * @param Batch $batch
+     * @return bool True if $this contains $batch
+     */
+    public function contains(Batch $batch)
+    {
+        return $this->getBatches()->contains($batch);
     }
 
     /**
@@ -70,10 +79,19 @@ class Location
             // $this is the source Location, we substract the Operation Batches from it
             $this->batches = BatchCollection::fromCollection($this->batches)
                 ->decrementBy($operation->getBatches());
+            $that = $this;
+            $this->batches->forAll(function($key, Batch $batch)use($that){
+                $batch->setLocation($that);
+            });
         } else if (self::compare($operation->getTarget(), $this)) {
             // $this is the target Location, we add the Operation Batches
             $this->batches = BatchCollection::fromCollection($this->batches)
                 ->incrementBy($operation->getBatches());
+
+            $that = $this;
+            $this->batches->forAll(function($key, Batch $batch)use($that){
+                $batch->setLocation($that);
+            });
         } else {
             throw new \LogicException("$operation cannot be applied on unrelated $this");
         }
