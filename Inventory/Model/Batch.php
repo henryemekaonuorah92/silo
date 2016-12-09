@@ -2,10 +2,11 @@
 
 namespace Silo\Inventory\Model;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * An immutable quantity of Product.
+ * An immutable (we hope so) quantity of Product.
  *
  * @ORM\Entity
  * @ORM\Table(name="batch")
@@ -34,21 +35,24 @@ class Batch
     private $product;
 
     /**
-     * Many Batches have One Operation.
-     *
+     * @var Operation
      * @ORM\ManyToOne(targetEntity="Operation", inversedBy="productQuantities")
      * @ORM\JoinColumn(name="operation_id", referencedColumnName="operation_id")
      */
     private $operation;
 
     /**
-     * Many Batches have One Location.
-     *
+     * @var Location
      * @ORM\ManyToOne(targetEntity="Location", inversedBy="productQuantities")
      * @ORM\JoinColumn(name="location_id", referencedColumnName="location_id")
      */
     private $location;
 
+    /**
+     * @param Product $product What
+     * @param int $quantity How much of it
+     * @todo Evaluate float for quantity, dealing with other units
+     */
     public function __construct(Product $product, $quantity)
     {
         $this->product = $product;
@@ -71,6 +75,11 @@ class Batch
         return $this->product;
     }
 
+    /**
+     * @todo whacky, please refactor this
+     * @param $quantity
+     * @return int
+     */
     public function addQuantity($quantity)
     {
         $this->quantity += $quantity;
@@ -94,34 +103,44 @@ class Batch
         $this->location = $location;
     }
 
+    /**
+     * @return Batch Value copy of $this
+     */
     public function copy()
     {
         return new self($this->product, $this->quantity);
     }
 
+    /**
+     * @return Batch Value copy of $this with opposite quantity
+     */
     public function copyOpposite()
     {
         return new self($this->product, -$this->quantity);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function __toString()
     {
         return 'Batch:'.$this->operation.$this->location;
     }
 
     /**
+     * Compare two Batches together by content
+     *
      * @param self|null $a
      * @param self|null $b
-     *
-     * @return bool True if $a is same as $b
+     * @return bool True if $a and $b are for the same Product and of the same quantity
      */
     public static function compare($a, $b)
     {
         if (!is_null($a) && !$a instanceof self) {
-            throw new \InvalidArgumentException('$a should a location or null');
+            throw new \InvalidArgumentException('$a should be a Batch instance or null');
         }
         if (!is_null($b) && !$b instanceof self) {
-            throw new \InvalidArgumentException('$b should a location or null');
+            throw new \InvalidArgumentException('$b should be a Batch instance or null');
         }
         if (is_null($a) && is_null($b)) {
             return true;

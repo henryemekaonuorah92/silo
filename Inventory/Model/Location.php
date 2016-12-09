@@ -24,7 +24,6 @@ class Location
 
     /**
      * @var string
-     *
      * @todo this shall be UNIQUE constrained
      * @ORM\Column(name="code", type="string", length=30, nullable=true)
      */
@@ -43,6 +42,10 @@ class Location
      */
     private $batches;
 
+    /**
+     * @param $code
+     * @todo Code should be constrained by a regex
+     */
     public function __construct($code)
     {
         $this->code = $code;
@@ -59,7 +62,6 @@ class Location
 
     /**
      * @param Batch $batch
-     *
      * @return bool True if $this contains $batch
      */
     public function contains(Batch $batch)
@@ -68,12 +70,18 @@ class Location
     }
 
     /**
+     * An Operation is applied onto its source and target, or its content,
+     * depending if it is an Operation moving Batches or an Operation moving a Location
+     *
+     * We delegate applying the Operation to Location itself, in order to keep $batches
+     * our of reach of the developers. We want them indeed to be immutable, but not necessarly
+     * for Location Batches for database size reasons.
+     *
+     * @todo Tests show that this creates duplicate Batches, please investigate
      * @param Operation $operation
      */
     public function apply(Operation $operation)
     {
-        // An Operation is applied onto its source and target, or its content,
-        // depending if it is an Operation moving Batches or an Operation moving a Location
         if (self::compare($operation->getLocation(), $this)) { // $this is the moved Location
             if (!self::compare($this->parent, $operation->getSource())) {
                 throw new \LogicException("$this cannot by $operation has it is no longer in ".$this->parent);
@@ -102,18 +110,20 @@ class Location
     }
 
     /**
+     * Compares two Locations together by code
+     *
+     * @todo Maybe overkill if comparison per id does the job
      * @param self|null $a
      * @param self|null $b
-     *
      * @return bool True if $a is same as $b
      */
     public static function compare($a, $b)
     {
         if (!is_null($a) && !$a instanceof self) {
-            throw new \InvalidArgumentException('$a should a location or null');
+            throw new \InvalidArgumentException('$a should be a Location or null');
         }
         if (!is_null($b) && !$b instanceof self) {
-            throw new \InvalidArgumentException('$b should a location or null');
+            throw new \InvalidArgumentException('$b should be a Location or null');
         }
         if (is_null($a) && is_null($b)) {
             return true;
@@ -125,6 +135,9 @@ class Location
         return $a->code == $b->code;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function __toString()
     {
         return 'Location:'.$this->code;

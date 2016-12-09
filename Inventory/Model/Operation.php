@@ -6,8 +6,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Represent a movement from a Location to another Location. You can either move a Location,
- * or a ProductQuantity set, but not both (could be possible, but let's make it simple).
+ * Represent a movement of something from a Location to another Location.
+ * Something can either be a Location, or a Batch set, but not both (could
+ * be possible, but let's make it simple for futur generations).
  *
  * @ORM\Table(name="operation")
  * @ORM\Entity
@@ -57,7 +58,7 @@ class Operation
     private $cancelledBy;
 
     /**
-     * @var \DateTime When requested this Operation has been
+     * @var \DateTime When requested this Operation has been (Yoda style comment)
      * @ORM\Column(name="cancelled_at", type="datetimetz", nullable=true)
      */
     private $cancelledAt;
@@ -84,12 +85,18 @@ class Operation
     private $location;
 
     /**
-     * One Operation has many Batches.
-     *
+     * @var ArrayCollection
      * @ORM\OneToMany(targetEntity="Batch", mappedBy="operation_id", cascade={"persist"})
      */
     private $batches;
 
+    /**
+     * @param User $requestedBy
+     * @param $source
+     * @param $target
+     * @param $content
+     * @todo check $content, if ArrayCollection, is not persisted yet, to prevent Batch reuse.
+     */
     public function __construct(
         User $requestedBy,
         $source,
@@ -110,7 +117,6 @@ class Operation
         $this->source = $source;
         $this->target = $target;
 
-        // @todo check ArrayCollection is not persisted yet
         $this->requestedAt = new \DateTime();
 
         if ($content instanceof Location) {
@@ -124,6 +130,12 @@ class Operation
         }
     }
 
+    /**
+     * Perform $this and apply changes on related Locations. Will mark $this as
+     * done after flush.
+     *
+     * @param User $doneBy
+     */
     public function execute(User $doneBy)
     {
         if ($location = $this->location) {

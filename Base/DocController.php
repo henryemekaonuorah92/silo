@@ -6,13 +6,16 @@ use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ * Documentation endpoints
+ */
 class DocController implements ControllerProviderInterface
 {
     public function connect(Application $app)
     {
-        // creates a new controller based on the default route
         $controllers = $app['controllers_factory'];
 
+        // Get a documentation page
         $controllers->get('/{path}', function ($path, Application $app) {
             $content = 'Content not found';
             $file = __DIR__.'/../../../../../doc/'.strtolower($path).'.md';

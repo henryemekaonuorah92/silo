@@ -4,15 +4,25 @@ namespace Silo\Base\Provider\DoctrineProvider;
 
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 
+/**
+ * Prefix tables from the Silo namespace
+ */
 class TablePrefix
 {
+    /** @var string */
     protected $prefix = '';
 
+    /**
+     * @param $prefix Prefix to apply on Silo tables
+     */
     public function __construct($prefix)
     {
         $this->prefix = (string) $prefix;
     }
 
+    /**
+     * @param LoadClassMetadataEventArgs $eventArgs
+     */
     public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs)
     {
         $classMetadata = $eventArgs->getClassMetadata();
