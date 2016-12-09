@@ -4,7 +4,6 @@ namespace Silo\Inventory\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Util\Debug;
 
 /**
  * Advanced operations on Batch ArrayCollection for models using them.
@@ -18,20 +17,19 @@ class BatchCollection extends ArrayCollection
 
     public function copy()
     {
-        return new static(array_map(function(Batch $batch){return $batch->copy();}, $this->toArray()));
+        return new static(array_map(function (Batch $batch) {return $batch->copy();}, $this->toArray()));
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function contains($element)
     {
         if (!$element instanceof Batch) {
             throw new \InvalidArgumentException('$element should be of type Batch');
         }
-        foreach($this->toArray() as $batch) {
+        foreach ($this->toArray() as $batch) {
             if (Batch::compare($batch, $element)) {
-
                 return true;
             }
         }
@@ -52,10 +50,10 @@ class BatchCollection extends ArrayCollection
     private function changeBy(Collection $batches, $add = true)
     {
         $that = $this;
-        $batches->forAll(function($key, Batch $increment)use($that, $add){
+        $batches->forAll(function ($key, Batch $increment) use ($that, $add) {
             // If there's already a Product matching, we increment it,
             // or we add a new Batch entry
-            $found = $this->filter(function(Batch $batch)use($increment){
+            $found = $this->filter(function (Batch $batch) use ($increment) {
                 return $increment->getProduct()->getSku() == $batch->getProduct()->getSku();
             });
             if ($found->count() == 1) {
@@ -69,6 +67,4 @@ class BatchCollection extends ArrayCollection
 
         return $this;
     }
-
-
 }

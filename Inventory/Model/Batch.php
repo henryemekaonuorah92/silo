@@ -2,12 +2,10 @@
 
 namespace Silo\Inventory\Model;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Silo\Base\Model\Collectable;
 
 /**
- * An immutable quantity of Product
+ * An immutable quantity of Product.
  *
  * @ORM\Entity
  * @ORM\Table(name="batch")
@@ -15,7 +13,7 @@ use Silo\Base\Model\Collectable;
 class Batch
 {
     /**
-     * @var integer
+     * @var int
      * @ORM\Id
      * @ORM\Column(name="batch_id", type="integer")
      * @ORM\GeneratedValue
@@ -23,7 +21,7 @@ class Batch
     private $id;
 
     /**
-     * @var integer
+     * @var int
      * @ORM\Column(name="quantity", type="integer")
      */
     private $quantity;
@@ -37,6 +35,7 @@ class Batch
 
     /**
      * Many Batches have One Operation.
+     *
      * @ORM\ManyToOne(targetEntity="Operation", inversedBy="productQuantities")
      * @ORM\JoinColumn(name="operation_id", referencedColumnName="operation_id")
      */
@@ -44,6 +43,7 @@ class Batch
 
     /**
      * Many Batches have One Location.
+     *
      * @ORM\ManyToOne(targetEntity="Location", inversedBy="productQuantities")
      * @ORM\JoinColumn(name="location_id", referencedColumnName="location_id")
      */
@@ -106,12 +106,13 @@ class Batch
 
     public function __toString()
     {
-        return "Batch:".$this->operation.$this->location;
+        return 'Batch:'.$this->operation.$this->location;
     }
 
     /**
      * @param self|null $a
      * @param self|null $b
+     *
      * @return bool True if $a is same as $b
      */
     public static function compare($a, $b)

@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Operation
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="operation_id", type="integer")
      * @ORM\Id
@@ -85,6 +85,7 @@ class Operation
 
     /**
      * One Operation has many Batches.
+     *
      * @ORM\OneToMany(targetEntity="Batch", mappedBy="operation_id", cascade={"persist"})
      */
     private $batches;
@@ -94,15 +95,15 @@ class Operation
         $source,
         $target,
         $content
-    ){
+    ) {
         if (!$source instanceof Location && !is_null($source)) {
-            throw new \LogicException("Source should be either Location or null");
+            throw new \LogicException('Source should be either Location or null');
         }
         if (!$target instanceof Location && !is_null($target)) {
-            throw new \LogicException("Target should be either Location or null");
+            throw new \LogicException('Target should be either Location or null');
         }
         if (!$content instanceof Location && !$content instanceof ArrayCollection) {
-            throw new \LogicException("Content should be either Location or ArrayCollection");
+            throw new \LogicException('Content should be either Location or ArrayCollection');
         }
 
         $this->requestedBy = $requestedBy;
@@ -112,12 +113,12 @@ class Operation
         // @todo check ArrayCollection is not persisted yet
         $this->requestedAt = new \DateTime();
 
-        if ($content instanceof Location){
+        if ($content instanceof Location) {
             $this->location = $content;
         } else {
             $this->batches = $content;
             $that = $this;
-            $this->batches->forAll(function($key, Batch $batch)use($that){
+            $this->batches->forAll(function ($key, Batch $batch) use ($that) {
                 $batch->setOperation($that);
             });
         }
@@ -125,7 +126,7 @@ class Operation
 
     public function execute(User $doneBy)
     {
-        if ($location = $this->location){
+        if ($location = $this->location) {
             $this->location->apply($this);
         } else {
             if (!is_null($this->source)) {
@@ -167,7 +168,7 @@ class Operation
 
     public function __toString()
     {
-        return "Operation:".$this->id;
+        return 'Operation:'.$this->id;
     }
 
     /**

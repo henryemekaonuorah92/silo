@@ -6,7 +6,7 @@ use Silo\Inventory\LocationWalker;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Main Silo entry point, exposed as a Container
+ * Main Silo entry point, exposed as a Container.
  */
 class Silo extends \Silex\Application
 {
@@ -25,23 +25,23 @@ class Silo extends \Silex\Application
 
         if (!$app->offsetExists('em')) {
             $app->register(new \Silo\Base\Provider\DoctrineProvider([
-                __DIR__.'/Inventory/Model'
+                __DIR__.'/Inventory/Model',
             ]));
         }
 
-        $app['LocationWalker'] = function()use($app){
+        $app['LocationWalker'] = function () use ($app) {
             return new LocationWalker($app['em']);
         };
 
         $app->mount('/silo/doc', new \Silo\Base\DocController());
 
-        $app->get('/silo/hello', function() {
+        $app->get('/silo/hello', function () {
             return 'Hello World';
         });
 
         // Deal with exceptions
         $app->error(function (\Exception $e, $request) {
-            return new Response($e, "500");
+            return new Response($e, '500');
         });
     }
 }

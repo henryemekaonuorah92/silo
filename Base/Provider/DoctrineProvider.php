@@ -3,27 +3,37 @@
 namespace Silo\Base\Provider;
 
 use Doctrine\Common\Cache\ArrayCache;
-use Doctrine\Common\Cache\FilesystemCache;
 use Silo\Base\Provider\DoctrineProvider\TablePrefix;
 use Pimple\ServiceProviderInterface;
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
 
+/**
+ * Doctrine ORM as a Service.
+ */
 class DoctrineProvider implements ServiceProviderInterface
 {
+    /** @var string[] */
     private $modelPaths;
 
+    /**
+     * @param string[] $modelPaths Models path in the filesystem
+     */
     public function __construct($modelPaths)
     {
         $this->modelPaths = $modelPaths;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function register(\Pimple\Container $app)
     {
         if (!isset($app['em.dsn'])) {
-            throw new \Exception("Please provide em.dsn");
+            throw new \Exception('Please provide em.dsn');
         }
 
+        // @todo implement a better cache selection mechanism
         $cache = new ArrayCache(); //new FilesystemCache(sys_get_temp_dir());
         $paths = $this->modelPaths;
 
@@ -33,7 +43,7 @@ class DoctrineProvider implements ServiceProviderInterface
             );
             $config->addEntityNamespace('Inventory', 'Silo\Inventory\Model');
 
-            $evm = new \Doctrine\Common\EventManager;
+            $evm = new \Doctrine\Common\EventManager();
             $evm->addEventListener(\Doctrine\ORM\Events::loadClassMetadata, new TablePrefix('silo_'));
 
             return EntityManager::create(['url' => $app['em.dsn']], $config, $evm);

@@ -3,7 +3,6 @@
 namespace Silo\Inventory\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Util\Debug;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -15,7 +14,7 @@ class Location
     const CODE_ROOT = 'root';
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="location_id", type="integer", nullable=false)
      * @ORM\Id
@@ -25,6 +24,7 @@ class Location
 
     /**
      * @var string
+     *
      * @todo this shall be UNIQUE constrained
      * @ORM\Column(name="code", type="string", length=30, nullable=true)
      */
@@ -38,6 +38,7 @@ class Location
 
     /**
      * One Operation has many Batches.
+     *
      * @ORM\OneToMany(targetEntity="Batch", mappedBy="location_id", cascade={"persist"})
      */
     private $batches;
@@ -58,6 +59,7 @@ class Location
 
     /**
      * @param Batch $batch
+     *
      * @return bool True if $this contains $batch
      */
     public function contains(Batch $batch)
@@ -77,21 +79,21 @@ class Location
                 throw new \LogicException("$this cannot by $operation has it is no longer in ".$this->parent);
             }
             $this->parent = $operation->getTarget();
-        } else if (self::compare($operation->getSource(), $this)) {
+        } elseif (self::compare($operation->getSource(), $this)) {
             // $this is the source Location, we substract the Operation Batches from it
             $this->batches = BatchCollection::fromCollection($this->batches)
                 ->decrementBy($operation->getBatches());
             $that = $this;
-            $this->batches->forAll(function($key, Batch $batch)use($that){
+            $this->batches->forAll(function ($key, Batch $batch) use ($that) {
                 $batch->setLocation($that);
             });
-        } else if (self::compare($operation->getTarget(), $this)) {
+        } elseif (self::compare($operation->getTarget(), $this)) {
             // $this is the target Location, we add the Operation Batches
             $this->batches = BatchCollection::fromCollection($this->batches)
                 ->incrementBy($operation->getBatches());
 
             $that = $this;
-            $this->batches->forAll(function($key, Batch $batch)use($that){
+            $this->batches->forAll(function ($key, Batch $batch) use ($that) {
                 $batch->setLocation($that);
             });
         } else {
@@ -102,6 +104,7 @@ class Location
     /**
      * @param self|null $a
      * @param self|null $b
+     *
      * @return bool True if $a is same as $b
      */
     public static function compare($a, $b)
@@ -124,7 +127,7 @@ class Location
 
     public function __toString()
     {
-        return "Location:".$this->code;
+        return 'Location:'.$this->code;
     }
 
     /**

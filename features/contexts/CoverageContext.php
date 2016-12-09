@@ -8,7 +8,8 @@ class CoverageContext extends BehatContext
     private static $coverage;
 
     public function __construct(array $parameters)
-    {}
+    {
+    }
 
     public static function getCoverageInstance()
     {

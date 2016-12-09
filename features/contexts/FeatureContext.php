@@ -1,11 +1,7 @@
 <?php
 
-use Behat\Behat\Context\ClosuredContextInterface,
-    Behat\Behat\Context\TranslatedContextInterface,
-    Behat\Behat\Context\BehatContext,
-    Behat\Behat\Exception\PendingException;
-use Behat\Gherkin\Node\PyStringNode,
-    Behat\Gherkin\Node\TableNode;
+use Behat\Behat\Context\BehatContext;
+use Behat\Gherkin\Node\TableNode;
 use Doctrine\Common\Collections\ArrayCollection;
 use Silo\Inventory\Model as Inventory;
 use Doctrine\Common\Util\Debug;
@@ -73,9 +69,9 @@ class FeatureContext extends BehatContext
         $em->persist($user);
         $em->flush();
 
-        $this->setRef("User", $user);
+        $this->setRef('User', $user);
 
-        $this->printDebug("Created the database");
+        $this->printDebug('Created the database');
     }
 
     /**
@@ -92,17 +88,17 @@ class FeatureContext extends BehatContext
      */
     public function aLocation($codes, TableNode $table = null)
     {
-        foreach (explode(",", $codes) as $code){
+        foreach (explode(',', $codes) as $code) {
             $l = new Inventory\Location($code);
 
             if ($table) {
                 $op = new Inventory\Operation(
-                    $this->getRef("User"),
+                    $this->getRef('User'),
                     null,
                     $l,
                     $this->tableNodeToProductQuantities($table)
                 );
-                $op->execute($this->getRef("User"));
+                $op->execute($this->getRef('User'));
                 $this->em->persist($op);
             }
 
@@ -113,6 +109,7 @@ class FeatureContext extends BehatContext
 
     /**
      * @param TableNode $table
+     *
      * @return ArrayCollection
      */
     private function tableNodeToProductQuantities(TableNode $table)
@@ -139,14 +136,14 @@ class FeatureContext extends BehatContext
         $locations = $this->em->getRepository('Inventory:Location');
         if ($table instanceof TableNode) {
             $op = new Inventory\Operation(
-                $this->getRef("User"),
+                $this->getRef('User'),
                 $locations->findOneBy(['code' => $from]),
                 $locations->findOneBy(['code' => $to]),
                 $this->tableNodeToProductQuantities($table)
             );
         } else {
             $op = new Inventory\Operation(
-                $this->getRef("User"),
+                $this->getRef('User'),
                 $locations->findOneBy(['code' => $from]),
                 $locations->findOneBy(['code' => $to]),
                 $locations->findOneBy(['code' => $table])
@@ -165,7 +162,7 @@ class FeatureContext extends BehatContext
     public function isExecuted($ref)
     {
         $op = $this->getRef($ref);
-        $op->execute($this->getRef("User"));
+        $op->execute($this->getRef('User'));
         $this->app['em']->flush();
     }
 
@@ -173,14 +170,14 @@ class FeatureContext extends BehatContext
     private function assertException($closure)
     {
         $exceptionCaught = false;
-        try{
+        try {
             // execute closure
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $exceptionCaught = true;
         }
 
         if (!$exceptionCaught) {
-            throw new \Exception("Should have got an exception");
+            throw new \Exception('Should have got an exception');
         }
     }
 
@@ -217,11 +214,11 @@ class FeatureContext extends BehatContext
     public function parentIs($child, $expectedParent = null)
     {
         $locations = $this->em->getRepository('Inventory:Location');
-        $parent = $locations->findOneBy(['code'=>$child])->getParent();
+        $parent = $locations->findOneBy(['code' => $child])->getParent();
         if (!Inventory\Location::compare(
             $parent,
-            $expectedParent ? $locations->findOneBy(['code'=>$expectedParent]) : null
-        )){
+            $expectedParent ? $locations->findOneBy(['code' => $expectedParent]) : null
+        )) {
             throw new \Exception("$child parent should be $expectedParent, but got $parent");
         }
     }
@@ -233,7 +230,7 @@ class FeatureContext extends BehatContext
     {
         $output = new Symfony\Component\Console\Output\BufferedOutput();
 
-        foreach(explode(',', $tables) as $table) {
+        foreach (explode(',', $tables) as $table) {
             $tableName = $this->em->getClassMetadata($table)->getTableName();
             $sql = "SELECT * FROM $tableName";
             $stmt = $this->em->getConnection()->prepare($sql);
@@ -269,14 +266,14 @@ class FeatureContext extends BehatContext
     public function walkerSInclusiveTotalForAIs($code, TableNode $table)
     {
         $locations = $this->em->getRepository('Inventory:Location');
-        $location = $locations->findOneBy(['code'=>$code]);
+        $location = $locations->findOneBy(['code' => $code]);
 
         $result = $this->app['LocationWalker']->mapReduce(
             $location,
-            function(Inventory\Location $location){
+            function (Inventory\Location $location) {
                 return $location->getBatches();
             },
-            function($a, $b){
+            function ($a, $b) {
                 return $a->incrementBy($b);
             },
             new ArrayCollection()

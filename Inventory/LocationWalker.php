@@ -6,7 +6,7 @@ use Doctrine\ORM\EntityManager;
 use Silo\Inventory\Model\Location;
 
 /**
- * Walk a Location hierarchy
+ * Walk a Location hierarchy.
  */
 class LocationWalker
 {

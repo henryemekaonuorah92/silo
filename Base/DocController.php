@@ -14,8 +14,8 @@ class DocController implements ControllerProviderInterface
         $controllers = $app['controllers_factory'];
 
         $controllers->get('/{path}', function ($path, Application $app) {
-            $content = "Content not found";
-            $file = __DIR__.'/../../../../../doc/'.strtolower($path).".md";
+            $content = 'Content not found';
+            $file = __DIR__.'/../../../../../doc/'.strtolower($path).'.md';
             if (file_exists($file)) {
                 $content = file_get_contents($file);
             }
