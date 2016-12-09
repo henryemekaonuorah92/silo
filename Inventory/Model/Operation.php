@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Represent a movement from a Location to another Location. You can either move a Location,
  * or a ProductQuantity set, but not both (could be possible, but let's make it simple).
  *
- * @ORM\Table(name="g_operation")
+ * @ORM\Table(name="operation")
  * @ORM\Entity
  */
 class Operation

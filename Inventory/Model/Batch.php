@@ -10,7 +10,7 @@ use Silo\Base\Model\Collectable;
  * An immutable quantity of Product
  *
  * @ORM\Entity
- * @ORM\Table(name="g_batch")
+ * @ORM\Table(name="batch")
  */
 class Batch
 {

@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="g_location")
+ * @ORM\Table(name="location")
  */
 class Location
 {

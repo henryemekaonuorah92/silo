@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="g_user")
+ * @ORM\Table(name="user")
  */
 class User
 {

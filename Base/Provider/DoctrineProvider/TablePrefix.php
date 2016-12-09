@@ -17,6 +17,10 @@ class TablePrefix
     {
         $classMetadata = $eventArgs->getClassMetadata();
 
+        if (stripos($classMetadata->namespace, 'Silo\\') !== 0) {
+            return;
+        }
+
         if (!$classMetadata->isInheritanceTypeSingleTable() || $classMetadata->getName() === $classMetadata->rootEntityName) {
             $classMetadata->setTableName($this->prefix . $classMetadata->getTableName());
         }
