@@ -58,14 +58,6 @@ class Batch
     /**
      * @return int
      */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * @return int
-     */
     public function getQuantity()
     {
         return $this->quantity;
@@ -84,25 +76,6 @@ class Batch
         $this->quantity += $quantity;
 
         return $this->quantity;
-    }
-
-    /**
-     * @param \Doctrine\Common\Collections\Collection $productQuantities
-     * @return True if $this is inside the $productQuantities collection
-     */
-    public function isMemberOf(\Doctrine\Common\Collections\Collection $productQuantities)
-    {
-        $found = false;
-        foreach($productQuantities as $productQuantity) {
-            if (
-                $productQuantity->getQuantity() == $this->getQuantity() &&
-                $productQuantity->getProduct()->getSku() == $this->getProduct()->getSku()
-            ) {
-                $found = true;
-            }
-        }
-
-        return $found;
     }
 
     /**

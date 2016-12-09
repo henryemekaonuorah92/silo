@@ -16,8 +16,8 @@ use Doctrine\Common\Util\Debug;
 //   require_once 'PHPUnit/Autoload.php';
 //   require_once 'PHPUnit/Framework/Assert/Functions.php';
 //
-require_once __DIR__ . '/../../../../../../vendor/autoload.php';
-
+require_once __DIR__.'/../../../../../../vendor/autoload.php';
+require_once __DIR__.'/CoverageContext.php';
 /**
  * Features context.
  */
@@ -52,7 +52,7 @@ class FeatureContext extends BehatContext
      */
     public function __construct(array $parameters)
     {
-        // $this->useContext('console', new ConsoleContext($parameters));
+        $this->useContext('coverage', new CoverageContext($parameters));
         // $this->useContext('ranking', $ranking);
     }
 
