@@ -1,3 +1,4 @@
+![Logo](./silo.png)
 # Silo
 
 Behold! A brand new Inventory system for Frank + Oak.

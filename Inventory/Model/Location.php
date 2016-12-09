@@ -12,6 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Location
 {
+    const CODE_ROOT = 'root';
+
     /**
      * @var integer
      *

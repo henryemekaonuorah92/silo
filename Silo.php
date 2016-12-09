@@ -2,6 +2,7 @@
 
 namespace Silo;
 
+use Silo\Inventory\LocationWalker;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -27,6 +28,10 @@ class Silo extends \Silex\Application
                 __DIR__.'/Inventory/Model'
             ]));
         }
+
+        $app['LocationWalker'] = function()use($app){
+            return new LocationWalker($app['em']);
+        };
 
         $app->mount('/silo/doc', new \Silo\Base\DocController());
 

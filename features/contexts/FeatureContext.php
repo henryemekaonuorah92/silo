@@ -52,7 +52,7 @@ class FeatureContext extends BehatContext
      */
     public function __construct(array $parameters)
     {
-        $this->useContext('coverage', new CoverageContext($parameters));
+        // $this->useContext('coverage', new CoverageContext($parameters));
         // $this->useContext('ranking', $ranking);
     }
 
@@ -261,5 +261,27 @@ class FeatureContext extends BehatContext
         }
 
         $this->printDebug($output->fetch());
+    }
+
+    /**
+     * @Then /^Walker\'s inclusive total for (\w+) is:$/
+     */
+    public function walkerSInclusiveTotalForAIs($code, TableNode $table)
+    {
+        $locations = $this->em->getRepository('Inventory:Location');
+        $location = $locations->findOneBy(['code'=>$code]);
+
+        $result = $this->app['LocationWalker']->mapReduce(
+            $location,
+            function(Inventory\Location $location){
+                return $location->getBatches();
+            },
+            function($a, $b){
+                return $a->incrementBy($b);
+            },
+            new ArrayCollection()
+        );
+
+        Debug::dump($result);
     }
 }
