@@ -29,7 +29,7 @@ Feature: Inventory basic movements
     And an Operation "three" from A to B with:
       | X | 6 |
     When "three" is executed
-    Then show Inventory:Location,Inventory:Batch,Inventory:Operation
+    # Then show Inventory:Location,Inventory:Batch,Inventory:Operation
     Then A contains:
       | X | 4 |
       | Y | 1 |
