@@ -2,6 +2,7 @@ Feature: Inventory basic movements
 
   Background:
     Given a Product "X"
+    And a Product "Y"
 
   Scenario: Location can be moved with an Operation
     Given Locations A,B
@@ -19,16 +20,19 @@ Feature: Inventory basic movements
       | X | 10 |
 
   Scenario: Moving Batch from one Location to another
+    # We also test that only wanted Batch is moved
     Given a Location A with:
       | X | 10 |
+      | Y |  1 |
     And a Location B with:
       | X | 1 |
     And an Operation "three" from A to B with:
       | X | 6 |
     When "three" is executed
-    # Then show Inventory:Location,Inventory:Batch,Inventory:Operation
+    Then show Inventory:Location,Inventory:Batch,Inventory:Operation
     Then A contains:
       | X | 4 |
+      | Y | 1 |
     And B contains:
       | X | 7 |
 

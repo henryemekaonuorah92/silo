@@ -82,6 +82,7 @@ class Location
      */
     public function apply(Operation $operation)
     {
+        $that = $this;
         if (self::compare($operation->getLocation(), $this)) { // $this is the moved Location
             if (!self::compare($this->parent, $operation->getSource())) {
                 throw new \LogicException("$this cannot by $operation has it is no longer in ".$this->parent);
@@ -91,17 +92,16 @@ class Location
             // $this is the source Location, we substract the Operation Batches from it
             $this->batches = BatchCollection::fromCollection($this->batches)
                 ->decrementBy($operation->getBatches());
-            $that = $this;
-            $this->batches->forAll(function ($key, Batch $batch) use ($that) {
+            $ref = $this->batches->toArray();
+            array_walk($ref, function (Batch $batch) use ($that) {
                 $batch->setLocation($that);
             });
         } elseif (self::compare($operation->getTarget(), $this)) {
             // $this is the target Location, we add the Operation Batches
             $this->batches = BatchCollection::fromCollection($this->batches)
                 ->incrementBy($operation->getBatches());
-
-            $that = $this;
-            $this->batches->forAll(function ($key, Batch $batch) use ($that) {
+            $ref = $this->batches->toArray();
+            array_walk($ref, function (Batch $batch) use ($that) {
                 $batch->setLocation($that);
             });
         } else {

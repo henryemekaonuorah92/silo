@@ -79,7 +79,8 @@ class BatchCollection extends ArrayCollection
     private function changeBy(Collection $batches, $add = true)
     {
         $that = $this;
-        $batches->forAll(function ($key, Batch $increment) use ($that, $add) {
+        $ref = $batches->toArray();
+        array_walk($ref, function (Batch $increment) use ($that, $add) {
             // If there's already a Product matching, we increment it,
             // or we add a new Batch entry
             $found = $this->filter(function (Batch $batch) use ($increment) {

@@ -124,7 +124,8 @@ class Operation
         } else {
             $this->batches = $content;
             $that = $this;
-            $this->batches->forAll(function ($key, Batch $batch) use ($that) {
+            $ref = $this->batches->toArray();
+            array_walk($ref, function (Batch $batch) use ($that) {
                 $batch->setOperation($that);
             });
         }

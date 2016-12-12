@@ -114,7 +114,7 @@ class FeatureContext extends BehatContext
      */
     private function tableNodeToProductQuantities(TableNode $table)
     {
-        $result = new ArrayCollection();
+        $result = new Inventory\BatchCollection();
 
         foreach ($table->getRows() as $row) {
             $product = $this->em->getRepository('Inventory:Product')
@@ -191,12 +191,23 @@ class FeatureContext extends BehatContext
         $location = $locations->findOneBy(['code' => $code]);
 
         if ($table) {
-            foreach ($this->tableNodeToProductQuantities($table) as $expected) {
+            $expecteds = $this->tableNodeToProductQuantities($table);
+            //Debug::dump($location->getBatches()); die;
+            foreach($location->getBatches() as $current) {
+                if (!$expecteds->contains($current)) {
+                    throw new \Exception(sprintf(
+                        "$code should not contain %s x %s",
+                        $current->getProduct()->getSku(),
+                        $current->getQuantity()
+                    ));
+                }
+            }
+            foreach ($expecteds as $expected) {
                 if (!$location->contains($expected)) {
                     throw new \Exception(sprintf(
                         "$code should contain %s x %s",
-                        $expected->getQuantity(),
-                        $expected->getProduct()->getSku()
+                        $expected->getProduct()->getSku(),
+                        $expected->getQuantity()
                     ));
                 }
             }
