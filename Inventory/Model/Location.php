@@ -16,7 +16,7 @@ class Location
     /**
      * @var int
      *
-     * @ORM\Column(name="location_id", type="integer", nullable=false)
+     * @ORM\Column(name="location_id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
