@@ -10,17 +10,16 @@ In order to do so, we define a few objects. Note that in order to differentiate 
 
 *example : M3x12mm, 34-123-XXL, water*
 
-**Batch** is a given quantity of Product.
+**Batch** is a given quantity of Product. It is also referred sometimes as a Lot in the industry.
 
 *example : 3 bolts M3x12mm, 4 shirts, 2L of water*
 
-**Location** is a physical place that can hold other Locations, or a set of Batches. Yes one place can be inside another. Locations are organized as tree graph, with the Earth being its root (we would need an update when space travel becomes common).
+**Location** is a physical place that can hold other Locations, or a set of Batches. Yes one place can be inside another. Locations are organized as a tree graph.
 
 ```dot
 digraph location_tree {
-    Earth -> Warehouse -> AisleA -> BoxA;
+    Root -> Warehouse -> AisleA -> BoxA;
     AisleA -> BoxB;
-    Earth [label="Earthling"];
 }
 ```
 
@@ -46,7 +45,7 @@ This guarantees that Inventory can backtrack at any point back in time.
 - An Operation has at least a target Location or a source Location.
 - It has a finite life time.
 
-In order to maintain speed in Rocki, the Operations get archived after a given amount of time, that we call the "Data Horizon".
+In order to maintain speed in Silo, the Operations get archived after a given amount of time, that we call the "Data Horizon".
  
 **Data Horizon** is of **1 year**.
 
@@ -57,5 +56,3 @@ Note that for the same reason, when a Location meets the following criterias:
 - No pending operation that targets/sources it
 
 Then it gets archived as well.
-
-Archiving means that the data is still somewhere there, but that the developers could get an horrible headache if you happen to need it. So please don't.
