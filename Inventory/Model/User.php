@@ -5,11 +5,13 @@ namespace Silo\Inventory\Model;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\User")
  * @ORM\Table(name="user")
  */
 class User
 {
+    const NAME_BOT = 'bot';
+
     /**
      * @var int
      *
@@ -26,8 +28,16 @@ class User
      */
     private $name = '';
 
-    public function __construct($name)
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="email", type="string", length=255)
+     */
+    private $email = '';
+
+    public function __construct($name, $email = null)
     {
         $this->name = $name;
+        $this->email = $email;
     }
 }

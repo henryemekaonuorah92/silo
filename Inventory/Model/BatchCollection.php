@@ -68,21 +68,30 @@ class BatchCollection extends ArrayCollection
     {
         $that = $this;
         $ref = $batches->toArray();
-        array_walk($ref, function (Batch $increment) use ($that) {
-            // If there's already a Product matching, we increment it,
-            // or we add a new Batch entry
-            $found = $this->filter(function (Batch $batch) use ($increment) {
-                return $increment->getProduct()->getSku() == $batch->getProduct()->getSku();
-            });
-            if ($found->count() == 1) {
-                $found[0]->add($increment->getQuantity());
-            } else if ($found->count() > 1) {
-                throw new \LogicException('You cannot have many Batch with the same Product');
-            } else {
-                $that->add($increment);
-            }
+        array_walk($ref, function (Batch $add) use ($that) {
+            $this->addProduct($add->getProduct(), $add->getQuantity());
         });
 
         return $this;
+    }
+
+    /**
+     * Add a single quantity of product to the current BatchCollection
+     *
+     * @param Product $product
+     * @param $quantity
+     */
+    public function addProduct(Product $product, $quantity)
+    {
+        $found = $this->filter(function (Batch $batch)use($product) {
+            return $product->getSku() == $batch->getProduct()->getSku();
+        });
+        if ($found->count() == 1) {
+            $found[0]->add($quantity);
+        } else if ($found->count() > 1) {
+            throw new \LogicException('You cannot have many Batch with the same Product');
+        } else {
+            $this->add(new Batch($product, $quantity));
+        }
     }
 }

@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\Location")
  * @ORM\Table(name="location")
  */
-final class Location
+class Location
 {
     const CODE_ROOT = 'root';
 

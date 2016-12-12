@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="operation")
  * @ORM\Entity
  */
-final class Operation
+class Operation
 {
     /**
      * @var int

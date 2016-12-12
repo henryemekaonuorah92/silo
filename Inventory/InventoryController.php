@@ -32,9 +32,11 @@ class InventoryController implements ControllerProviderInterface
                 throw new \Exception("Location $code does not exist");
             }
 
+            $parent = $location->getParent();
+
             return new JsonResponse([
                 'code' => $code,
-                'parent' => $location->getParent(),
+                'parent' => $parent ? $parent->getCode() : null,
                 'batches' => array_map(function(Batch $b){
                     return [
                         'product' => $b->getProduct()->getSku(),
