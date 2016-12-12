@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ORM\Table(name="batch")
  */
-class Batch
+final class Batch
 {
     /**
      * @var int
@@ -76,11 +76,10 @@ class Batch
     }
 
     /**
-     * @todo whacky, please refactor this
-     * @param $quantity
+     * @param int $quantity Positive or negative quantity of product to add
      * @return int
      */
-    public function addQuantity($quantity)
+    public function add($quantity)
     {
         $this->quantity += $quantity;
 
@@ -90,16 +89,29 @@ class Batch
     /**
      * @param mixed $operation
      */
-    public function setOperation($operation)
+    public function setOperation(Operation $operation)
     {
+        if ($this->location) {
+            throw new \LogicException("You cannot assign an Operation to a Batch with a Location");
+        }
+        if ($this->operation && $this->operation != $operation) {
+            throw new \LogicException("You cannot change the Operation of a Batch");
+        }
         $this->operation = $operation;
     }
 
     /**
      * @param mixed $location
      */
-    public function setLocation($location)
+    public function setLocation(Location $location)
     {
+
+        if ($this->operation) {
+            throw new \LogicException("You cannot assign a Location to a Batch with an Operation");
+        }
+        if ($this->location && $this->location != $location) {
+            throw new \LogicException("You cannot change the Location of a Batch");
+        }
         $this->location = $location;
     }
 
@@ -114,7 +126,7 @@ class Batch
     /**
      * @return Batch Value copy of $this with opposite quantity
      */
-    public function copyOpposite()
+    public function opposite()
     {
         return new self($this->product, -$this->quantity);
     }
@@ -124,7 +136,7 @@ class Batch
      */
     public function __toString()
     {
-        return 'Batch:'.$this->operation.$this->location;
+        return 'Batch:'.$this->operation.$this->location.':'.$this->product->getSku().'x'.$this->quantity;
     }
 
     /**

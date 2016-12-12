@@ -30,6 +30,15 @@ class BatchCollection extends ArrayCollection
     }
 
     /**
+     * Return a BatchCollection with a opposite copy of each Batch in $this
+     * @return static
+     */
+    public function opposite()
+    {
+        return new static(array_map(function (Batch $batch) {return $batch->opposite();}, $this->toArray()));
+    }
+
+    /**
      * {@inheritdoc}
      *
      * Specific to BatchCollection, contains a Batch with the same content
@@ -49,49 +58,28 @@ class BatchCollection extends ArrayCollection
     }
 
     /**
-     * @todo whacky, please refactor
-     * @param Collection $batches
-     * @return BatchCollection
-     */
-    public function incrementBy(Collection $batches)
-    {
-        return $this->changeBy($batches);
-    }
-
-    /**
-     * @todo whacky, please refactor
-     * @param Collection $batches
-     * @return BatchCollection
-     */
-    public function decrementBy(Collection $batches)
-    {
-        return $this->changeBy($batches, false);
-    }
-
-    /**
      * Merge a Batches collection into this one, keeping only one single Batch per different Product.
      *
-     * @todo I suspect this thing from being buggy and creating duplicate Batches
      * @param Collection $batches
      * @param bool $add
      * @return $this
      */
-    private function changeBy(Collection $batches, $add = true)
+    public function merge(Collection $batches)
     {
         $that = $this;
         $ref = $batches->toArray();
-        array_walk($ref, function (Batch $increment) use ($that, $add) {
+        array_walk($ref, function (Batch $increment) use ($that) {
             // If there's already a Product matching, we increment it,
             // or we add a new Batch entry
             $found = $this->filter(function (Batch $batch) use ($increment) {
                 return $increment->getProduct()->getSku() == $batch->getProduct()->getSku();
             });
             if ($found->count() == 1) {
-                $found[0]->addQuantity($add ? $increment->getQuantity() : $increment->copyOpposite()->getQuantity());
-            } if ($found->count() > 1) {
-                throw new \Exception('shit');
+                $found[0]->add($increment->getQuantity());
+            } else if ($found->count() > 1) {
+                throw new \LogicException('You cannot have many Batch with the same Product');
             } else {
-                $add ? $that->add($increment) : $that->add($increment->copyOpposite());
+                $that->add($increment);
             }
         });
 

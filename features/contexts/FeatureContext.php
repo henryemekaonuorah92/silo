@@ -181,6 +181,27 @@ class FeatureContext extends BehatContext
         }
     }
 
+    private function exclusiveDiff($expecteds, $currents) {
+        foreach($currents as $current) {
+            if (!$expecteds->contains($current)) {
+                throw new \Exception(sprintf(
+                    "Should not contain %s x %s",
+                    $current->getProduct()->getSku(),
+                    $current->getQuantity()
+                ));
+            }
+        }
+        foreach ($expecteds as $expected) {
+            if (!$currents->contains($expected)) {
+                throw new \Exception(sprintf(
+                    "Should contain %s x %s",
+                    $expected->getProduct()->getSku(),
+                    $expected->getQuantity()
+                ));
+            }
+        }
+    }
+
     /**
      * @Then /^(\w*) contains(?: nothing|:)$/
      */
@@ -191,26 +212,10 @@ class FeatureContext extends BehatContext
         $location = $locations->findOneBy(['code' => $code]);
 
         if ($table) {
-            $expecteds = $this->tableNodeToProductQuantities($table);
-            //Debug::dump($location->getBatches()); die;
-            foreach($location->getBatches() as $current) {
-                if (!$expecteds->contains($current)) {
-                    throw new \Exception(sprintf(
-                        "$code should not contain %s x %s",
-                        $current->getProduct()->getSku(),
-                        $current->getQuantity()
-                    ));
-                }
-            }
-            foreach ($expecteds as $expected) {
-                if (!$location->contains($expected)) {
-                    throw new \Exception(sprintf(
-                        "$code should contain %s x %s",
-                        $expected->getProduct()->getSku(),
-                        $expected->getQuantity()
-                    ));
-                }
-            }
+            $this->exclusiveDiff(
+                $this->tableNodeToProductQuantities($table),
+                $location->getBatches()
+            );
         } else {
             // nothing
             if (count($location->getBatches()) > 0) {
@@ -285,11 +290,14 @@ class FeatureContext extends BehatContext
                 return $location->getBatches();
             },
             function ($a, $b) {
-                return $a->incrementBy($b);
+                return $a->merge($b);
             },
             new ArrayCollection()
         );
 
-        Debug::dump($result);
+        $this->exclusiveDiff(
+            $this->tableNodeToProductQuantities($table),
+            $result
+        );
     }
 }
