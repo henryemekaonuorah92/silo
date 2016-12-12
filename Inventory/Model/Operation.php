@@ -86,7 +86,7 @@ class Operation
 
     /**
      * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="Batch", mappedBy="operation_id", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="Batch", mappedBy="operation", cascade={"persist"})
      */
     private $batches;
 

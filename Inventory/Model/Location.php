@@ -6,7 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\Location")
  * @ORM\Table(name="location")
  */
 class Location
@@ -38,7 +38,7 @@ class Location
     /**
      * One Operation has many Batches.
      *
-     * @ORM\OneToMany(targetEntity="Batch", mappedBy="location_id", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="Batch", mappedBy="location", cascade={"persist"})
      */
     private $batches;
 
@@ -149,5 +149,13 @@ class Location
     public function getParent()
     {
         return $this->parent;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCode()
+    {
+        return $this->code;
     }
 }

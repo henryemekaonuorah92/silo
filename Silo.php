@@ -34,6 +34,7 @@ class Silo extends \Silex\Application
         };
 
         $app->mount('/silo/doc', new \Silo\Base\DocController());
+        $app->mount('/silo/inventory', new \Silo\Inventory\InventoryController());
 
         $app->get('/silo/hello', function () {
             return 'Hello World';
