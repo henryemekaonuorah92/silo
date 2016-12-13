@@ -14,6 +14,8 @@ use Doctrine\Common\Util\Debug;
 //
 require_once __DIR__.'/../../../../../../vendor/autoload.php';
 require_once __DIR__.'/CoverageContext.php';
+require_once __DIR__.'/ThenContext.php';
+
 /**
  * Features context.
  */
@@ -50,6 +52,7 @@ class FeatureContext extends BehatContext
     {
         // $this->useContext('coverage', new CoverageContext($parameters));
         // $this->useContext('ranking', $ranking);
+        $this->useContext('then', new ThenContext());
     }
 
     /** @BeforeScenario */
@@ -72,6 +75,12 @@ class FeatureContext extends BehatContext
         $this->setRef('User', $user);
 
         $this->printDebug('Created the database');
+
+        foreach ($this->getSubcontexts() as $context) {
+            if ($context instanceof AppAwareContextInterface) {
+                $context->setApp($app);
+            }
+        }
     }
 
     /**
@@ -181,64 +190,6 @@ class FeatureContext extends BehatContext
         }
     }
 
-    private function exclusiveDiff($expecteds, $currents) {
-        foreach($currents as $current) {
-            if (!$expecteds->contains($current)) {
-                throw new \Exception(sprintf(
-                    "Should not contain %s x %s",
-                    $current->getProduct()->getSku(),
-                    $current->getQuantity()
-                ));
-            }
-        }
-        foreach ($expecteds as $expected) {
-            if (!$currents->contains($expected)) {
-                throw new \Exception(sprintf(
-                    "Should contain %s x %s",
-                    $expected->getProduct()->getSku(),
-                    $expected->getQuantity()
-                ));
-            }
-        }
-    }
-
-    /**
-     * @Then /^(\w*) contains(?: nothing|:)$/
-     */
-    public function containsNothing($code, TableNode $table = null)
-    {
-        $em = $this->app['em'];
-        $locations = $em->getRepository('Inventory:Location');
-        $location = $locations->findOneBy(['code' => $code]);
-
-        if ($table) {
-            $this->exclusiveDiff(
-                $this->tableNodeToProductQuantities($table),
-                $location->getBatches()
-            );
-        } else {
-            // nothing
-            if (count($location->getBatches()) > 0) {
-                throw new \Exception("$code should not contain something");
-            }
-        }
-    }
-
-    /**
-     * @Then /^(\w+) (?:parent is (\w+)|has no parent)$/
-     */
-    public function parentIs($child, $expectedParent = null)
-    {
-        $locations = $this->em->getRepository('Inventory:Location');
-        $parent = $locations->findOneBy(['code' => $child])->getParent();
-        if (!Inventory\Location::compare(
-            $parent,
-            $expectedParent ? $locations->findOneBy(['code' => $expectedParent]) : null
-        )) {
-            throw new \Exception("$child parent should be $expectedParent, but got $parent");
-        }
-    }
-
     /**
      * @Given /^show ([\w:,]+)$/
      */
@@ -276,30 +227,7 @@ class FeatureContext extends BehatContext
         $this->printDebug($output->fetch());
     }
 
-    /**
-     * @Then /^Walker\'s inclusive total for (\w+) is:$/
-     */
-    public function walkerSInclusiveTotalForAIs($code, TableNode $table)
-    {
-        $locations = $this->em->getRepository('Inventory:Location');
-        $location = $locations->findOneBy(['code' => $code]);
 
-        $result = $this->app['LocationWalker']->mapReduce(
-            $location,
-            function (Inventory\Location $location) {
-                return $location->getBatches();
-            },
-            function ($a, $b) {
-                return $a->merge($b);
-            },
-            new ArrayCollection()
-        );
-
-        $this->exclusiveDiff(
-            $this->tableNodeToProductQuantities($table),
-            $result
-        );
-    }
 
     /**
      * @Given /^"([^"]*)" is typed as "([^"]*)"$/

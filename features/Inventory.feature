@@ -48,5 +48,7 @@ Feature: Inventory basic movements
     Then Walker's inclusive total for A is:
       | X | 11 |
 
+  Scenario: You can remove things from a Location
+  Scenario: Batches with nothing left are removed from Location
   Scenario: Location has to be moved with a credible Operation
   Scenario: Replay to any point in time for stock calculation
