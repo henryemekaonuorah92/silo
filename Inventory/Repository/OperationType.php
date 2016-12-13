@@ -19,8 +19,9 @@ class OperationType extends EntityRepository
 
         $this->createOperationType = \Closure::bind(
             function ($name) {
+                $prop = 'name'; // hack to avoid IDE warnings
                 $type = new Model();
-                $type->name = $name;
+                $type->$prop = $name;
                 return $type;
             },
             null,
