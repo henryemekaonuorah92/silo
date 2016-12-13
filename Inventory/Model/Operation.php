@@ -91,6 +91,13 @@ class Operation
     private $batches;
 
     /**
+     * @var OperationType Categorizes this operation
+     * @ORM\ManyToOne(targetEntity="OperationType")
+     * @ORM\JoinColumn(name="type", referencedColumnName="operation_type_id", nullable=true)
+     */
+    private $operationType;
+
+    /**
      * @param User $requestedBy
      * @param $source
      * @param $target
@@ -108,6 +115,9 @@ class Operation
         }
         if (!$target instanceof Location && !is_null($target)) {
             throw new \LogicException('Target should be either Location or null');
+        }
+        if (is_null($source) && is_null($target)) {
+            throw new \LogicException('A source or a target should at least be specified');
         }
         if (!$content instanceof Location && !$content instanceof ArrayCollection) {
             throw new \LogicException('Content should be either Location or ArrayCollection');
@@ -190,5 +200,25 @@ class Operation
     public function getBatches()
     {
         return BatchCollection::fromCollection($this->batches)->copy();
+    }
+
+    /**
+     * @param OperationType $type
+     */
+    public function setType(OperationType $type)
+    {
+        $this->operationType = $type;
+    }
+
+    /**
+     * @return null|string Type of this operation.
+     */
+    public function getType()
+    {
+        if ($this->operationType) {
+            return $this->operationType->getName();
+        }
+
+        return null;
     }
 }

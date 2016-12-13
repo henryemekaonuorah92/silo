@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  * An immutable (we hope so) quantity of Product.
  *
  * @ORM\Entity
- * @ORM\Table(name="batch")
+ * @ORM\Table(name="batch", options={"comment":"Quantity of Product, immutable when Operation is set"})
  */
 class Batch
 {
@@ -23,7 +23,7 @@ class Batch
 
     /**
      * @var int
-     * @ORM\Column(name="quantity", type="integer")
+     * @ORM\Column(name="quantity", type="integer", options={"comment":"How much of a Product"})
      */
     private $quantity;
 
