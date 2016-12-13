@@ -191,45 +191,6 @@ class FeatureContext extends BehatContext
     }
 
     /**
-     * @Given /^show ([\w:,]+)$/
-     */
-    public function showInventoryLocation($tables)
-    {
-        $output = new Symfony\Component\Console\Output\BufferedOutput();
-
-        foreach (explode(',', $tables) as $table) {
-            $tableName = $this->em->getClassMetadata($table)->getTableName();
-            $sql = "SELECT * FROM $tableName";
-            $stmt = $this->em->getConnection()->prepare($sql);
-            $stmt->execute();
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            if (empty($result)) {
-                $this->printDebug("No data in $table");
-
-                continue;
-            }
-
-            $rows = array_map(function ($row) {
-                return array_values($row);
-            }, $result);
-
-            $headers = array_keys($result[0]);
-
-            $output->writeln("$table");
-            $table = new Symfony\Component\Console\Helper\Table($output);
-            $table
-                ->setHeaders($headers)
-                ->setRows($rows);
-            $table->render();
-        }
-
-        $this->printDebug($output->fetch());
-    }
-
-
-
-    /**
      * @Given /^"([^"]*)" is typed as "([^"]*)"$/
      */
     public function isTypedAs($ref, $name)
