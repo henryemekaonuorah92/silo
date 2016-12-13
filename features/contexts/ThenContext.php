@@ -122,7 +122,7 @@ class ThenContext extends BehatContext implements AppAwareContextInterface
      * @Given /^show ([\w:,]+)$/
      * @todo This is a debugging function, should be somewhere else
      */
-    public function showInventoryLocation($tables)
+    public function showTable($tables)
     {
         $em = $this->app['em'];
         $output = new Symfony\Component\Console\Output\BufferedOutput();
@@ -130,6 +130,44 @@ class ThenContext extends BehatContext implements AppAwareContextInterface
         foreach (explode(',', $tables) as $table) {
             $tableName = $em->getClassMetadata($table)->getTableName();
             $sql = "SELECT * FROM $tableName";
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if (empty($result)) {
+                $this->printDebug("No data in $table");
+
+                continue;
+            }
+
+            $rows = array_map(function ($row) {
+                return array_values($row);
+            }, $result);
+
+            $headers = array_keys($result[0]);
+
+            $output->writeln("$table");
+            $table = new Symfony\Component\Console\Helper\Table($output);
+            $table
+                ->setHeaders($headers)
+                ->setRows($rows);
+            $table->render();
+        }
+
+        $this->printDebug($output->fetch());
+    }
+
+    /**
+     * @Given /^show raw ([\w:,]+)$/
+     * @todo This is a debugging function, should be somewhere else
+     */
+    public function showRawTable($tables)
+    {
+        $em = $this->app['em'];
+        $output = new Symfony\Component\Console\Output\BufferedOutput();
+
+        foreach (explode(',', $tables) as $table) {
+            $sql = "SELECT * FROM $table";
             $stmt = $em->getConnection()->prepare($sql);
             $stmt->execute();
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
