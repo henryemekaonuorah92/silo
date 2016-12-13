@@ -8,12 +8,24 @@ use Doctrine\ORM\Mapping;
 
 class OperationType extends EntityRepository
 {
+    private $createOperationType;
+
     /**
      * {@inheritdoc}
      */
     public function __construct($em, Mapping\ClassMetadata $class)
     {
         parent::__construct($em, $class);
+
+        $this->createOperationType = \Closure::bind(
+            function ($name) {
+                $type = new Model();
+                $type->name = $name;
+                return $type;
+            },
+            null,
+            Model::class
+        );
     }
 
     /**
@@ -23,9 +35,9 @@ class OperationType extends EntityRepository
      */
     public function getByName($name)
     {
-        $instance = $this->findOneByName($name);
+        $instance = $this->findOneBy(['name' => $name]);
         if (! $instance) {
-            $instance = new Model($name);
+            $instance = call_user_func($this->createOperationType, $name);
             $this->_em->persist($instance);
             $this->_em->flush($instance);
         }

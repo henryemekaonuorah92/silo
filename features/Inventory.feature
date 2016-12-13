@@ -8,7 +8,9 @@ Feature: Inventory basic movements
     Given Locations A,B
     And B has no parent
     And an Operation "one" to A moving B
+    And "one" is typed as "stuff"
     When "one" is executed
+    Then show Inventory:Location,Inventory:Batch,Inventory:Operation,Inventory:OperationType
     Then B parent is A
 
   Scenario: Batch can be created in a Location with an Operation

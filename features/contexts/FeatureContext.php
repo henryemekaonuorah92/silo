@@ -256,7 +256,7 @@ class FeatureContext extends BehatContext
             if (empty($result)) {
                 $this->printDebug("No data in $table");
 
-                return;
+                continue;
             }
 
             $rows = array_map(function ($row) {
@@ -299,5 +299,17 @@ class FeatureContext extends BehatContext
             $this->tableNodeToProductQuantities($table),
             $result
         );
+    }
+
+    /**
+     * @Given /^"([^"]*)" is typed as "([^"]*)"$/
+     */
+    public function isTypedAs($ref, $name)
+    {
+        $type = $this->app['em']->getRepository('Inventory:OperationType')->getByName($name);
+
+        $op = $this->getRef($ref);
+        $op->setType($type);
+        $this->app['em']->flush();
     }
 }
