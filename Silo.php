@@ -30,10 +30,6 @@ class Silo extends \Silex\Application
             ]));
         }
 
-        $app['LocationWalker'] = function () use ($app) {
-            return new LocationWalker($app['em']);
-        };
-
         $app->mount('/silo/doc', new \Silo\Base\DocController());
         $app->mount('/silo/inventory', new \Silo\Inventory\InventoryController());
 
