@@ -3,6 +3,8 @@
 namespace Silo\Inventory\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Silo\Inventory\LocationWalker;
+use Silo\Inventory\Model\BatchCollection;
 use Silo\Inventory\Model\Location as Model;
 
 class Location extends EntityRepository
@@ -26,5 +28,25 @@ class Location extends EntityRepository
         }
 
         return $location;
+    }
+
+    /**
+     * @param $location
+     * @return \Silo\Inventory\Model\Batch[]
+     */
+    public function getInclusiveContent($location)
+    {
+        $walker = new LocationWalker($this->_em);
+
+        return $walker->mapReduce(
+            $location,
+            function (Model $l) {
+                return $l->getBatches();
+            },
+            function ($a, $b) {
+                return $a->merge($b);
+            },
+            new BatchCollection()
+        );
     }
 }

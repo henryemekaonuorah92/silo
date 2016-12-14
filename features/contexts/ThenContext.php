@@ -23,20 +23,9 @@ class ThenContext extends BehatContext implements AppAwareContextInterface
         $locations = $this->app['em']->getRepository('Inventory:Location');
         $location = $locations->findOneBy(['code' => $code]);
 
-        $result = $this->app['LocationWalker']->mapReduce(
-            $location,
-            function (Inventory\Location $location) {
-                return $location->getBatches();
-            },
-            function ($a, $b) {
-                return $a->merge($b);
-            },
-            new ArrayCollection()
-        );
-
         $this->exclusiveDiff(
             $this->tableNodeToProductQuantities($table),
-            $result
+            $locations->getInclusiveContent($location)
         );
     }
 
