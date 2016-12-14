@@ -87,7 +87,8 @@ class BatchCollection extends ArrayCollection
             return $product->getSku() == $batch->getProduct()->getSku();
         });
         if ($found->count() == 1) {
-            $found[0]->add($quantity);
+            $foundValues = $found->getValues();
+            $foundValues[0]->add($quantity);
         } else if ($found->count() > 1) {
             throw new \LogicException('You cannot have many Batch with the same Product');
         } else {
