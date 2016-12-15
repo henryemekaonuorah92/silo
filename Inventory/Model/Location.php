@@ -7,7 +7,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\Location")
- * @ORM\Table(name="location")
+ * @ORM\Table(name="location", uniqueConstraints={
+ *     @ORM\UniqueConstraint(name="location_idx", columns={"code"})
+ * })
  */
 class Location
 {
@@ -24,13 +26,12 @@ class Location
 
     /**
      * @var string
-     * @todo this shall be UNIQUE constrained
-     * @ORM\Column(name="code", type="string", length=30, nullable=true)
+     * @ORM\Column(name="code", type="string", length=32, nullable=true)
      */
     private $code;
 
     /**
-     * @ORM\OneToOne(targetEntity="Location")
+     * @ORM\ManyToOne(targetEntity="Location")
      * @ORM\JoinColumn(name="parent", referencedColumnName="location_id")
      */
     private $parent;
