@@ -2,11 +2,19 @@
 
 namespace Silo\Inventory;
 
+use Doctrine\Common\Util\Debug;
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Silo\Inventory\Model\Batch;
+use Silo\Inventory\Model\BatchCollection;
 use Silo\Inventory\Model\Location;
+use Silo\Inventory\Model\Operation;
+use Silo\Inventory\Model\User;
+use Silo\Inventory\Validator\Constraints\LocationExists;
+use Silo\Inventory\Validator\Constraints\SkuExists;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Validator\Constraints as Constraint;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * Endpoints
@@ -17,7 +25,9 @@ class InventoryController implements ControllerProviderInterface
     {
         $controllers = $app['controllers_factory'];
 
-        // Get a documentation page
+        /**
+         * Inspect a Location given its code
+         */
         $controllers->get('/location/{code}', function ($code, Application $app) {
             $locations = $app['em']->getRepository('Inventory:Location');
 
@@ -48,6 +58,63 @@ class InventoryController implements ControllerProviderInterface
                 }, $locations->findByParent($location))
             ]);
         })->assert('path', '.+');
+
+        /**
+         * Create operations massively by uploading a CSV file
+         */
+        $controllers->post('/operation/import', function() use ($app){
+            $csv = new \parseCSV($_FILES['file']['tmp_name']);
+            $operationMap = [];
+            $locations = $app['em']->getRepository('Inventory:Location');
+            foreach ($csv->data as $line) {
+                $line++;
+                /** @var ConstraintViolationList $violations */
+                $violations = $app['validator']->validate($line, [
+                    new Constraint\Collection([
+                        'source' => [new LocationExists()],
+                        'target' => [new LocationExists()],
+                        'sku' => [new Constraint\Required(), new SkuExists()],
+                        'quantity' => new Constraint\Range(['min' => -100, 'max' => 100])
+                    ])
+                ]);
+
+                if ($violations->count() > 0) {
+                    return new JsonResponse(['errors' => array_map(function($violation){
+                        return (string) $violation;
+                    },iterator_to_array($violations->getIterator()))]);
+                }
+
+                $product = $app['em']->getRepository('Inventory:Product')->findOneBy(['sku' => $line['sku']]);
+                $batch = new Batch($product, $line['quantity']);
+
+                $key = $line['source'].','.$line['target'];
+                if (!isset($operationMap[$key])) {
+                    $operationMap[$key] = new BatchCollection();
+                }
+
+                $operationMap[$key]->addBatch($batch);
+            }
+
+            // Build now the corresponding operations
+            foreach ($operationMap as $operation => $batches) {
+                list($sourceCode, $targetCode) = explode(',', $operation);
+
+                $source = !empty($sourceCode) ?
+                    $app['em']->getRepository('Inventory:Location')->findOneBy(['code' => $sourceCode]) :
+                    null ;
+                $target = !empty($targetCode) ?
+                    $app['em']->getRepository('Inventory:Location')->findOneBy(['code' => $targetCode]) :
+                    null ;
+
+                $operation = new Operation($app['current_user'], $source, $target, $batches);
+                $app['em']->persist($operation);
+                $app['em']->flush();
+                $operation->execute($app['current_user']);
+                $app['em']->flush();
+            }
+
+            return new JsonResponse([]);
+        });
 
         return $controllers;
     }

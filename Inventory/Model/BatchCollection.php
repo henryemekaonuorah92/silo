@@ -75,6 +75,11 @@ class BatchCollection extends ArrayCollection
         return $this;
     }
 
+    public function addBatch(Batch $batch)
+    {
+        $this->addProduct($batch->getProduct(), $batch->getQuantity());
+    }
+
     /**
      * Add a single quantity of product to the current BatchCollection
      *

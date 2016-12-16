@@ -2,8 +2,9 @@
 
 namespace Silo;
 
-use Silo\Inventory\LocationWalker;
+use Silo\Base\ConstraintValidatorFactory;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Validation;
 
 /**
  * Main Silo entry point, exposed as a Container.
@@ -29,6 +30,13 @@ class Silo extends \Silex\Application
                 __DIR__.'/Order/Model',
             ]));
         }
+
+        $app['validator'] = function() use ($app) {
+            return Validation::createValidatorBuilder()
+                ->addMethodMapping('loadValidatorMetadata')
+                ->setConstraintValidatorFactory(new ConstraintValidatorFactory($app))
+                ->getValidator();
+        };
 
         $app->mount('/silo/doc', new \Silo\Base\DocController());
         $app->mount('/silo/inventory', new \Silo\Inventory\InventoryController());
