@@ -17,7 +17,7 @@ class DocController implements ControllerProviderInterface
 
         // Get a documentation page
         $controllers->get('/{path}', function ($path, Application $app) {
-            $content = 'Content not found';
+            $content = 'Content not found '.$path;
             $file = __DIR__.'/../doc/'.strtolower($path).'.md';
             if (file_exists($file)) {
                 $content = file_get_contents($file);
