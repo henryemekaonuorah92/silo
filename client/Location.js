@@ -39,11 +39,15 @@ module.exports = React.createClass({
                 {data ? (<div>
                     Parent: {data.parent}<br />
 
-                    Childs: <ul>{data.childs.map(function(child, key){return <li key="key">{child}</li>;})}</ul>
-                    Batches: <ul>{data.batches.map(function(batch, key){return <li key="key">{batch.product} {batch.quantity}</li>;})}</ul>
+                    Childs: <ul>{data.childs.map(function(child, key){return <li key={key}>{child}</li>;})}</ul>
+                    Batches: <br />
+                    <table className="table table-striped">
+                        <thead><tr><th>SKU</th><th>Quantity</th></tr></thead><tbody>
+                        {data.batches.map(function(batch, key){return <tr key={key}>
+                            <td>{batch.product}</td><td>{batch.quantity}</td>
+                        </tr>;})}
+                    </tbody></table>
                 </div>) : "Loading data"}
-
-
             </div>
         );
     }
