@@ -38,7 +38,6 @@ class Silo extends \Silex\Application
                 ->getValidator();
         };
 
-        $app->mount('/silo/doc', new \Silo\Base\DocController());
         $app->mount('/silo/inventory', new \Silo\Inventory\InventoryController());
 
         $app->get('/silo/hello', function () {

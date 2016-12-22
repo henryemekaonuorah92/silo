@@ -1,7 +1,7 @@
 ;
 import React from 'react';
 import {Alert} from 'react-bootstrap';
-
+// @todo put some proofing in operation screen (no null loca)
 module.exports = React.createClass({
     getInitialState: function(){return {
         errors: [],
