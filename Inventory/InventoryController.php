@@ -52,12 +52,35 @@ class InventoryController implements ControllerProviderInterface
                         'product' => $b->getProduct()->getSku(),
                         'quantity' => $b->getQuantity()
                     ];
-                }, $location->getBatches()->toArray()),
+                }, array_slice($location->getBatches()->toArray(), 0, 5)),
                 'childs' => array_map(function(Location $l){
                     return $l->getCode();
                 }, $locations->findByParent($location))
             ]);
-        })->assert('path', '.+');
+        });
+
+        /**
+         * Inspect a Location given its code
+         */
+        $controllers->get('/location/{code}/batches', function ($code, Application $app) {
+            $locations = $app['em']->getRepository('Inventory:Location');
+
+            /** @var Location $location */
+            $location = $locations->findOneByCode($code);
+
+            if (!$location) {
+                throw new \Exception("Location $code does not exist");
+            }
+
+            return new JsonResponse(
+                array_map(function(Batch $b){
+                    return [
+                        'product' => $b->getProduct()->getSku(),
+                        'quantity' => $b->getQuantity()
+                    ];
+                }, array_slice($location->getBatches()->toArray(), 0, 5))
+            );
+        });
 
         /**
          * Create operations massively by uploading a CSV file

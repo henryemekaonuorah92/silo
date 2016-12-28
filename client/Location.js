@@ -1,11 +1,14 @@
 ;
 import React from 'react';
+import BatchEditor from './Editor/BatchEditor';
+import DataStore from './Editor/DataStore';
 
 module.exports = React.createClass({
 
     getInitialState: function () {
         return {
-            data: null
+            data: {},
+            batches: new DataStore([])
         };
     },
 
@@ -28,25 +31,32 @@ module.exports = React.createClass({
                 headers: {'Accept': 'application/json'}
             }
         );
+
+        $.ajax(
+            this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches',
+            {
+                success: function (data) {
+                    this.setState({
+                        batches: new DataStore(data)
+                    });
+                }.bind(this),
+                headers: {'Accept': 'application/json'}
+            }
+        );
     },
 
 
     render: function(){
-        const data = this.state.data;
+        let data = this.state.data;
         return (
             <div>
                 <h3>{this.props.code}</h3>
                 {data ? (<div>
                     Parent: {data.parent}<br />
 
-                    Childs: <ul>{data.childs.map(function(child, key){return <li key={key}>{child}</li>;})}</ul>
-                    Batches: <br />
-                    <table className="table table-striped">
-                        <thead><tr><th>SKU</th><th>Quantity</th></tr></thead><tbody>
-                        {data.batches.map(function(batch, key){return <tr key={key}>
-                            <td>{batch.product}</td><td>{batch.quantity}</td>
-                        </tr>;})}
-                    </tbody></table>
+                    Childs: <ul>{data.childs && data.childs.map(function(child, key){return <li key={key}>{child}</li>;})}</ul>
+                    Batches:
+                    <BatchEditor batches={this.state.batches} />
                 </div>) : "Loading data"}
             </div>
         );
