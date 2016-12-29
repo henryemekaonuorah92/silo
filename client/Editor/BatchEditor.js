@@ -1,10 +1,10 @@
 ;
 import React from 'react';
-import {Well, Panel, Button, Alert} from 'react-bootstrap';
 import {Table, Column, Cell} from 'fixed-data-table';
 import Measure from 'react-measure';
 import DataStoreWrapper from './DataStoreWrapper';
 import DownloadDataLink from '../Common/DownloadDataLink';
+import UploadModalMenu from './UploadModal';
 
 const TextCell = ({rowIndex, data, col}) => {
     return (<Cell>
@@ -25,7 +25,7 @@ class BatchEditor extends React.Component {
                 height: -1,
             },
             data: {},
-            filteredDataList: null,
+            filteredDataList: null
         };
 
         this._onFilterChange = this._onFilterChange.bind(this);
@@ -61,19 +61,6 @@ class BatchEditor extends React.Component {
     render(){
         let batches = this.state.filteredDataList || this.props.batches;
 
-        /*
-         <div className="input-group">
-         <input className="form-control" type="file" ref="file" />
-         <span className="input-group-btn">
-         <button onClick={this.handleClick} className="btn">Upload</button>
-         </span>
-         </div>
-
-         <div className="shr"><span>or</span></div>
-
-         <button onClick={this.handleClick} className="btn">Add</button>
-         */
-
         return (
             <div className="panel panel-default">
                 <div className="panel-heading nav navbar-default">
@@ -83,8 +70,7 @@ class BatchEditor extends React.Component {
                                 <li><h4>BatchEditor</h4></li>
                                 <li className="dropdown"> <a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Edit <span className="caret"></span></a>
                                     <ul className="dropdown-menu">
-                                        <li><a onClick={this.props.onRemoveAll}>Remove all</a></li>
-                                        <li><a href="#">Merge a CSV</a></li>
+                                        <li><UploadModalMenu /></li>
                                     </ul>
                                 </li>
 
@@ -100,13 +86,10 @@ class BatchEditor extends React.Component {
 
                                 <li><input
                                     onChange={this._onFilterChange}
-                                    placeholder="Filter by First Name"
+                                    placeholder="Filter by SKU"
                                 /></li>
 
                                 <li><span>{batches.getSize()} batches</span></li>
-
-
-
                             </ul>
                         </div>
                     </div>
@@ -117,7 +100,7 @@ class BatchEditor extends React.Component {
                             {this.state.dimensions.width != -1 && (
                                 <Table
                                     width={this.state.dimensions.width} // Bootstrap 15px padding on row
-                                    height={200}
+                                    height={400}
                                     headerHeight={0}
                                     offsetHeight={150}
                                     rowsCount={batches.getSize()}
@@ -133,7 +116,7 @@ class BatchEditor extends React.Component {
                                 </Table>
                             )}
                         </div>
-                    </Measure> : <div className="panel-body">Fetching data...</div>
+                    </Measure> : <div className="panel-body">Fetching or no data...</div>
                 }
             </div>
         );
