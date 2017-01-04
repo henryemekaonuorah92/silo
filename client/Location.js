@@ -2,6 +2,7 @@
 import React from 'react';
 import BatchEditor from './Editor/BatchEditor';
 import DataStore from './Editor/DataStore';
+import Link from './Common/Link';
 
 module.exports = React.createClass({
 
@@ -52,10 +53,13 @@ module.exports = React.createClass({
             <div>
                 <h3>{this.props.code}</h3>
                 {data ? (<div>
-                    Parent: {data.parent}<br />
-
-                    Childs: <ul>{data.childs && data.childs.map(function(child, key){return <li key={key}>{child}</li>;})}</ul>
-                    Batches:
+                        <b>Parent:</b>&nbsp;{data.parent ? <Link route="location" code={data.parent} /> : "No parent"}<br />
+                        <b>Childs:</b>&nbsp;
+                        {data.childs ? <ul>{data.childs.map(function(child, key){return <li key={key}>
+                                <Link route="location" code={child} />
+                            </li>;})}</ul> : "No child"
+                        }<br />
+                        <b>Batches:</b>
                     <BatchEditor batches={this.state.batches} />
                 </div>) : "Loading data"}
             </div>

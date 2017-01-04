@@ -30,17 +30,8 @@ class InventoryController implements ControllerProviderInterface
          */
         $controllers->get('/location/{code}', function ($code, Application $app) {
             $locations = $app['em']->getRepository('Inventory:Location');
-
             /** @var Location $location */
-            if ($code == Location::CODE_ROOT) {
-                $location = $locations->getSystemLocation($code);
-            } else {
-                $location = $locations->findOneByCode($code);
-            }
-
-            if (!$location) {
-                throw new \Exception("Location $code does not exist");
-            }
+            $location = $locations->forceFindOneByCode($code);
 
             $parent = $location->getParent();
 

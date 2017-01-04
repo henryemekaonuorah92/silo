@@ -49,4 +49,15 @@ class Location extends EntityRepository
             new BatchCollection()
         );
     }
+
+    public function forceFindOneByCode($code)
+    {
+        $location = $this->findOneByCode($code);
+
+        if (!$location) {
+            throw new \Exception("Location $code does not exist");
+        }
+
+        return $location;
+    }
 }
