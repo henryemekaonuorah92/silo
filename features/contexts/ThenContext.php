@@ -51,7 +51,8 @@ class ThenContext extends BehatContext implements AppAwareContextInterface
     }
 
     /**
-     * @Then /^(\w*) contains(?: nothing|:)$/
+     * @Then /^(\w+) is empty$/
+     * @Then /^(\w+) contains(?: nothing|:)$/
      */
     public function containsNothing($code, TableNode $table = null)
     {

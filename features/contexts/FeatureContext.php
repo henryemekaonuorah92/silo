@@ -140,7 +140,31 @@ class FeatureContext extends BehatContext
     }
 
     /**
-     * @Given /^an Operation "([^"]*)"(?: from (\w+))?(?: to (\w+))?(?: with:| moving (\w+))$/
+     * @Given /^an Operation "([^"]*)"(?: to (\w+)) with:$/
+     */
+    public function anOperationToAWith($ref, $to, TableNode $table)
+    {
+        $this->anOperationFromToWith($ref, null, $to, $table);
+    }
+
+    /**
+     * @Given /^an Operation "([^"]*)"(?: from (\w+)) with:$/
+     */
+    public function anOperationFromAWith($ref, $from, TableNode $table)
+    {
+        $this->anOperationFromToWith($ref, $from, null, $table);
+    }
+
+    /**
+     * @Given /^an Operation "([^"]*)"(?: to (\w+)) moving (\w+)$/
+     */
+    public function anOperationToAMovingB($ref, $to, $what)
+    {
+        $this->anOperationFromToWith($ref, null, $to, $what);
+    }
+
+    /**
+     * @Given /^an Operation "([^"]*)"(?: from (\w+))(?: to (\w+))(?: with:| moving (\w+))$/
      */
     public function anOperationFromToWith($ref, $from, $to, $table)
     {

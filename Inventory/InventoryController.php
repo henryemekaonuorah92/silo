@@ -56,9 +56,16 @@ class InventoryController implements ControllerProviderInterface
          * Inspect a Location given its code
          */
         $controllers->get('/location/{code}/batches', function ($code, Application $app) {
-            $locations = $app['em']->getRepository('Inventory:Location');
-            /** @var Location $location */
-            $location = $locations->forceFindOneByCode($code);
+            $query = $app['em']->createQueryBuilder();
+            $query->select('location, batch, product')
+                ->from('Inventory:Location', 'location')
+                ->innerJoin('location.batches', 'batch')
+                ->innerJoin('batch.product', 'product')
+                ->andWhere('location.code = :code')
+                ->andWhere('batch.quantity != 0')
+                ->setParameter('code', $code);
+
+            $result = $query->getQuery()->execute();
 
             return new JsonResponse(
                 array_map(function(Batch $b){
@@ -66,7 +73,7 @@ class InventoryController implements ControllerProviderInterface
                         'product' => $b->getProduct()->getSku(),
                         'quantity' => $b->getQuantity()
                     ];
-                }, $location->getBatches()->toArray())
+                }, $result[0]->getBatches()->toArray())
             );
         });
 
