@@ -17,10 +17,11 @@ module.exports = React.createClass({
         /**
          * Callback used when download has been succesfull
          */
-        onSuccess: React.PropTypes.func
+        onSuccess: React.PropTypes.func,
+        type: React.PropTypes.string
     },
     getDefaultProps: function(){return {
-
+        type: 'POST'
     }},
     handleClick: function(){
         let fileInput = this.refs.file;
@@ -34,7 +35,7 @@ module.exports = React.createClass({
 
         $.ajax({
             url: this.props.url,
-            type: 'POST',
+            type: this.props.type,
             data: formData,
             dataType: 'json',
             processData: false,

@@ -32,7 +32,6 @@ module.exports = React.createClass({
                 headers: {'Accept': 'application/json'}
             }
         );
-
         $.ajax(
             this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches',
             {
@@ -49,6 +48,7 @@ module.exports = React.createClass({
 
     render: function(){
         let data = this.state.data;
+        let uploadUrl = this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches';
         return (
             <div>
                 <h3>{this.props.code}</h3>
@@ -60,7 +60,7 @@ module.exports = React.createClass({
                             </li>;})}</ul> : "No child"
                         }<br />
                         <b>Batches:</b>
-                    <BatchEditor batches={this.state.batches} />
+                    <BatchEditor batches={this.state.batches} uploadUrl={uploadUrl} />
                 </div>) : "Loading data"}
             </div>
         );

@@ -15,6 +15,10 @@ class DataStore {
         return this._data[index];
     }
 
+    getAll() {
+        return this._data;
+    }
+
     getSize() {
         return this.size;
     }

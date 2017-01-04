@@ -8,7 +8,7 @@ module.exports = React.createClass({
 
     propTypes: {
         filename: React.PropTypes.string,
-        exportFile: React.PropTypes.func,
+        exportFile: React.PropTypes.func
     },
 
     getDefaultProps() {

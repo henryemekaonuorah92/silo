@@ -60,14 +60,6 @@ class BatchEditor extends React.Component {
 
     render(){
         let batches = this.state.filteredDataList || this.props.batches;
-        /*
-         <li><h4>BatchEditor</h4></li>
-         <li className="dropdown"> <a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Edit <span className="caret"></span></a>
-         <ul className="dropdown-menu">
-         <li><UploadModalMenu /></li>
-         </ul>
-         </li>
-         */
         return (
             <div className="panel panel-default">
                 <div className="panel-heading nav navbar-default">
@@ -75,11 +67,16 @@ class BatchEditor extends React.Component {
                         <div>
                             <ul className="nav navbar-nav">
                                 <li><h4>BatchEditor</h4></li>
-
+                                <li className="dropdown"> <a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Edit <span className="caret"></span></a>
+                                    <ul className="dropdown-menu">
+                                        <li><UploadModalMenu url={this.props.uploadUrl} /></li>
+                                    </ul>
+                                </li>
                                 <li>
                                     <DownloadDataLink exportFile={function(){
-                                        return batches._data.map(function(data){
-                                            return data.product+';'+data.quantity
+                                        let header = "sku,quantity\n";
+                                        return header + batches.getAll().map(function(data){
+                                            return data.product+','+data.quantity
                                         }).join("\n")
                                     }}>
                                         Export

@@ -9,6 +9,12 @@ class DataStoreWrapper {
         return this._indexMap.length;
     }
 
+    getAll() {
+        return this._indexMap.map(function(x){
+            return this._data.getObjectAt(x);
+        }.bind(this));
+    }
+
     getObjectAt(index) {
         return this._data.getObjectAt(
             this._indexMap[index],
