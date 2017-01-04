@@ -55,13 +55,8 @@ class InventoryController implements ControllerProviderInterface
          */
         $controllers->get('/location/{code}/batches', function ($code, Application $app) {
             $locations = $app['em']->getRepository('Inventory:Location');
-
             /** @var Location $location */
-            $location = $locations->findOneByCode($code);
-
-            if (!$location) {
-                throw new \Exception("Location $code does not exist");
-            }
+            $location = $locations->forceFindOneByCode($code);
 
             return new JsonResponse(
                 array_map(function(Batch $b){
