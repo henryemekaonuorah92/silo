@@ -100,4 +100,15 @@ class BatchCollection extends ArrayCollection
             $this->add(new Batch($product, $quantity));
         }
     }
+
+    /**
+     * Compute difference between two BatchCollections by comparing Batches one to one
+     *
+     * @param self $from
+     * @return self $this - $from
+     */
+    public function diff(self $from)
+    {
+        return $this->copy()->merge($from->opposite());
+    }
 }
