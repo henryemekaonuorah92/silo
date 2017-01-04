@@ -78,7 +78,7 @@ class InventoryController implements ControllerProviderInterface
                         'product' => $b->getProduct()->getSku(),
                         'quantity' => $b->getQuantity()
                     ];
-                }, array_slice($location->getBatches()->toArray(), 0, 5))
+                }, $location->getBatches()->toArray())
             );
         });
 
