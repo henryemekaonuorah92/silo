@@ -52,8 +52,12 @@ module.exports = React.createClass({
         });
     },
     render: function(){
+        const rem = Object.assign({}, this.props);
+        delete rem.url;
+        delete rem.onSuccess;
+
         return (
-            <div {...this.props}>
+            <div {...rem}>
                 <div className="input-group">
                     <input className="form-control" type="file" ref="file" />
                     <span className="input-group-btn">
