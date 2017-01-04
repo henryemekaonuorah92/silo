@@ -6,13 +6,16 @@ import UploadField from './UploadField';
 module.exports = React.createClass({
     getInitialState() {
         return {
-            merge: false,
+            merge: true,
             showModal: false
         };
     },
     propTypes: {
         //url: React.propTypes.string.required
     },
+    getDefaultProps: function(){return {
+        onSuccess: function(){}
+    }},
     close() {
         this.setState({ showModal: false });
     },
@@ -22,7 +25,8 @@ module.exports = React.createClass({
     },
 
     handleSuccess() {
-        console.log("yop");
+        this.setState({ showModal: false });
+        this.props.onSuccess();
     },
 
     handleChange(flag) {

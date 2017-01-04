@@ -7,7 +7,8 @@ import {Alert} from 'react-bootstrap';
  */
 module.exports = React.createClass({
     getInitialState: function(){return {
-        errors: []
+        errors: [],
+        wip: false
     }},
     propTypes: {
         /**
@@ -15,7 +16,7 @@ module.exports = React.createClass({
          */
         url: React.PropTypes.string.isRequired,
         /**
-         * Callback used when download has been succesfull
+         * Callback used when download has been successful
          */
         onSuccess: React.PropTypes.func,
         type: React.PropTypes.string
@@ -24,6 +25,7 @@ module.exports = React.createClass({
         type: 'POST'
     }},
     handleClick: function(){
+        this.setState({wip:true});
         let fileInput = this.refs.file;
         if (!fileInput.files[0]) {
             this.setState({errors: ["Please select a file."]});
@@ -41,14 +43,15 @@ module.exports = React.createClass({
             processData: false,
             contentType: false,
             success: function (res) {
-                if (res.errors) {
-                    this.setState({errors: res.errors});
+                if (res && res.errors) {
+                    this.setState({errors: res.errors, wip:false});
                 } else {
+                    this.setState({errors: [], wip:false});
                     this.props.onSuccess(res);
                 }
             }.bind(this),
             error: function () {
-                this.setState({errors: ["Error while uploading."]});
+                this.setState({errors: ["Error while uploading."], wip:false});
             }.bind(this)
         });
     },
@@ -62,7 +65,7 @@ module.exports = React.createClass({
                 <div className="input-group">
                     <input className="form-control" type="file" ref="file" />
                     <span className="input-group-btn">
-                        <button onClick={this.handleClick} className="btn btn-primary">Upload</button>
+                        <button onClick={this.handleClick} className="btn btn-primary" disabled={this.state.wip}>Upload</button>
                     </span>
                 </div>
 

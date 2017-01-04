@@ -32,6 +32,13 @@ module.exports = React.createClass({
                 headers: {'Accept': 'application/json'}
             }
         );
+        this.refresh();
+    },
+
+    refresh: function(){
+        this.setState({
+            batches: new DataStore([])
+        });
         $.ajax(
             this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches',
             {
@@ -44,7 +51,6 @@ module.exports = React.createClass({
             }
         );
     },
-
 
     render: function(){
         let data = this.state.data;
@@ -60,7 +66,7 @@ module.exports = React.createClass({
                             </li>;})}</ul> : "No child"
                         }<br />
                         <b>Batches:</b>
-                    <BatchEditor batches={this.state.batches} uploadUrl={uploadUrl} />
+                    <BatchEditor batches={this.state.batches} uploadUrl={uploadUrl} onNeedRefresh={this.refresh} />
                 </div>) : "Loading data"}
             </div>
         );

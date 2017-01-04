@@ -69,7 +69,7 @@ class BatchEditor extends React.Component {
                                 <li><h4>BatchEditor</h4></li>
                                 <li className="dropdown"> <a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Edit <span className="caret"></span></a>
                                     <ul className="dropdown-menu">
-                                        <li><UploadModalMenu url={this.props.uploadUrl} /></li>
+                                        <li><UploadModalMenu url={this.props.uploadUrl} onSuccess={this.props.onNeedRefresh} /></li>
                                     </ul>
                                 </li>
                                 <li>
