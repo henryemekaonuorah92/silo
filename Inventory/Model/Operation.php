@@ -98,6 +98,13 @@ class Operation
     private $operationType;
 
     /**
+     * @var Operation If present, then current operation has been rollbacked by rollback operation
+     * @ORM\ManyToOne(targetEntity="Operation")
+     * @ORM\JoinColumn(name="rollback", referencedColumnName="operation_id", nullable=true)
+     */
+    private $rollbackOperation;
+
+    /**
      * @param User $requestedBy
      * @param $source
      * @param $target
@@ -166,6 +173,15 @@ class Operation
     }
 
     /**
+     * @param User $rollbackUser
+     * @return Operation rollbacking operation. Execute it to make it happen.
+     */
+    public function createRollback(User $rollbackUser)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    /**
      * @return Location
      */
     public function getSource()
@@ -220,5 +236,26 @@ class Operation
         }
 
         return null;
+    }
+
+    public function getStatus()
+    {
+        return new OperationStatus($this);
+    }
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return Operation
+     */
+    public function getRollbackOperation()
+    {
+        return $this->rollbackOperation;
     }
 }

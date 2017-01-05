@@ -40,4 +40,12 @@ class User
         $this->name = $name;
         $this->email = $email;
     }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 }

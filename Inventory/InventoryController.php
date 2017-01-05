@@ -135,7 +135,7 @@ class InventoryController implements ControllerProviderInterface
         });
 
         /**
-         * Create operations massively by uploading a CSV file
+         * Edit Batches in a given Location
          */
         $controllers->post('/location/{code}/batches', function ($code, Application $app, Request $request) {
             $locations = $app['em']->getRepository('Inventory:Location');
@@ -191,6 +191,35 @@ class InventoryController implements ControllerProviderInterface
 
             // Is it merge or adjust ?
             return new Response('', Response::HTTP_ACCEPTED);
+        });
+
+        /**
+         * Inspect Operations
+         */
+        $controllers->get('/operation', function (Application $app) {
+            $query = $app['em']->createQueryBuilder();
+            $query->select('operation, source, target, type')
+                ->from('Inventory:Operation', 'operation')
+                ->leftJoin('operation.source', 'source')
+                ->leftJoin('operation.target', 'target')
+                ->leftJoin('operation.operationType', 'type')
+                ->orderBy('operation.id', 'DESC')
+                ->setMaxResults(10)
+                ;
+
+            $result = $query->getQuery()->execute();
+
+            return new JsonResponse(
+                array_map(function(Operation $op){
+                    return [
+                        'id' => $op->getId(),
+                        'source' => $op->getSource() ? $op->getSource()->getCode() : null,
+                        'target' => $op->getTarget() ? $op->getTarget()->getCode() : null,
+                        'type' => $op->getType(),
+                        'status' => $op->getStatus()->toArray()
+                    ];
+                }, $result)
+            );
         });
 
         return $controllers;
