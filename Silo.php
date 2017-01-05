@@ -27,7 +27,6 @@ class Silo extends \Silex\Application
         if (!$app->offsetExists('em')) {
             $app->register(new \Silo\Base\Provider\DoctrineProvider([
                 __DIR__.'/Inventory/Model',
-                __DIR__.'/Order/Model',
             ]));
         }
 
