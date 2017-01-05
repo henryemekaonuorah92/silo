@@ -86,7 +86,7 @@ class OperationEditor extends React.Component {
                                         cell={<TextCell data={operations} col="id" />}
                                     />
                                     <Column
-                                        width={75}
+                                        width={100}
                                         header="Type"
                                         cell={<TextCell data={operations} col="type" />}
                                     />
@@ -107,6 +107,26 @@ class OperationEditor extends React.Component {
                                             <Cell>
                                                 {operations.getObjectAt(rowIndex)['status']['requestedAt']}&nbsp;
                                                 {operations.getObjectAt(rowIndex)['status']['requestedBy']}
+                                            </Cell>
+                                        )}
+                                    />
+                                    <Column
+                                        width={250}
+                                        header="Done"
+                                        cell={({rowIndex}) => (
+                                            <Cell>
+                                                {operations.getObjectAt(rowIndex)['status']['doneAt']}&nbsp;
+                                                {operations.getObjectAt(rowIndex)['status']['doneBy']}
+                                            </Cell>
+                                        )}
+                                    />
+                                    <Column
+                                        width={250}
+                                        header="Cancelled"
+                                        cell={({rowIndex}) => (
+                                            <Cell>
+                                                {operations.getObjectAt(rowIndex)['status']['cancelledAt']}&nbsp;
+                                                {operations.getObjectAt(rowIndex)['status']['cancelledBy']}
                                             </Cell>
                                         )}
                                     />

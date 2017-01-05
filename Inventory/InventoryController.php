@@ -125,6 +125,10 @@ class InventoryController implements ControllerProviderInterface
                     null ;
 
                 $operation = new Operation($app['current_user'], $source, $target, $batches);
+
+                $type = $app['em']->getRepository('Inventory:OperationType')->getByName('mass creation');
+                $operation->setType($type);
+
                 $app['em']->persist($operation);
                 $app['em']->flush();
                 $operation->execute($app['current_user']);
@@ -167,9 +171,12 @@ class InventoryController implements ControllerProviderInterface
                 $batches->addBatch($batch);
             }
 
+
+
             switch($request->get('merge')) {
                 // Merge the uploaded batch into the location
                 case 'true':
+                    $typeName = 'batch merge';
                     $operation = new Operation($app['current_user'], null, $location, $batches);
                     break;
                 // the Location batches are replaced by the uploaded ones
@@ -177,12 +184,16 @@ class InventoryController implements ControllerProviderInterface
                 // SOURCE + OP = TARGET
                 // hence OP = TARGET - SOURCE
                 case 'false':
+                    $typeName = 'batch replace';
                     $diffBatches = $batches->diff($location->getBatches());
                     $operation = new Operation($app['current_user'], null, $location, $diffBatches);
                     break;
                 default:
                     throw new \Exception("merge parameter should be present and be either true or false");
             }
+
+            $type = $app['em']->getRepository('Inventory:OperationType')->getByName($typeName);
+            $operation->setType($type);
 
             $app['em']->persist($operation);
             $app['em']->flush();
@@ -204,7 +215,7 @@ class InventoryController implements ControllerProviderInterface
                 ->leftJoin('operation.target', 'target')
                 ->leftJoin('operation.operationType', 'type')
                 ->orderBy('operation.id', 'DESC')
-                ->setMaxResults(10)
+                ->setMaxResults(1000)
                 ;
 
             $result = $query->getQuery()->execute();
