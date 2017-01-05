@@ -4,7 +4,6 @@ use Behat\Behat\Context\BehatContext;
 use Behat\Gherkin\Node\TableNode;
 use Doctrine\Common\Collections\ArrayCollection;
 use Silo\Inventory\Model as Inventory;
-use Doctrine\Common\Util\Debug;
 
 //
 // Require 3rd-party libraries here:

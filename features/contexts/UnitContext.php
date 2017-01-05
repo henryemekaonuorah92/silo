@@ -1,10 +1,7 @@
 <?php
 
 use Behat\Behat\Context\BehatContext;
-use Behat\Gherkin\Node\TableNode;
-use Doctrine\Common\Collections\ArrayCollection;
 use Silo\Inventory\Model as Inventory;
-use Doctrine\Common\Util\Debug;
 
 //
 // Require 3rd-party libraries here:
@@ -42,7 +39,7 @@ class UnitContext extends BehatContext
     private function assertTrue($flag)
     {
         if ($flag !== true) {
-            throw new \Exception("Expected true but got ".var_export($flag, true));
+            throw new \Exception('Expected true but got '.var_export($flag, true));
         }
     }
 }

@@ -42,7 +42,7 @@ class OperationStatus
 
     public function __construct(
         Operation $operation
-    ){
+    ) {
         // trick to access $operation privates
         $extract = \Closure::bind(
             function (Operation $operation) {
@@ -53,14 +53,14 @@ class OperationStatus
                     $operation->doneAt,
                     $operation->cancelledBy,
                     $operation->cancelledAt,
-                    !is_null($operation->rollbackOperation)
+                    !is_null($operation->rollbackOperation),
                 ];
             },
             null,
             Operation::class
         );
 
-        list (
+        list(
             $this->requestedBy,
             $this->requestedAt,
             $this->doneBy,
@@ -80,7 +80,7 @@ class OperationStatus
             'doneAt' => $this->doneAt ? $this->doneAt->format('Y-m-d H:i:s') : null,
             'cancelledBy' => $this->cancelledBy ? $this->cancelledBy->getName() : null,
             'cancelledAt' => $this->cancelledAt ? $this->cancelledAt->format('Y-m-d H:i:s') : null,
-            'isRollbacked' => $this->isRollbacked
+            'isRollbacked' => $this->isRollbacked,
         ];
     }
 }

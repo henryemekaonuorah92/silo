@@ -45,6 +45,7 @@ class Location
 
     /**
      * @param $code
+     *
      * @todo Code should be constrained by a regex
      */
     public function __construct($code)
@@ -63,13 +64,14 @@ class Location
 
     /**
      * An Operation is applied onto its source and target, or its content,
-     * depending if it is an Operation moving Batches or an Operation moving a Location
+     * depending if it is an Operation moving Batches or an Operation moving a Location.
      *
      * We delegate applying the Operation to Location itself, in order to keep $batches
      * our of reach of the developers. We want them indeed to be immutable, but not necessarly
      * for Location Batches for database size reasons.
      *
      * @todo Tests show that this creates duplicate Batches, please investigate
+     *
      * @param Operation $operation
      */
     public function apply(Operation $operation)
@@ -84,7 +86,6 @@ class Location
             // $this is the source Location, we substract the Operation Batches
             $this->batches = BatchCollection::fromCollection($this->batches);
             $this->batches->merge($operation->getBatches()->opposite());
-
         } elseif (self::compare($operation->getTarget(), $this)) {
             // $this is the target Location, we add the Operation Batches
             $this->batches = BatchCollection::fromCollection($this->batches);
@@ -102,11 +103,13 @@ class Location
     }
 
     /**
-     * Compares two Locations together by code
+     * Compares two Locations together by code.
      *
      * @todo Maybe overkill if comparison per id does the job
+     *
      * @param self|null $a
      * @param self|null $b
+     *
      * @return bool True if $a is same as $b
      */
     public static function compare($a, $b)

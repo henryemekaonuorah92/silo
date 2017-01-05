@@ -30,7 +30,7 @@ class Silo extends \Silex\Application
             ]));
         }
 
-        $app['validator'] = function() use ($app) {
+        $app['validator'] = function () use ($app) {
             return Validation::createValidatorBuilder()
                 ->addMethodMapping('loadValidatorMetadata')
                 ->setConstraintValidatorFactory(new ConstraintValidatorFactory($app))

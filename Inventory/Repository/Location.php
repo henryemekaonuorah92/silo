@@ -32,6 +32,7 @@ class Location extends EntityRepository
 
     /**
      * @param $location
+     *
      * @return \Silo\Inventory\Model\Batch[]
      */
     public function getInclusiveContent($location)

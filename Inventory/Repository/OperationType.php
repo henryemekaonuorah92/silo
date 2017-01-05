@@ -22,6 +22,7 @@ class OperationType extends EntityRepository
                 $prop = 'name'; // hack to avoid IDE warnings
                 $type = new Model();
                 $type->$prop = $name;
+
                 return $type;
             },
             null,
@@ -37,7 +38,7 @@ class OperationType extends EntityRepository
     public function getByName($name)
     {
         $instance = $this->findOneBy(['name' => $name]);
-        if (! $instance) {
+        if (!$instance) {
             $instance = call_user_func($this->createOperationType, $name);
             $this->_em->persist($instance);
             $this->_em->flush($instance);

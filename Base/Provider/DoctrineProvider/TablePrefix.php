@@ -5,7 +5,7 @@ namespace Silo\Base\Provider\DoctrineProvider;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 
 /**
- * Prefix tables from the Silo namespace
+ * Prefix tables from the Silo namespace.
  */
 class TablePrefix
 {

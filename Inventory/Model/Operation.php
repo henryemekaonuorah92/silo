@@ -109,6 +109,7 @@ class Operation
      * @param $source
      * @param $target
      * @param $content
+     *
      * @todo check $content, if ArrayCollection, is not persisted yet, to prevent Batch reuse.
      */
     public function __construct(
@@ -174,11 +175,12 @@ class Operation
 
     /**
      * @param User $rollbackUser
+     *
      * @return Operation rollbacking operation. Execute it to make it happen.
      */
     public function createRollback(User $rollbackUser)
     {
-        throw new \Exception("Not implemented yet");
+        throw new \Exception('Not implemented yet');
     }
 
     /**
@@ -235,7 +237,7 @@ class Operation
             return $this->operationType->getName();
         }
 
-        return null;
+        return;
     }
 
     public function getStatus()

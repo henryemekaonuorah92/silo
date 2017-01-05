@@ -2,14 +2,12 @@
 
 namespace Silo\Inventory;
 
-use Doctrine\Common\Util\Debug;
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Silo\Inventory\Model\Batch;
 use Silo\Inventory\Model\BatchCollection;
 use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation;
-use Silo\Inventory\Model\User;
 use Silo\Inventory\Validator\Constraints\LocationExists;
 use Silo\Inventory\Validator\Constraints\SkuExists;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Constraint;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * Endpoints
+ * Endpoints.
  */
 class InventoryController implements ControllerProviderInterface
 {
@@ -27,7 +25,7 @@ class InventoryController implements ControllerProviderInterface
     {
         $controllers = $app['controllers_factory'];
 
-        /**
+        /*
          * Inspect a Location given its code
          */
         $controllers->get('/location/{code}', function ($code, Application $app) {
@@ -40,19 +38,19 @@ class InventoryController implements ControllerProviderInterface
             return new JsonResponse([
                 'code' => $code,
                 'parent' => $parent ? $parent->getCode() : null,
-                'batches' => array_map(function(Batch $b){
+                'batches' => array_map(function (Batch $b) {
                     return [
                         'product' => $b->getProduct()->getSku(),
-                        'quantity' => $b->getQuantity()
+                        'quantity' => $b->getQuantity(),
                     ];
                 }, array_slice($location->getBatches()->toArray(), 0, 5)),
-                'childs' => array_map(function(Location $l){
+                'childs' => array_map(function (Location $l) {
                     return $l->getCode();
-                }, $locations->findByParent($location))
+                }, $locations->findByParent($location)),
             ]);
         });
 
-        /**
+        /*
          * Inspect a Location given its code
          */
         $controllers->get('/location/{code}/batches', function ($code, Application $app) {
@@ -68,38 +66,38 @@ class InventoryController implements ControllerProviderInterface
             $result = $query->getQuery()->execute();
 
             return new JsonResponse(
-                array_map(function(Batch $b){
+                array_map(function (Batch $b) {
                     return [
                         'product' => $b->getProduct()->getSku(),
-                        'quantity' => $b->getQuantity()
+                        'quantity' => $b->getQuantity(),
                     ];
                 }, $result[0]->getBatches()->toArray())
             );
         });
 
-        /**
+        /*
          * Create operations massively by uploading a CSV file
          */
-        $controllers->post('/operation/import', function() use ($app){
+        $controllers->post('/operation/import', function () use ($app) {
             $csv = new \parseCSV($_FILES['file']['tmp_name']);
             $operationMap = [];
             $locations = $app['em']->getRepository('Inventory:Location');
             foreach ($csv->data as $line) {
-                $line++;
+                ++$line;
                 /** @var ConstraintViolationList $violations */
                 $violations = $app['validator']->validate($line, [
                     new Constraint\Collection([
                         'source' => [new LocationExists()],
                         'target' => [new LocationExists()],
                         'sku' => [new Constraint\Required(), new SkuExists()],
-                        'quantity' => new Constraint\Range(['min' => -100, 'max' => 100])
-                    ])
+                        'quantity' => new Constraint\Range(['min' => -100, 'max' => 100]),
+                    ]),
                 ]);
 
                 if ($violations->count() > 0) {
-                    return new JsonResponse(['errors' => array_map(function($violation){
+                    return new JsonResponse(['errors' => array_map(function ($violation) {
                         return (string) $violation;
-                    },iterator_to_array($violations->getIterator()))]);
+                    }, iterator_to_array($violations->getIterator()))]);
                 }
 
                 $product = $app['em']->getRepository('Inventory:Product')->findOneBy(['sku' => $line['sku']]);
@@ -119,10 +117,10 @@ class InventoryController implements ControllerProviderInterface
 
                 $source = !empty($sourceCode) ?
                     $app['em']->getRepository('Inventory:Location')->findOneBy(['code' => $sourceCode]) :
-                    null ;
+                    null;
                 $target = !empty($targetCode) ?
                     $app['em']->getRepository('Inventory:Location')->findOneBy(['code' => $targetCode]) :
-                    null ;
+                    null;
 
                 $operation = new Operation($app['current_user'], $source, $target, $batches);
 
@@ -138,7 +136,7 @@ class InventoryController implements ControllerProviderInterface
             return new JsonResponse([]);
         });
 
-        /**
+        /*
          * Edit Batches in a given Location
          */
         $controllers->post('/location/{code}/batches', function ($code, Application $app, Request $request) {
@@ -150,19 +148,19 @@ class InventoryController implements ControllerProviderInterface
             // Create a BatchCollection out of a CSV file
             $batches = new BatchCollection();
             foreach ($csv->data as $line) {
-                $line++;
+                ++$line;
                 /** @var ConstraintViolationList $violations */
                 $violations = $app['validator']->validate($line, [
                     new Constraint\Collection([
                         'sku' => [new Constraint\Required(), new SkuExists()],
-                        'quantity' => new Constraint\Range(['min' => -100, 'max' => 100])
-                    ])
+                        'quantity' => new Constraint\Range(['min' => -100, 'max' => 100]),
+                    ]),
                 ]);
 
                 if ($violations->count() > 0) {
-                    return new JsonResponse(['errors' => array_map(function($violation){
+                    return new JsonResponse(['errors' => array_map(function ($violation) {
                         return (string) $violation;
-                    },iterator_to_array($violations->getIterator()))]);
+                    }, iterator_to_array($violations->getIterator()))]);
                 }
 
                 $product = $app['em']->getRepository('Inventory:Product')->findOneBy(['sku' => $line['sku']]);
@@ -171,9 +169,7 @@ class InventoryController implements ControllerProviderInterface
                 $batches->addBatch($batch);
             }
 
-
-
-            switch($request->get('merge')) {
+            switch ($request->get('merge')) {
                 // Merge the uploaded batch into the location
                 case 'true':
                     $typeName = 'batch merge';
@@ -189,7 +185,7 @@ class InventoryController implements ControllerProviderInterface
                     $operation = new Operation($app['current_user'], null, $location, $diffBatches);
                     break;
                 default:
-                    throw new \Exception("merge parameter should be present and be either true or false");
+                    throw new \Exception('merge parameter should be present and be either true or false');
             }
 
             $type = $app['em']->getRepository('Inventory:OperationType')->getByName($typeName);
@@ -204,7 +200,7 @@ class InventoryController implements ControllerProviderInterface
             return new Response('', Response::HTTP_ACCEPTED);
         });
 
-        /**
+        /*
          * Inspect Operations
          */
         $controllers->get('/operation', function (Application $app) {
@@ -221,13 +217,13 @@ class InventoryController implements ControllerProviderInterface
             $result = $query->getQuery()->execute();
 
             return new JsonResponse(
-                array_map(function(Operation $op){
+                array_map(function (Operation $op) {
                     return [
                         'id' => $op->getId(),
                         'source' => $op->getSource() ? $op->getSource()->getCode() : null,
                         'target' => $op->getTarget() ? $op->getTarget()->getCode() : null,
                         'type' => $op->getType(),
-                        'status' => $op->getStatus()->toArray()
+                        'status' => $op->getStatus()->toArray(),
                     ];
                 }, $result)
             );

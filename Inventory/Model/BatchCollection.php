@@ -6,13 +6,15 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
 /**
- * Advanced operations on Batches ArrayCollection
+ * Advanced operations on Batches ArrayCollection.
  */
 class BatchCollection extends ArrayCollection
 {
     /**
-     * Create a new BatchCollection out of a Collection
+     * Create a new BatchCollection out of a Collection.
+     *
      * @param Collection $collection
+     *
      * @return static
      */
     public static function fromCollection(Collection $collection)
@@ -21,7 +23,8 @@ class BatchCollection extends ArrayCollection
     }
 
     /**
-     * Return a BatchCollection with a copy of each Batch in $this
+     * Return a BatchCollection with a copy of each Batch in $this.
+     *
      * @return static
      */
     public function copy()
@@ -30,7 +33,8 @@ class BatchCollection extends ArrayCollection
     }
 
     /**
-     * Return a BatchCollection with a opposite copy of each Batch in $this
+     * Return a BatchCollection with a opposite copy of each Batch in $this.
+     *
      * @return static
      */
     public function opposite()
@@ -61,7 +65,8 @@ class BatchCollection extends ArrayCollection
      * Merge a Batches collection into this one, keeping only one single Batch per different Product.
      *
      * @param Collection $batches
-     * @param bool $add
+     * @param bool       $add
+     *
      * @return $this
      */
     public function merge(Collection $batches)
@@ -81,20 +86,20 @@ class BatchCollection extends ArrayCollection
     }
 
     /**
-     * Add a single quantity of product to the current BatchCollection
+     * Add a single quantity of product to the current BatchCollection.
      *
      * @param Product $product
      * @param $quantity
      */
     public function addProduct(Product $product, $quantity)
     {
-        $found = $this->filter(function (Batch $batch)use($product) {
+        $found = $this->filter(function (Batch $batch) use ($product) {
             return $product->getSku() == $batch->getProduct()->getSku();
         });
         if ($found->count() == 1) {
             $foundValues = $found->getValues();
             $foundValues[0]->add($quantity);
-        } else if ($found->count() > 1) {
+        } elseif ($found->count() > 1) {
             throw new \LogicException('You cannot have many Batch with the same Product');
         } else {
             $this->add(new Batch($product, $quantity));
@@ -102,9 +107,10 @@ class BatchCollection extends ArrayCollection
     }
 
     /**
-     * Compute difference between two BatchCollections by comparing Batches one to one
+     * Compute difference between two BatchCollections by comparing Batches one to one.
      *
      * @param self $from
+     *
      * @return self $this - $from
      */
     public function diff(self $from)

@@ -2,7 +2,6 @@
 
 namespace Silo\Inventory\Model;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -49,8 +48,9 @@ class Batch
     private $location;
 
     /**
-     * @param Product $product What
-     * @param int $quantity How much of it
+     * @param Product $product  What
+     * @param int     $quantity How much of it
+     *
      * @todo Evaluate float for quantity, dealing with other units
      */
     public function __construct(Product $product, $quantity)
@@ -77,6 +77,7 @@ class Batch
 
     /**
      * @param int $quantity Positive or negative quantity of product to add
+     *
      * @return int
      */
     public function add($quantity)
@@ -92,10 +93,10 @@ class Batch
     public function setOperation(Operation $operation)
     {
         if ($this->location) {
-            throw new \LogicException("You cannot assign an Operation to a Batch with a Location");
+            throw new \LogicException('You cannot assign an Operation to a Batch with a Location');
         }
         if ($this->operation && $this->operation != $operation) {
-            throw new \LogicException("You cannot change the Operation of a Batch");
+            throw new \LogicException('You cannot change the Operation of a Batch');
         }
         $this->operation = $operation;
     }
@@ -105,12 +106,11 @@ class Batch
      */
     public function setLocation(Location $location)
     {
-
         if ($this->operation) {
-            throw new \LogicException("You cannot assign a Location to a Batch with an Operation");
+            throw new \LogicException('You cannot assign a Location to a Batch with an Operation');
         }
         if ($this->location && $this->location != $location) {
-            throw new \LogicException("You cannot change the Location of a Batch");
+            throw new \LogicException('You cannot change the Location of a Batch');
         }
         $this->location = $location;
     }
@@ -140,10 +140,11 @@ class Batch
     }
 
     /**
-     * Compare two Batches together by content
+     * Compare two Batches together by content.
      *
      * @param self|null $a
      * @param self|null $b
+     *
      * @return bool True if $a and $b are for the same Product and of the same quantity
      */
     public static function compare($a, $b)

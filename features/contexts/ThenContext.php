@@ -29,11 +29,12 @@ class ThenContext extends BehatContext implements AppAwareContextInterface
         );
     }
 
-    private function exclusiveDiff($expecteds, $currents) {
-        foreach($currents as $current) {
+    private function exclusiveDiff($expecteds, $currents)
+    {
+        foreach ($currents as $current) {
             if (!$expecteds->contains($current)) {
                 throw new \Exception(sprintf(
-                    "Should not contain %s x %s",
+                    'Should not contain %s x %s',
                     $current->getProduct()->getSku(),
                     $current->getQuantity()
                 ));
@@ -42,7 +43,7 @@ class ThenContext extends BehatContext implements AppAwareContextInterface
         foreach ($expecteds as $expected) {
             if (!$currents->contains($expected)) {
                 throw new \Exception(sprintf(
-                    "Should contain %s x %s",
+                    'Should contain %s x %s',
                     $expected->getProduct()->getSku(),
                     $expected->getQuantity()
                 ));
@@ -89,7 +90,9 @@ class ThenContext extends BehatContext implements AppAwareContextInterface
 
     /**
      * @todo copypasta from FeatureContext, find something better :/
+     *
      * @param TableNode $table
+     *
      * @return ArrayCollection
      */
     private function tableNodeToProductQuantities(TableNode $table)
@@ -110,6 +113,7 @@ class ThenContext extends BehatContext implements AppAwareContextInterface
 
     /**
      * @Given /^show ([\w:,]+)$/
+     *
      * @todo This is a debugging function, should be somewhere else
      */
     public function showTable($tables)
@@ -149,6 +153,7 @@ class ThenContext extends BehatContext implements AppAwareContextInterface
 
     /**
      * @Given /^show raw ([\w:,]+)$/
+     *
      * @todo This is a debugging function, should be somewhere else
      */
     public function showRawTable($tables)
