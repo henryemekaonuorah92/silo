@@ -42,7 +42,6 @@ class DoctrineProvider implements ServiceProviderInterface
                 $paths, false, null, $cache, false
             );
             $config->addEntityNamespace('Inventory', 'Silo\Inventory\Model');
-            $config->addEntityNamespace('Order', 'Silo\Order\Model');
 
             $evm = new \Doctrine\Common\EventManager();
             $evm->addEventListener(\Doctrine\ORM\Events::loadClassMetadata, new TablePrefix('silo_'));
