@@ -51,6 +51,68 @@ class InventoryController implements ControllerProviderInterface
         });
 
         /*
+         * Fetch all modified Location
+         */
+        $controllers->get('/batches', function (Application $app, Request $request) {
+            $query = $app['em']->createQueryBuilder();
+            $query->select('location, batch, product')
+                ->from('Inventory:Location', 'location')
+                ->innerJoin('location.batches', 'batch')
+                ->innerJoin('batch.product', 'product')
+                ->andWhere('batch.quantity != 0');
+
+            if ($since = $request->get('since')) {
+                $from = new \DateTime($since);
+                /** @var \Doctrine\ORM\QueryBuilder $modifiedQuery */
+                $modifiedQuery = $app['em']->createQueryBuilder();
+                $modifiedQuery->select('op, source, target')
+                    ->from('Inventory:Operation', 'op')
+                    ->leftJoin('op.source', 'source')
+                    ->leftJoin('op.target', 'target')
+                    ->andWhere($modifiedQuery->expr()->isNotNull('op.doneAt'))
+                    ->andWhere('op.requestedAt >= :created')
+                    ->setParameter('created', $from->format('Y-m-d H:i:s'));
+
+                $modifiedLocations = [];
+                foreach ($modifiedQuery->getQuery()->getResult() as $op /** @var Operation $op*/) {
+                    if ($target = $op->getTarget()) {
+                        $modifiedLocations[$target->getCode()] = 1;
+                    }
+                    if ($source = $op->getSource()) {
+                        $modifiedLocations[$source->getCode()] = 1;
+                    }
+                }
+
+                $codes = array_keys($modifiedLocations);
+                if (empty($codes)) {
+                    return new JsonResponse([
+                        'since' => $since,
+                        'locations' => []
+                    ]);
+                }
+
+                $query->andWhere($modifiedQuery->expr()->in('location.code', $codes));
+            }
+
+            $result = $query->getQuery()->execute();
+
+            return new JsonResponse([
+                'since' => $since,
+                'locations' => array_map(function (Location $l) {
+                    return [
+                        'code' => $l->getCode(),
+                        'batches' => array_map(function (Batch $b) {
+                            return [
+                                'sku' => $b->getProduct()->getSku(),
+                                'quantity' => $b->getQuantity()
+                            ];
+                        }, $l->getBatches()->toArray())
+                    ];
+                }, $result)
+            ]);
+        });
+
+        /*
          * Inspect a Location given its code
          */
         $controllers->get('/location/{code}/batches', function ($code, Application $app) {
