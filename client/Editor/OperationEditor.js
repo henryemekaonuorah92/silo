@@ -8,7 +8,7 @@ import UploadModalMenu from './UploadModal';
 import TextCell from './TextCell';
 
 /**
- * Edit a set of Batches
+ * Edit a set of Operations
  * @type {*}
  */
 class OperationEditor extends React.Component {
@@ -35,22 +35,28 @@ class OperationEditor extends React.Component {
         }
 
         let filterBy = e.target.value.toLowerCase();
-        let size = this.props.batches.getSize();
+        let size = this.props.operations.getSize();
         let filteredIndexes = [];
         for (let index = 0; index < size; index++) {
-            let {product, quantity} = this.props.batches.getObjectAt(index);
+            let {product, quantity} = this.props.operations.getObjectAt(index);
             if (product.toLowerCase().indexOf(filterBy) !== -1) {
                 filteredIndexes.push(index);
             }
         }
 
         this.setState({
-            filteredDataList: new DataStoreWrapper(filteredIndexes, this.props.batches),
+            filteredDataList: new DataStoreWrapper(filteredIndexes, this.props.operations),
         });
     }
 
     render(){
-        let batches = this.state.filteredDataList || this.props.batches;
+        let operations = this.state.filteredDataList || this.props.operations;
+        /*
+         <li><input
+         onChange={this._onFilterChange}
+         placeholder="Filter by SKU"
+         /></li>
+         */
         return (
             <div className="panel panel-default">
                 <div className="panel-heading nav navbar-default">
@@ -58,50 +64,51 @@ class OperationEditor extends React.Component {
                         <div>
                             <ul className="nav navbar-nav">
                                 <li><h4>OperationEditor</h4></li>
-                                <li className="dropdown"> <a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Edit <span className="caret"></span></a>
-                                    <ul className="dropdown-menu">
-                                        <li><UploadModalMenu url={this.props.uploadUrl} onSuccess={this.props.onNeedRefresh} /></li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <DownloadDataLink exportFile={function(){
-                                        let header = "sku,quantity\n";
-                                        return header + batches.getAll().map(function(data){
-                                            return data.product+','+data.quantity
-                                        }).join("\n")
-                                    }}>
-                                        Export
-                                    </DownloadDataLink>
-                                </li>
-
-                                <li><input
-                                    onChange={this._onFilterChange}
-                                    placeholder="Filter by SKU"
-                                /></li>
-
-                                <li><span>{batches.getSize()} batches</span></li>
+                                <li><span>{operations.getSize()} operations</span></li>
                             </ul>
                         </div>
                     </div>
                 </div>
-                {batches.getSize() > 0 ?
+                {operations.getSize() > 0 ?
                     <Measure onMeasure={(dimensions)=>{this.setState({dimensions});}}>
                         <div className="panel-body panel-body_noPadding">
                             {this.state.dimensions.width != -1 && (
                                 <Table
                                     width={this.state.dimensions.width} // Bootstrap 15px padding on row
                                     height={400}
-                                    headerHeight={0}
+                                    headerHeight={36}
                                     offsetHeight={150}
-                                    rowsCount={batches.getSize()}
+                                    rowsCount={operations.getSize()}
                                     rowHeight={36}>
                                     <Column
-                                        width={200}
-                                        cell={<TextCell data={batches} col="product" />}
+                                        width={40}
+                                        header="#"
+                                        cell={<TextCell data={operations} col="id" />}
                                     />
                                     <Column
-                                        width={200}
-                                        cell={<TextCell data={batches} col="quantity" />}
+                                        width={75}
+                                        header="Type"
+                                        cell={<TextCell data={operations} col="type" />}
+                                    />
+                                    <Column
+                                        width={75}
+                                        header="Source"
+                                        cell={<TextCell data={operations} col="source" />}
+                                    />
+                                    <Column
+                                        width={75}
+                                        header="Target"
+                                        cell={<TextCell data={operations} col="target" />}
+                                    />
+                                    <Column
+                                        width={250}
+                                        header="Request"
+                                        cell={({rowIndex}) => (
+                                            <Cell>
+                                                {operations.getObjectAt(rowIndex)['status']['requestedAt']}&nbsp;
+                                                {operations.getObjectAt(rowIndex)['status']['requestedBy']}
+                                            </Cell>
+                                        )}
                                     />
                                 </Table>
                             )}
@@ -113,9 +120,9 @@ class OperationEditor extends React.Component {
     }
 }
 
-module.exports = BatchEditor;
+module.exports = OperationEditor;
 
-BatchEditor.propTypes = {
+OperationEditor.propTypes = {
     // batches: React.PropTypes.isRequired // new DataStore
 };
 

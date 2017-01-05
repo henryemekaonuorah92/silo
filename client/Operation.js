@@ -1,11 +1,15 @@
 ;
 import React from 'react';
 import {Alert} from 'react-bootstrap';
+import OperationEditor from './Editor/OperationEditor';
+import DataStore from './Editor/DataStore';
+
 // @todo put some proofing in operation screen (no null loca)
 module.exports = React.createClass({
     getInitialState: function(){return {
         errors: [],
-        success: []
+        success: [],
+        operations : new DataStore([])
     }},
     propTypes: {
         /**
@@ -22,6 +26,28 @@ module.exports = React.createClass({
         url: "/silo/inventory/operation/import",
         onSuccess: function(){}
     }},
+
+    componentDidMount: function () {
+        this.refresh();
+    },
+
+    refresh: function(){
+        this.setState({
+            operations: new DataStore([])
+        });
+        $.ajax(
+            this.props.siloBasePath+"/inventory/operation",
+            {
+                success: function (data) {
+                    this.setState({
+                        operations: new DataStore(data)
+                    });
+                }.bind(this),
+                headers: {'Accept': 'application/json'}
+            }
+        );
+    },
+
     handleClick: function(){
         this.setState({success: []});
 
@@ -59,6 +85,9 @@ module.exports = React.createClass({
         return (
             <div>
                 <h3>Operation</h3>
+                <OperationEditor operations={this.state.operations} onNeedRefresh={this.refresh} />
+
+                <hr />
                 You can create here an Operation, the most basic movement object for Silo.
 
                 Use the following format:
