@@ -1,1 +1,7 @@
 code-coverage-report
+bin/
+.idea/
+vendor
+node_modules
+reports
+**.DS_Store
