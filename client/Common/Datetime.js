@@ -12,10 +12,9 @@ module.exports = React.createClass({
         //const rest = Object.assign({}, this.props);
         //delete rest.filename; delete rest.label; delete rest.exportFile;
         let tz = moment.tz.guess();
-        console.log(tz);
         return (
             <span>
-                {moment.tz(this.props.children, tz).format('Y-MM-DD HH:mm z')}
+                {moment.tz(this.props.children, "UTC").clone().tz(tz).format('Y-MM-DD HH:mm')}
             </span>
         );
     }

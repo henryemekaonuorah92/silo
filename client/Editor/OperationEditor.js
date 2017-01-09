@@ -116,7 +116,7 @@ class OperationEditor extends React.Component {
                                         header="Done"
                                         cell={({rowIndex}) => (
                                             <Cell>
-                                                {operations.getObjectAt(rowIndex)['status']['doneAt']}&nbsp;
+                                                <Datetime>{operations.getObjectAt(rowIndex)['status']['doneAt']}</Datetime>&nbsp;
                                                 {operations.getObjectAt(rowIndex)['status']['doneBy']}
                                             </Cell>
                                         )}
@@ -126,7 +126,7 @@ class OperationEditor extends React.Component {
                                         header="Cancelled"
                                         cell={({rowIndex}) => (
                                             <Cell>
-                                                {operations.getObjectAt(rowIndex)['status']['cancelledAt']}&nbsp;
+                                                <Datetime>{operations.getObjectAt(rowIndex)['status']['cancelledAt']}</Datetime>&nbsp;
                                                 {operations.getObjectAt(rowIndex)['status']['cancelledBy']}
                                             </Cell>
                                         )}
