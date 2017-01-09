@@ -1,4 +1,5 @@
 {
+  "name": "frankandoak/silo",
   "repositories": [
     {
         "type": "vcs",
