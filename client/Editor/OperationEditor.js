@@ -6,6 +6,7 @@ import DataStoreWrapper from './DataStoreWrapper';
 import DownloadDataLink from '../Common/DownloadDataLink';
 import UploadModalMenu from './UploadModal';
 import TextCell from './TextCell';
+import Datetime from '../Common/Datetime';
 
 /**
  * Edit a set of Operations
@@ -105,7 +106,7 @@ class OperationEditor extends React.Component {
                                         header="Request"
                                         cell={({rowIndex}) => (
                                             <Cell>
-                                                {operations.getObjectAt(rowIndex)['status']['requestedAt']}&nbsp;
+                                                <Datetime>{operations.getObjectAt(rowIndex)['status']['requestedAt']}</Datetime>&nbsp;
                                                 {operations.getObjectAt(rowIndex)['status']['requestedBy']}
                                             </Cell>
                                         )}
