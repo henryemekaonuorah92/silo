@@ -16,9 +16,10 @@ class Silo extends \Silex\Application
      */
     public function __construct(array $values = array())
     {
-        if (!ini_get('date.timezone')) {
-            ini_set('date.timezone', 'UTC');
-        }
+        // @todo Should be a check
+        // if (!ini_get('date.timezone')) {
+        //    ini_set('date.timezone', 'UTC');
+        //}
 
         parent::__construct($values);
 

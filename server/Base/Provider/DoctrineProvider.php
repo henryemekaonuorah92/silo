@@ -7,6 +7,8 @@ use Silo\Base\Provider\DoctrineProvider\TablePrefix;
 use Pimple\ServiceProviderInterface;
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
+use Doctrine\DBAL\Types\Type;
+use Silo\Base\Provider\DoctrineProvider\UTCDateTimeType;
 
 /**
  * Doctrine ORM as a Service.
@@ -36,6 +38,10 @@ class DoctrineProvider implements ServiceProviderInterface
         // @todo implement a better cache selection mechanism
         $cache = new ArrayCache(); //new FilesystemCache(sys_get_temp_dir());
         $paths = $this->modelPaths;
+
+        // UTC for datetimes
+        Type::overrideType('datetime', UTCDateTimeType::class);
+        Type::overrideType('datetimetz', UTCDateTimeType::class);
 
         $app['em'] = function () use ($app, $cache, $paths) {
             $config = Setup::createAnnotationMetadataConfiguration(
