@@ -14,7 +14,7 @@ module.exports = React.createClass({
         let tz = moment.tz.guess();
         return (
             <span>
-                {moment.tz(this.props.children, "UTC").clone().tz(tz).format('Y-MM-DD HH:mm')}
+                {this.props.children ? moment.tz(this.props.children, "UTC").clone().tz(tz).format('Y-MM-DD HH:mm') : ''}
             </span>
         );
     }
