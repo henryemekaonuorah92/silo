@@ -67,7 +67,7 @@ module.exports = React.createClass({
                             </li>;})}</ul> : "No child"
                         }<br />
                         <b>Batches:</b>
-                    <BatchEditor batches={this.state.batches} uploadUrl={uploadUrl} onNeedRefresh={this.refresh} />
+                    <BatchEditor batches={this.state.batches} uploadUrl={uploadUrl} onNeedRefresh={this.refresh} editable/>
                 </div>) : "Loading data"}
             </div>
         );

@@ -40,13 +40,9 @@ class Silo extends \Silex\Application
 
         $app->mount('/silo/inventory', new \Silo\Inventory\InventoryController());
 
-        $app->get('/silo/hello', function () {
-            return 'Hello World';
-        });
-
         // Deal with exceptions
         $app->error(function (\Exception $e, $request) {
-            return new Response($e, '500');
+            return new Response($e, Response::HTTP_INTERNAL_SERVER_ERROR);
         });
     }
 }

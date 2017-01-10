@@ -1,125 +1,69 @@
 ;
 import React from 'react';
-import {Alert} from 'react-bootstrap';
-import OperationEditor from './Editor/OperationEditor';
+import BatchEditor from './Editor/BatchEditor';
 import DataStore from './Editor/DataStore';
+import Link from './Common/Link';
 
-// @todo put some proofing in operation screen (no null loca)
 module.exports = React.createClass({
-    getInitialState: function(){return {
-        errors: [],
-        success: [],
-        operations : new DataStore([])
-    }},
-    propTypes: {
-        /**
-         * URL where to send the file
-         */
-        url: React.PropTypes.string,
-        /**
-         * Callback used when download has been succesfull
-         */
-        onSuccess: React.PropTypes.func
+
+    getInitialState: function () {
+        return {
+            data: {
+                batches: []
+            },
+            batches: new DataStore([])
+        };
     },
-    getDefaultProps: function(){return {
-        title: "Upload",
-        url: "/silo/inventory/operation/import",
-        onSuccess: function(){}
-    }},
+
+    getDefaultProps: function() {
+        return {
+            siloBasePath: null,
+            id: null
+        };
+    },
 
     componentDidMount: function () {
-        this.refresh();
-    },
 
-    refresh: function(){
-        this.setState({
-            operations: new DataStore([])
-        });
-        $.ajax(
-            this.props.siloBasePath+"/inventory/operation",
-            {
-                success: function (data) {
-                    this.setState({
-                        operations: new DataStore(data)
-                    });
-                }.bind(this),
-                headers: {'Accept': 'application/json'}
-            }
+        this.props.cache.setCallbackWithUrl(
+            'operation/'+this.props.id,
+            this.props.siloBasePath+"/inventory/operation/"+this.props.id
+        ).get('operation/'+this.props.id).then(function(value){
+            this.setState({
+                data: value,
+                batches: new DataStore(value.batches)
+            });
+        }.bind(this));
+        /*
+        this.props.cache.setCallbackWithUrl(
+            'locationBatch/'+this.props.code,
+            this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches'
         );
-    },
 
-    handleClick: function(){
-        this.setState({success: []});
-
-        let fileInput = this.refs.file;
-        if (!fileInput.files[0]) {
-            this.setState({errors: ["Please select a file"]});
-            return;
-        }
-
-        let formData = new FormData();
-        formData.append('file', fileInput.files[0]);
-
-        $.ajax({
-            url: this.props.url,
-            type: 'POST',
-            data: formData,
-            dataType: 'json',
-            processData: false,
-            contentType: false,
-            success: function (res) {
-                if (res.errors) {
-                    this.setState({errors: res.errors});
-                } else {
-                    this.setState({success: ["Operation successful"]});
-                    this.props.onSuccess(res);
-                }
-            }.bind(this),
-            error: function () {
-                this.setState({errors: ["Error while uploading"]});
-            }.bind(this)
-        });
+        this.props.cache.get('locationBatch/'+this.props.code).then(function(value){
+            this.setState({
+                batches: new DataStore(value)
+            });
+        }.bind(this));
+        */
     },
 
     render: function(){
+        let data = this.state.data;
         return (
             <div>
-                <h3>Operation</h3>
-                <OperationEditor operations={this.state.operations} onNeedRefresh={this.refresh} />
-
-                <hr />
-                You can create here an Operation, the most basic movement object for Silo.
-
-                Use the following format:
-                <pre>{`source;target;sku;quantity
-;MTLST;something;2
-MTLST;some-other-thing;2
-OTTST;MTLST;sku2;4`}</pre>
-
-                The first line is a <b>creation</b> of product.
-                The second line is a <b>deletion</b> of product.
-                The third line is a movement from OTTST to MTLST.
-
-                <div className="input-group">
-                    <input className="form-control" type="file" ref="file" />
-                    <span className="input-group-btn">
-                        <button onClick={this.handleClick} className="btn btn-primary">Upload</button>
-                    </span>
-                </div>
-
-                {this.state.success.length > 0 && (
-                    <Alert bsStyle="success" style={{margin:"10px 0"}}>
-                        <strong>Holy guacamole!</strong>
-                        <ul>{this.state.success.map((success, idx)=>(<li key={idx}>{success}</li>))}</ul>
-                    </Alert>
-                )}
-
-                {this.state.errors.length > 0 && (
-                    <Alert bsStyle="warning" style={{margin:"10px 0"}}>
-                        <strong>Ooops!</strong>
-                        <ul>{this.state.errors.map((error, idx)=>(<li key={idx}>{error}</li>))}</ul>
-                    </Alert>
-                )}
+                <h3>Operation {this.props.id}</h3>
+                {data && <div>
+                        <b>Source:</b>&nbsp;{data.source ? <Link route="location" code={data.source} /> : "No source"}<br />
+                        <b>Target:</b>&nbsp;{data.target ? <Link route="location" code={data.target} /> : "No target"}<br />
+                        {data.location &&
+                        (<span><b>Moved location:</b>&nbsp;<Link route="location" code={data.location} /><br /></span>)
+                        }
+                        {data.batches.length > 0 && (<div>
+                                <b>Batches:</b>
+                                <BatchEditor batches={this.state.batches} />
+                            </div>)
+                        }
+                </div>}
             </div>
         );
     }

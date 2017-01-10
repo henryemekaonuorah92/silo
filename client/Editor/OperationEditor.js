@@ -8,6 +8,7 @@ import UploadModalMenu from './UploadModal';
 import TextCell from './TextCell';
 import LocationCell from './LocationCell';
 import Datetime from '../Common/Datetime';
+import Link from './../Common/Link';
 
 /**
  * Edit a set of Operations
@@ -85,7 +86,11 @@ class OperationEditor extends React.Component {
                                     <Column
                                         width={40}
                                         header="#"
-                                        cell={<TextCell data={operations} col="id" />}
+                                        cell={({rowIndex}) => (
+                                            <Cell>
+                                                <Link route="operation" code={operations.getObjectAt(rowIndex)['id']} />
+                                            </Cell>
+                                        )}
                                     />
                                     <Column
                                         width={100}

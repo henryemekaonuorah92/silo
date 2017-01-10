@@ -8,7 +8,7 @@ module.exports = React.createClass({
 
     propTypes: {
         route: React.PropTypes.string,
-        code: React.PropTypes.string,
+        code: React.PropTypes.any.isRequired
     },
 
     handleClick: function(e){
