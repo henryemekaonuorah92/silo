@@ -38,12 +38,6 @@ class InventoryController implements ControllerProviderInterface
             return new JsonResponse([
                 'code' => $code,
                 'parent' => $parent ? $parent->getCode() : null,
-                'batches' => array_map(function (Batch $b) {
-                    return [
-                        'product' => $b->getProduct()->getSku(),
-                        'quantity' => $b->getQuantity(),
-                    ];
-                }, array_slice($location->getBatches()->toArray(), 0, 5)),
                 'childs' => array_map(function (Location $l) {
                     return $l->getCode();
                 }, $locations->findByParent($location)),
@@ -292,6 +286,32 @@ class InventoryController implements ControllerProviderInterface
                     ];
                 }, $result)
             );
+        });
+
+        $controllers->get('/operation/{id}', function ($id, Application $app) {
+            $operations = $app['em']->getRepository('Inventory:Operation');
+            /** @var Operation $operation */
+            $op = $operations->find($id);
+
+            if (!$op) {
+                throw new \Exception("Operation $id does not exist");
+            }
+
+            return new JsonResponse([
+                'id' => $id,
+                'batches' => array_map(function (Batch $b) {
+                    return [
+                        'product' => $b->getProduct()->getSku(),
+                        'quantity' => $b->getQuantity(),
+
+                    ];
+                }, $op->getBatches()->toArray()),
+                'location' => $op->getLocation() ? $op->getLocation()->getCode() : null,
+                'source' => $op->getSource() ? $op->getSource()->getCode() : null,
+                'target' => $op->getTarget() ? $op->getTarget()->getCode() : null,
+                'type' => $op->getType(),
+                'status' => $op->getStatus()->toArray(),
+            ]);
         });
 
         return $controllers;

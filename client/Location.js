@@ -21,35 +21,36 @@ module.exports = React.createClass({
     },
 
     componentDidMount: function () {
-        $.ajax(
-            this.props.siloBasePath+"/inventory/location/"+this.props.code,
-            {
-                success: function (data) {
-                    this.setState({
-                        data: data
-                    });
-                }.bind(this),
-                headers: {'Accept': 'application/json'}
-            }
+
+        this.props.cache.setCallbackWithUrl(
+            'location/'+this.props.code,
+            this.props.siloBasePath+"/inventory/location/"+this.props.code
+        ).get('location/'+this.props.code).then(function(value){
+            this.setState({
+                data: value
+            });
+        }.bind(this));
+
+        this.props.cache.setCallbackWithUrl(
+            'locationBatch/'+this.props.code,
+            this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches'
         );
-        this.refresh();
+
+        this.props.cache.get('locationBatch/'+this.props.code).then(function(value){
+            this.setState({
+                batches: new DataStore(value)
+            });
+        }.bind(this));
     },
 
     refresh: function(){
-        this.setState({
-            batches: new DataStore([])
-        });
-        $.ajax(
-            this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches',
-            {
-                success: function (data) {
-                    this.setState({
-                        batches: new DataStore(data)
-                    });
-                }.bind(this),
-                headers: {'Accept': 'application/json'}
-            }
-        );
+        let key = 'locationBatch/'+this.props.code;
+        this.props.cache.clear(key);
+        this.props.cache.get(key).then(function(value){
+            this.setState({
+                batches: new DataStore(value)
+            });
+        }.bind(this));
     },
 
     render: function(){

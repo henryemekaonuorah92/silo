@@ -27,7 +27,6 @@ class BatchEditor extends React.Component {
     }
 
     _onFilterChange(e) {
-        if (this.prop)
         if (!e.target.value) {
             this.setState({
                 filteredDataList: null,
@@ -38,7 +37,7 @@ class BatchEditor extends React.Component {
         let size = this.props.batches.getSize();
         let filteredIndexes = [];
         for (let index = 0; index < size; index++) {
-            let {product, quantity} = this.props.batches.getObjectAt(index);
+            let {product} = this.props.batches.getObjectAt(index);
             if (product.toLowerCase().indexOf(filterBy) !== -1) {
                 filteredIndexes.push(index);
             }
@@ -47,6 +46,15 @@ class BatchEditor extends React.Component {
         this.setState({
             filteredDataList: new DataStoreWrapper(filteredIndexes, this.props.batches),
         });
+    }
+
+    componentWillReceiveProps(nextProps) {
+        // Reapply filtering after a change in the props
+        if (this.state.filteredDataList && this.state.filteredDataList._indexMap) {
+            this.setState({
+                filteredDataList: new DataStoreWrapper(this.state.filteredDataList._indexMap, nextProps.batches),
+            });
+        }
     }
 
     render(){
@@ -77,6 +85,7 @@ class BatchEditor extends React.Component {
                                 <li><input
                                     onChange={this._onFilterChange}
                                     placeholder="Filter by SKU"
+                                    ref="filter"
                                 /></li>
 
                                 <li><span>{batches.getSize()} batches</span></li>
