@@ -16,3 +16,6 @@ Silo is meant to live as a completely separate project, but due to code mess it'
 Silo uses Behat for testing. Run it with:
 
     php bin/behat
+
+## TODO
+- cache data coming from endpoints

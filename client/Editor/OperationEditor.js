@@ -6,6 +6,7 @@ import DataStoreWrapper from './DataStoreWrapper';
 import DownloadDataLink from '../Common/DownloadDataLink';
 import UploadModalMenu from './UploadModal';
 import TextCell from './TextCell';
+import LocationCell from './LocationCell';
 import Datetime from '../Common/Datetime';
 
 /**
@@ -94,12 +95,13 @@ class OperationEditor extends React.Component {
                                     <Column
                                         width={75}
                                         header="Source"
-                                        cell={<TextCell data={operations} col="source" />}
+                                        cell={<LocationCell data={operations} col="source" />}
                                     />
+
                                     <Column
                                         width={75}
                                         header="Target"
-                                        cell={<TextCell data={operations} col="target" />}
+                                        cell={<LocationCell data={operations} col="target" />}
                                     />
                                     <Column
                                         width={250}

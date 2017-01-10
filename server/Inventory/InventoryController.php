@@ -126,6 +126,9 @@ class InventoryController implements ControllerProviderInterface
                 ->setParameter('code', $code);
 
             $result = $query->getQuery()->execute();
+            if (empty($result)) {
+                return new JsonResponse([]);
+            }
 
             return new JsonResponse(
                 array_map(function (Batch $b) {
