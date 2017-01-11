@@ -23,20 +23,26 @@ module.exports = React.createClass({
     },
 
     componentDidMount: function () {
+        this.props.cache.get('operation/'+this.props.id)
+            .from(this.props.siloBasePath+"/inventory/operation/"+this.props.id)
+            .onUpdate(function(value){
+                this.setState({
+                    data: value,
+                    batches: new DataStore(value.batches)
+                });
+            }.bind(this))
+            .refresh();
+    },
 
-        this.props.cache.setCallbackWithUrl(
-            'operation/'+this.props.id,
-            this.props.siloBasePath+"/inventory/operation/"+this.props.id
-        ).get('operation/'+this.props.id).then(function(value){
-            this.setState({
-                data: value,
-                batches: new DataStore(value.batches)
-            });
-        }.bind(this));
+    componentWillUnmount : function () {
+        this.props.cache.cleanup('operation/'+this.props.id);
+        // Clear cache
+
     },
 
     handleRollback: function () {
-        console.log(rollback);
+        console.log("rollback");
+        this.props.cache.refresh('operation/'+this.props.id);
     },
 
     render: function(){
