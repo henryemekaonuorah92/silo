@@ -60,7 +60,9 @@ module.exports = React.createClass({
                         }
                         {data.batches.length > 0 && (<div>
                                 <b>Batches:</b>
-                                <BatchEditor batches={this.state.batches} />
+                                <BatchEditor
+                                    exportFilename={'operation-'+this.props.id+'-batches.csv'}
+                                    batches={this.state.batches} />
                             </div>)
                         }
                 </div>}

@@ -34,6 +34,7 @@ module.exports = React.createClass({
     },
 
     render() {
+        let startWith = this.state.merge ? "merge" : "replace";
         return (
             <a onClick={this.open}>
                 CSV Upload
@@ -62,7 +63,8 @@ module.exports = React.createClass({
                         </div>
                         <p>Please note this will create a single Operation performing the requested action.</p>
                         <p>Expected format is:</p>
-                        <pre>{`sku,quantity
+                        <pre>{startWith}{`
+sku,quantity
 31-232-25,15
 14-231-21,-2`}</pre>
                         <UploadField url={this.props.url+'?merge='+(this.state.merge ? 'true' : 'false')} onSuccess={this.handleSuccess} />

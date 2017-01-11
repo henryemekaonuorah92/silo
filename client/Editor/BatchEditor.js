@@ -74,7 +74,9 @@ class BatchEditor extends React.Component {
                                     </li>
                                 }
                                 <li>
-                                    <DownloadDataLink exportFile={function(){
+                                    <DownloadDataLink
+                                        filename={this.props.exportFilename}
+                                        exportFile={function(){
                                         let header = "sku,quantity\n";
                                         return header + batches.getAll().map(function(data){
                                             return data.product+','+data.quantity

@@ -202,7 +202,16 @@ class InventoryController implements ControllerProviderInterface
             $locations = $app['em']->getRepository('Inventory:Location');
             /** @var Location $location */
             $location = $locations->forceFindOneByCode($code);
-            $csv = new \parseCSV($_FILES['file']['tmp_name']);
+            $csv = new \parseCSV();
+            $csv->offset = 1;
+            $csv->keep_file_data = true;
+            $csv->parse($_FILES['file']['tmp_name']);
+
+            // Check first line of file
+            $shouldStartWith = $request->get('merge') === 'true' ? 'merge' : 'replace';
+            if (substr($csv->file_data, 0, strlen($shouldStartWith)) !== $shouldStartWith) {
+                return new JsonResponse(['errors' => ["File should start with \"$shouldStartWith\""]]);
+            }
 
             // Create a BatchCollection out of a CSV file
             $batches = new BatchCollection();
