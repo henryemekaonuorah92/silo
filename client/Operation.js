@@ -33,24 +33,17 @@ module.exports = React.createClass({
                 batches: new DataStore(value.batches)
             });
         }.bind(this));
-        /*
-        this.props.cache.setCallbackWithUrl(
-            'locationBatch/'+this.props.code,
-            this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches'
-        );
+    },
 
-        this.props.cache.get('locationBatch/'+this.props.code).then(function(value){
-            this.setState({
-                batches: new DataStore(value)
-            });
-        }.bind(this));
-        */
+    handleRollback: function () {
+        console.log(rollback);
     },
 
     render: function(){
         let data = this.state.data;
         return (
             <div>
+                <a className="btn btn-danger" onClick={this.handleRollback}>Rollback</a>
                 <h3>Operation {this.props.id}</h3>
                 {data && <div>
                         <b>Source:</b>&nbsp;{data.source ? <Link route="location" code={data.source} /> : "No source"}<br />

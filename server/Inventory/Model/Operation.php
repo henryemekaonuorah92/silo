@@ -99,7 +99,7 @@ class Operation
 
     /**
      * @var Operation If present, then current operation has been rollbacked by rollback operation
-     * @ORM\ManyToOne(targetEntity="Operation")
+     * @ORM\OneToOne(targetEntity="Operation")
      * @ORM\JoinColumn(name="rollback", referencedColumnName="operation_id", nullable=true)
      */
     private $rollbackOperation;
@@ -180,6 +180,9 @@ class Operation
      */
     public function createRollback(User $rollbackUser)
     {
+        // not rollbacked by a done operation
+        // has to be done to be rollbacked
+        // rollbacking location op is not supported yet
         throw new \Exception('Not implemented yet');
     }
 
