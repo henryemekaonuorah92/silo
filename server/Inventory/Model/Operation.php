@@ -157,6 +157,13 @@ class Operation
      */
     public function execute(User $doneBy)
     {
+        if ($this->doneAt) {
+            throw new \LogicException("Cannot execute $this, it has already been executed");
+        }
+        if ($this->cancelledAt) {
+            throw new \LogicException("Cannot execute $this, it has been cancelled");
+        }
+
         if ($location = $this->location) {
             $this->location->apply($this);
         } else {
@@ -168,9 +175,21 @@ class Operation
             }
         }
 
-        // @todo checks
         $this->doneBy = $doneBy;
         $this->doneAt = new \DateTime();
+    }
+
+    public function cancel(User $cancelledBy)
+    {
+        if ($this->doneAt) {
+            throw new \LogicException("Cannot cancel $this, it has been executed");
+        }
+        if ($this->cancelledAt) {
+            throw new \LogicException("Cannot cancel $this, it has already been cancelled");
+        }
+
+        $this->cancelledBy = $cancelledBy;
+        $this->cancelledAt = new \DateTime();
     }
 
     /**
@@ -181,9 +200,28 @@ class Operation
     public function createRollback(User $rollbackUser)
     {
         // not rollbacked by a done operation
+        if ($this->rollbackOperation && $this->rollbackOperation->doneAt) {
+            throw new \Exception("$this has already been rollbacked");
+        }
         // has to be done to be rollbacked
-        // rollbacking location op is not supported yet
-        throw new \Exception('Not implemented yet');
+        if (!$this->doneAt) {
+            throw new \Exception("Cannot rollback $this, it is still pending");
+        }
+        if ($this->cancelledAt) {
+            throw new \LogicException("Cannot rollback $this, it has been cancelled");
+        }
+
+        // @todo evaluate rollbacking with the same Batch instead of copying it
+        $rollbackingOperation = new Operation(
+            $rollbackUser,
+            $this->target,
+            $this->source,
+            $this->location ?: BatchCollection::fromCollection($this->batches)->copy()
+        );
+
+        $this->rollbackOperation = $rollbackingOperation;
+
+        return $rollbackingOperation;
     }
 
     /**
@@ -240,7 +278,7 @@ class Operation
             return $this->operationType->getName();
         }
 
-        return;
+        return null;
     }
 
     public function getStatus()

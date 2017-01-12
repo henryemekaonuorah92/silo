@@ -307,7 +307,7 @@ class InventoryController implements ControllerProviderInterface
             }
 
             return new JsonResponse([
-                'id' => $id,
+                'id' => (int) $id,
                 'batches' => array_map(function (Batch $b) {
                     return [
                         'product' => $b->getProduct()->getSku(),
@@ -320,6 +320,7 @@ class InventoryController implements ControllerProviderInterface
                 'target' => $op->getTarget() ? $op->getTarget()->getCode() : null,
                 'type' => $op->getType(),
                 'status' => $op->getStatus()->toArray(),
+                'rollback' => $op->getRollbackOperation() ? $op->getRollbackOperation()->getId() : null
             ]);
         });
 

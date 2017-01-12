@@ -81,6 +81,7 @@ class OperationStatus
             'cancelledBy' => $this->cancelledBy ? $this->cancelledBy->getName() : null,
             'cancelledAt' => $this->cancelledAt ? $this->cancelledAt->format('Y-m-d H:i:s') : null,
             'isRollbacked' => $this->isRollbacked,
+            'isRollbackable' => !$this->isRollbacked && $this->doneAt
         ];
     }
 }

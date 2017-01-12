@@ -8,9 +8,7 @@ module.exports = React.createClass({
 
     getInitialState: function () {
         return {
-            data: {
-                batches: []
-            },
+            data: null,
             batches: new DataStore([])
         };
     },
@@ -36,22 +34,35 @@ module.exports = React.createClass({
 
     componentWillUnmount : function () {
         this.props.cache.cleanup('operation/'+this.props.id);
-        // Clear cache
-
     },
 
     handleRollback: function () {
-        console.log("rollback");
-        this.props.cache.refresh('operation/'+this.props.id);
+        $.post(
+            this.props.siloBasePath+"/inventory/operation/"+this.props.id+"/rollback",
+            {headers: {'Accept': 'application/json'}}
+        )
+            .done(function(data, textStatus, jqXHR){
+                // @todo if jqXHR.status != 201 then do something
+                this.props.cache.refresh('operation/'+this.props.id);
+            }.bind(this));
+
     },
 
     render: function(){
         let data = this.state.data;
         return (
             <div>
-                <a className="btn btn-danger" onClick={this.handleRollback}>Rollback</a>
-                <h3>Operation {this.props.id}</h3>
+                <h3><span className="glyphicon glyphicon-transfer" /> Operation {this.props.id}</h3>
+                {!data && (<span>Loading</span>)}
                 {data && <div>
+                    <div className="pull-right">
+                        {data.status.isRollbackable &&
+                            <a className="btn btn-danger" onClick={this.handleRollback}>Rollback</a>
+                        }
+                        {data.rollback &&
+                            <span>Rollbacked: <Link route="operation" code={data.rollback} /></span>
+                        }
+                    </div>
                         <b>Source:</b>&nbsp;{data.source ? <Link route="location" code={data.source} /> : "No source"}<br />
                         <b>Target:</b>&nbsp;{data.target ? <Link route="location" code={data.target} /> : "No target"}<br />
                         {data.location &&

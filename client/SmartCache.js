@@ -16,15 +16,8 @@ CacheNode.prototype = {
             throw "not implemented yet";
         } else if (typeof from === 'string') {
             this._refreshCb = function(resolve, reject){
-                $.ajax(
-                    from,
-                    {
-                        success: function (data) {
-                            resolve(data);
-                        },
-                        headers: {'Accept': 'application/json'}
-                    }
-                );
+                $.ajax(from, {headers: {'Accept': 'application/json'}})
+                    .done(function(data){resolve(data);});
             };
         } else {
             throw "from should have one argument, either url or callback"
