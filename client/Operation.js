@@ -49,20 +49,23 @@ module.exports = React.createClass({
     },
 
     render: function(){
+        /*
+        // hide this temporarily
+         <div className="pull-right">
+         {data.status.isRollbackable &&
+         <a className="btn btn-danger" onClick={this.handleRollback}>Rollback</a>
+         }
+         {data.rollback &&
+         <span>Rollbacked: <Link route="operation" code={data.rollback} /></span>
+         }
+         </div>
+         */
         let data = this.state.data;
         return (
             <div>
                 <h3><span className="glyphicon glyphicon-transfer" /> Operation {this.props.id}</h3>
                 {!data && (<span>Loading</span>)}
                 {data && <div>
-                    <div className="pull-right">
-                        {data.status.isRollbackable &&
-                            <a className="btn btn-danger" onClick={this.handleRollback}>Rollback</a>
-                        }
-                        {data.rollback &&
-                            <span>Rollbacked: <Link route="operation" code={data.rollback} /></span>
-                        }
-                    </div>
                         <b>Source:</b>&nbsp;{data.source ? <Link route="location" code={data.source} /> : "No source"}<br />
                         <b>Target:</b>&nbsp;{data.target ? <Link route="location" code={data.target} /> : "No target"}<br />
                         {data.location &&

@@ -6,6 +6,7 @@ use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Silo\Inventory\Model\Batch;
 use Silo\Inventory\Model\BatchCollection;
+use Silo\Inventory\Model\Context;
 use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation;
 use Silo\Inventory\Validator\Constraints\LocationExists;
@@ -273,11 +274,13 @@ class InventoryController implements ControllerProviderInterface
          */
         $controllers->get('/operation', function (Application $app) {
             $query = $app['em']->createQueryBuilder();
-            $query->select('operation, source, target, type')
+            $query->select('operation, source, target, type, context, contextType')
                 ->from('Inventory:Operation', 'operation')
                 ->leftJoin('operation.source', 'source')
                 ->leftJoin('operation.target', 'target')
                 ->leftJoin('operation.operationType', 'type')
+                ->leftJoin('operation.contexts', 'context')
+                ->leftJoin('context.type', 'contextType')
                 ->orderBy('operation.id', 'DESC')
                 ->setMaxResults(1000)
                 ;
@@ -292,6 +295,12 @@ class InventoryController implements ControllerProviderInterface
                         'target' => $op->getTarget() ? $op->getTarget()->getCode() : null,
                         'type' => $op->getType(),
                         'status' => $op->getStatus()->toArray(),
+                        'contexts' => array_map(function(Context $context){
+                            return [
+                                'name' => $context->getName(),
+                                'value' => $context->getValue()
+                            ];
+                        }, $op->getContexts()->toArray())
                     ];
                 }, $result)
             );

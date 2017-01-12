@@ -109,6 +109,17 @@ class OperationEditor extends React.Component {
                                         cell={<LocationCell data={operations} col="target" />}
                                     />
                                     <Column
+                                        width={175}
+                                        header="Context"
+                                        cell={({rowIndex}) => (
+                                            <Cell>
+                                                {operations.getObjectAt(rowIndex).contexts.map(function(context, key){
+                                                    return <span key={key}>{context.name + ' ' +context.value}</span>;
+                                                })}
+                                            </Cell>
+                                        )}
+                                    />
+                                    <Column
                                         width={250}
                                         header="Request"
                                         cell={({rowIndex}) => (

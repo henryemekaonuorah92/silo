@@ -105,6 +105,11 @@ class Operation
     private $rollbackOperation;
 
     /**
+     * @ORM\ManyToMany(targetEntity="Context", mappedBy="operations")
+     */
+    private $contexts;
+
+    /**
      * @param User $requestedBy
      * @param $source
      * @param $target
@@ -147,6 +152,8 @@ class Operation
                 $batch->setOperation($that);
             });
         }
+
+        $this->contexts = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
@@ -300,5 +307,13 @@ class Operation
     public function getRollbackOperation()
     {
         return $this->rollbackOperation;
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getContexts()
+    {
+        return $this->contexts;
     }
 }

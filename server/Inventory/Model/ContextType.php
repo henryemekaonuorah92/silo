@@ -5,15 +5,15 @@ namespace Silo\Inventory\Model;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Table(name="operation_type")
- * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\OperationType")
+ * @ORM\Table(name="context_type")
+ * @ORM\Entity
  */
-class OperationType
+class ContextType
 {
     /**
      * @var int
      *
-     * @ORM\Column(name="operation_type_id", type="integer")
+     * @ORM\Column(name="context_type_id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
