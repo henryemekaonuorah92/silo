@@ -141,14 +141,13 @@ class InventoryController implements ControllerProviderInterface
         $controllers->post('/operation/import', function () use ($app) {
             $csv = new \parseCSV($_FILES['file']['tmp_name']);
             $operationMap = [];
-            $locations = $app['em']->getRepository('Inventory:Location');
             foreach ($csv->data as $line) {
                 ++$line;
                 /** @var ConstraintViolationList $violations */
                 $violations = $app['validator']->validate($line, [
                     new Constraint\Collection([
-                        'source' => [new LocationExists()],
-                        'target' => [new LocationExists()],
+                        'source' => [new Constraint\NotBlank(), new LocationExists()],
+                        'target' => [new Constraint\NotBlank(), new LocationExists()],
                         'sku' => [new Constraint\Required(), new SkuExists()],
                         'quantity' => new Constraint\Range(['min' => -100, 'max' => 100]),
                     ]),
@@ -174,6 +173,9 @@ class InventoryController implements ControllerProviderInterface
             // Build now the corresponding operations
             foreach ($operationMap as $operation => $batches) {
                 list($sourceCode, $targetCode) = explode(',', $operation);
+                if ($sourceCode == 'VOID') {$sourceCode = null;}
+                if ($targetCode == 'VOID') {$targetCode = null;}
+
 
                 $source = !empty($sourceCode) ?
                     $app['em']->getRepository('Inventory:Location')->findOneBy(['code' => $sourceCode]) :
@@ -184,7 +186,7 @@ class InventoryController implements ControllerProviderInterface
 
                 $operation = new Operation($app['current_user'], $source, $target, $batches);
 
-                $type = $app['em']->getRepository('Inventory:OperationType')->getByName('mass creation');
+                $type = $app['em']->getRepository('Inventory:OperationType')->getByName('mass upload');
                 $operation->setType($type);
 
                 $app['em']->persist($operation);

@@ -14,7 +14,7 @@ class LocationExistsValidator extends ConstraintValidator implements ContainerAw
 
     public function validate($value, Constraint $constraint)
     {
-        if ($value == null) {
+        if ($value == null || $value == 'VOID') {
             return;
         }
 

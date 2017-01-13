@@ -9,7 +9,8 @@ module.exports = React.createClass({
     getInitialState: function(){return {
         errors: [],
         success: [],
-        operations : new DataStore([])
+        operations : new DataStore([]),
+        wip: false
     }},
     propTypes: {
         /**
@@ -49,7 +50,11 @@ module.exports = React.createClass({
     },
 
     handleClick: function(){
-        this.setState({success: []});
+        this.setState({
+            success: [],
+            errors: [],
+            wip: true
+        });
 
         let fileInput = this.refs.file;
         if (!fileInput.files[0]) {
@@ -69,14 +74,15 @@ module.exports = React.createClass({
             contentType: false,
             success: function (res) {
                 if (res.errors) {
-                    this.setState({errors: res.errors});
+                    this.setState({errors: res.errors, wip: false});
                 } else {
-                    this.setState({success: ["Operation successful"]});
+                    this.setState({success: ["Operation successful"], wip: false});
+                    this.refresh();
                     this.props.onSuccess(res);
                 }
             }.bind(this),
             error: function () {
-                this.setState({errors: ["Error while uploading"]});
+                this.setState({errors: ["Error while uploading"], wip: false});
             }.bind(this)
         });
     },
@@ -91,10 +97,10 @@ module.exports = React.createClass({
                 You can create here an Operation, the most basic movement object for Silo.
 
                 Use the following format:
-                <pre>{`source;target;sku;quantity
-;MTLST;something;2
-MTLST;some-other-thing;2
-OTTST;MTLST;sku2;4`}</pre>
+                <pre>{`source,target,sku,quantity
+VOID,MTLST,something,2
+MTLST,VOID,some-other-thing,2
+OTTST,MTLST,sku2,4`}</pre>
 
                 The first line is a <b>creation</b> of product.
                 The second line is a <b>deletion</b> of product.
@@ -103,7 +109,7 @@ OTTST;MTLST;sku2;4`}</pre>
                 <div className="input-group">
                     <input className="form-control" type="file" ref="file" />
                     <span className="input-group-btn">
-                        <button onClick={this.handleClick} className="btn btn-primary">Upload</button>
+                        <button onClick={this.handleClick} className="btn btn-primary" disabled={this.state.wip}>Upload</button>
                     </span>
                 </div>
 
