@@ -68,6 +68,10 @@ module.exports = React.createClass({
                 {data && <div>
                         <b>Source:</b>&nbsp;{data.source ? <Link route="location" code={data.source} /> : "No source"}<br />
                         <b>Target:</b>&nbsp;{data.target ? <Link route="location" code={data.target} /> : "No target"}<br />
+                        <b>Rollback:</b>&nbsp;{data.rollback ? <Link route="operation" code={data.rollback} /> : "Not rollbacked"}<br />
+                        <b>Contexts:</b>&nbsp;{data.contexts && data.contexts.length > 0 ? data.contexts.map(function(context){
+                            return context.name+' '+context.value;
+                        }).join(', ') : "No context"}<br />
                         {data.location &&
                         (<span><b>Moved location:</b>&nbsp;<Link route="location" code={data.location} /><br /></span>)
                         }

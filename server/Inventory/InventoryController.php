@@ -329,7 +329,13 @@ class InventoryController implements ControllerProviderInterface
                 'target' => $op->getTarget() ? $op->getTarget()->getCode() : null,
                 'type' => $op->getType(),
                 'status' => $op->getStatus()->toArray(),
-                'rollback' => $op->getRollbackOperation() ? $op->getRollbackOperation()->getId() : null
+                'rollback' => $op->getRollbackOperation() ? $op->getRollbackOperation()->getId() : null,
+                'contexts' => array_map(function(Context $context){
+                    return [
+                        'name' => $context->getName(),
+                        'value' => $context->getValue()
+                    ];
+                }, $op->getContexts()->toArray())
             ]);
         });
 
