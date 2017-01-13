@@ -17,6 +17,10 @@ class SkuExistsValidator extends ConstraintValidator implements ContainerAwareIn
         $products = $this->container['em']->getRepository('Inventory:Product');
         $product = $products->findOneBy(['sku' => $value]);
 
+        if (!$product && $this->container['productProvider']) {
+            $product = $this->container['productProvider']->getProduct($value);
+        }
+
         if (!$product) {
             $this->context->buildViolation($constraint->message)
                 ->setParameter('%sku%', $value)
