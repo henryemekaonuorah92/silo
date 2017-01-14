@@ -30,7 +30,8 @@ class InventoryController implements ControllerProviderInterface
          * Inspect a Location given its code
          */
         $controllers->get('/location/{code}', function ($code, Application $app) {
-            $locations = $app['em']->getRepository('Inventory:Location');
+            $locations = $app['re']('Inventory:Location');
+
             /** @var Location $location */
             $location = $locations->forceFindOneByCode($code);
 

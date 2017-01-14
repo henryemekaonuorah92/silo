@@ -46,6 +46,11 @@ class Silo extends \Silex\Application
             ]));
         }
 
+        // Shortcut for getting a Repository instance quick
+        $app['re'] = $app->protect(function ($name) use ($app) {
+            return $app['em']->getRepository($name);
+        });
+
         $app['validator'] = function () use ($app) {
             return Validation::createValidatorBuilder()
                 ->addMethodMapping('loadValidatorMetadata')
