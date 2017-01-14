@@ -15,8 +15,7 @@ class CoverageContext extends BehatContext
     {
         if (!self::$coverage) {
             $filter = new PHP_CodeCoverage_Filter();
-            $filter->addDirectoryToWhitelist(__DIR__.'/../../Base');
-            $filter->addDirectoryToWhitelist(__DIR__.'/../../Inventory');
+            $filter->addDirectoryToWhitelist(__DIR__.'/../../server');
 
             self::$coverage = new PHP_CodeCoverage(null, $filter);
         }

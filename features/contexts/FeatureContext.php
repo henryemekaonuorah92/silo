@@ -49,7 +49,10 @@ class FeatureContext extends BehatContext
      */
     public function __construct(array $parameters)
     {
-        // $this->useContext('coverage', new CoverageContext($parameters));
+        if (isset($parameters['coverage']) && $parameters['coverage']) {
+            $this->useContext('coverage', new CoverageContext($parameters));
+        }
+
         // $this->useContext('ranking', $ranking);
         $this->useContext('then', new ThenContext());
         $this->useContext('unit', new UnitContext());
