@@ -56,6 +56,15 @@ Feature: Inventory basic movements
   #    | X | 1 |
   #  Then A is empty
 
+  Scenario: Add a modifier to a Location
+    Given a Locations A with:
+      | X | 1 |
+    When one assign modifier "surplus" to A
+    # Then show raw silo_modifier,silo_modifier_type
+    Then A has "surplus" modifier
+    When one remove modifier "surplus" from A
+    Then A has no "surplus" modifier
+
   Scenario: Operation can be rollbacked
   Scenario: Operation can be cancelled
   Scenario: Batches with nothing left are removed from Location

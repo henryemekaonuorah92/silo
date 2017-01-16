@@ -14,6 +14,7 @@ use Silo\Inventory\Model as Inventory;
 require_once __DIR__.'/CoverageContext.php';
 require_once __DIR__.'/ThenContext.php';
 require_once __DIR__.'/UnitContext.php';
+require_once __DIR__.'/SilexContext.php';
 
 /**
  * Features context.
@@ -56,6 +57,7 @@ class FeatureContext extends BehatContext
         // $this->useContext('ranking', $ranking);
         $this->useContext('then', new ThenContext());
         $this->useContext('unit', new UnitContext());
+        $this->useContext('silex', new SilexContext());
     }
 
     /** @BeforeScenario */
