@@ -2,7 +2,7 @@
  * Naive in memory cache implementation
  * @type {Cache}
  */
-module.exports = Cache = function(){
+var Cache = function(){
     this._cached = [];
     this._cb = [];
 };
@@ -61,3 +61,5 @@ Cache.prototype = {
         })
     }
 };
+
+module.exports = Cache;
