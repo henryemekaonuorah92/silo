@@ -19,6 +19,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * Endpoints.
+ *
+ * @todo should factorize this a bit
  */
 class InventoryController implements ControllerProviderInterface
 {

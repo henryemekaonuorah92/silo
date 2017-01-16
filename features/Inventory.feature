@@ -56,6 +56,8 @@ Feature: Inventory basic movements
   #    | X | 1 |
   #  Then A is empty
 
+  Scenario: Operation can be rollbacked
+  Scenario: Operation can be cancelled
   Scenario: Batches with nothing left are removed from Location
   Scenario: Location has to be moved with a credible Operation
   Scenario: Replay to any point in time for stock calculation
