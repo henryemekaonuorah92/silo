@@ -4,6 +4,7 @@ namespace Silo;
 
 use Doctrine\ORM\EntityManager;
 use Silo\Base\ConstraintValidatorFactory;
+use Silo\Base\Provider\DoctrineProvider\SQLLogger;
 use Silo\Inventory\Model\User;
 use Silo\Inventory\ProductProviderInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,6 +45,13 @@ class Silo extends \Silex\Application
             $app->register(new \Silo\Base\Provider\DoctrineProvider([
                 __DIR__.'/Inventory/Model',
             ]));
+        } else {
+            $app['em_logger'] = function () use ($app) {
+                return new SQLLogger();
+            };
+            $app['em']->getConnection()
+                ->getConfiguration()
+                ->setSQLLogger($app['em_logger']);
         }
 
         // Shortcut for getting a Repository instance quick

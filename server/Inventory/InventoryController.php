@@ -419,8 +419,6 @@ class InventoryController implements ControllerProviderInterface
             return new JsonResponse([], Response::HTTP_ACCEPTED);
         });
 
-
-
         return $controllers;
     }
 }

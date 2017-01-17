@@ -3,6 +3,7 @@
 namespace Silo\Base\Provider;
 
 use Doctrine\Common\Cache\ArrayCache;
+use Silo\Base\Provider\DoctrineProvider\SQLLogger;
 use Silo\Base\Provider\DoctrineProvider\TablePrefix;
 use Pimple\ServiceProviderInterface;
 use Doctrine\ORM\Tools\Setup;
@@ -43,11 +44,16 @@ class DoctrineProvider implements ServiceProviderInterface
         Type::overrideType('datetime', UTCDateTimeType::class);
         Type::overrideType('datetimetz', UTCDateTimeType::class);
 
+        $app['em_logger'] = function () use ($app) {
+            return new SQLLogger();
+        };
+
         $app['em'] = function () use ($app, $cache, $paths) {
             $config = Setup::createAnnotationMetadataConfiguration(
                 $paths, false, null, $cache, false
             );
             $config->addEntityNamespace('Inventory', 'Silo\Inventory\Model');
+            $config->setSQLLogger($app['em_logger']);
 
             $evm = new \Doctrine\Common\EventManager();
             $evm->addEventListener(\Doctrine\ORM\Events::loadClassMetadata, new TablePrefix('silo_'));
