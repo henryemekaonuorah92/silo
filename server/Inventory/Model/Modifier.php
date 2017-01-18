@@ -83,4 +83,12 @@ class Modifier
     {
         $this->value = $value;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getLocation()
+    {
+        return $this->location;
+    }
 }

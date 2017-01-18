@@ -280,10 +280,11 @@ class InventoryController implements ControllerProviderInterface
          */
         $controllers->get('/operation', function (Application $app) {
             $query = $app['em']->createQueryBuilder();
-            $query->select('operation, source, target, type, context, contextType')
+            $query->select('operation, source, target, type, context, location, contextType')
                 ->from('Inventory:Operation', 'operation')
                 ->leftJoin('operation.source', 'source')
                 ->leftJoin('operation.target', 'target')
+                ->leftJoin('operation.location', 'location')
                 ->leftJoin('operation.operationType', 'type')
                 ->leftJoin('operation.contexts', 'context')
                 ->leftJoin('context.type', 'contextType')
@@ -301,6 +302,7 @@ class InventoryController implements ControllerProviderInterface
                         'target' => $op->getTarget() ? $op->getTarget()->getCode() : null,
                         'type' => $op->getType(),
                         'status' => $op->getStatus()->toArray(),
+                        'location' => $op->getLocation() ? $op->getLocation()->getCode() : null,
                         'contexts' => array_map(function(Context $context){
                             return [
                                 'name' => $context->getName(),

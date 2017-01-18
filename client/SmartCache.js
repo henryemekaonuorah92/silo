@@ -68,7 +68,11 @@ SmartCache.prototype = {
         return node;
     },
     cleanup: function(key){
-        this._nodes[key].cleanup();
+        if (this._nodes[key]) {
+            this._nodes[key].cleanup();
+        } else {
+            console.log(key+' is not an existing SmartCache node');
+        }
         return this;
     },
     refresh: function(key){
