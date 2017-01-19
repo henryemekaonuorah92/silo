@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * be possible, but let's make it simple for futur generations).
  *
  * @ORM\Table(name="operation")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\Operation")
  */
 class Operation
 {

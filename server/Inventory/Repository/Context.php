@@ -20,9 +20,8 @@ class Context extends EntityRepository
 
         $this->createContextType = \Closure::bind(
             function ($name) {
-                $prop = 'name'; // hack to avoid IDE warnings
                 $type = new ContextType();
-                $type->$prop = $name;
+                $type->{'name'} = $name;
 
                 return $type;
             },

@@ -6,3 +6,14 @@ default:
     class: FeatureContext
     parameters:
       debugDoctrine: false
+      coverage: false
+
+coverage:
+  paths:
+    features: features
+    bootstrap: %behat.paths.features%/contexts
+  context:
+    class: FeatureContext
+    parameters:
+      debugDoctrine: false
+      coverage: true

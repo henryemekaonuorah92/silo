@@ -17,7 +17,8 @@ CacheNode.prototype = {
         } else if (typeof from === 'string') {
             this._refreshCb = function(resolve, reject){
                 $.ajax(from, {headers: {'Accept': 'application/json'}})
-                    .done(function(data){resolve(data);});
+                    .done(function(data){resolve(data);})
+                    .error(function(){console.log(arguments)});
             };
         } else {
             throw "from should have one argument, either url or callback"
@@ -67,7 +68,11 @@ SmartCache.prototype = {
         return node;
     },
     cleanup: function(key){
-        this._nodes[key].cleanup();
+        if (this._nodes[key]) {
+            this._nodes[key].cleanup();
+        } else {
+            console.log(key+' is not an existing SmartCache node');
+        }
         return this;
     },
     refresh: function(key){
