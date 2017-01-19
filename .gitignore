@@ -4,4 +4,5 @@ vendor
 node_modules
 composer.lock
 reports
+public/*.js
 **.DS_Store

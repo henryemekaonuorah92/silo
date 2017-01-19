@@ -8,13 +8,12 @@ Proudly built in Montréal with:
 - Doctrine2
 
 ## Installation
-
-    php -S localhost:8000 -t public/
-
+    
+    make build
 
 ## Usage
 
-
+    php -S localhost:8000 -t public/
 
 ## Testing
 Silo uses Behat for testing. Run it with:

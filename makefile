@@ -16,6 +16,7 @@ help:
 build:
 	composer install
 	npm install
+	node node_modules/gulp/bin/gulp.js build
 
 clean:
 	rm -rf vendor

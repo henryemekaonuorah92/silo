@@ -1,4 +1,3 @@
-;
 import React from 'react';
 import BatchEditor from './Editor/BatchEditor';
 import DataStore from './Editor/DataStore';
