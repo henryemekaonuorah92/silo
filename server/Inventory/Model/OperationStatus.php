@@ -47,13 +47,13 @@ class OperationStatus
         $extract = \Closure::bind(
             function (Operation $operation) {
                 return [
-                    $operation->requestedBy,
-                    $operation->requestedAt,
-                    $operation->doneBy,
-                    $operation->doneAt,
-                    $operation->cancelledBy,
-                    $operation->cancelledAt,
-                    !is_null($operation->rollbackOperation),
+                    $operation->{'requestedBy'},
+                    $operation->{'requestedAt'},
+                    $operation->{'doneBy'},
+                    $operation->{'doneAt'},
+                    $operation->{'cancelledBy'},
+                    $operation->{'cancelledAt'},
+                    !is_null($operation->{'rollbackOperation'}),
                 ];
             },
             null,
@@ -81,7 +81,8 @@ class OperationStatus
             'cancelledBy' => $this->cancelledBy ? $this->cancelledBy->getName() : null,
             'cancelledAt' => $this->cancelledAt ? $this->cancelledAt->format('Y-m-d H:i:s') : null,
             'isRollbacked' => $this->isRollbacked,
-            'isRollbackable' => !$this->isRollbacked && $this->doneAt
+            'isRollbackable' => !$this->isRollbacked && $this->doneAt,
+            'isPending' => !$this->doneAt && !$this->cancelledAt
         ];
     }
 }

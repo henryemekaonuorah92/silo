@@ -341,7 +341,38 @@ class InventoryController implements ControllerProviderInterface
             ]);
         });
 
-        $controllers->post('/operation/{id}/rollback', function ($id, Application $app) {
+        $controllers->post('/operation/{id}/{action}', function ($id, $action, Application $app) {
+            $operations = $app['em']->getRepository('Inventory:Operation');
+            /** @var Operation $op */
+            $op = $operations->find($id);
+
+            if (!$op) {
+                throw new \Exception("Operation $id does not exist");
+            }
+
+            $user = $app['current_user'];
+
+            switch ($action) {
+                case 'rollback':
+                    $rollbackOp = $op->createRollback($user);
+                    $app['em']->persist($rollbackOp);
+                    $app['em']->flush();
+                    $rollbackOp->execute($user);
+                    break;
+                case 'execute':
+                    $op->execute($user);
+                    break;
+                case 'cancel':
+                    $op->cancel($user);
+                    break;
+            }
+
+            $app['em']->flush();
+
+            return new JsonResponse([], 201);
+        })->assert('action', 'rollback|cancel|execute');;
+
+        $controllers->post('/operation/{id}/execute', function ($id, Application $app) {
             $operations = $app['em']->getRepository('Inventory:Operation');
             /** @var Operation $op */
             $op = $operations->find($id);
