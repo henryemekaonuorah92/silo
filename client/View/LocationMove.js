@@ -7,6 +7,7 @@ module.exports = React.createClass({
     getInitialState: function () {
         return {
             confirmation: false,
+            error: false,
             parent: null,
             children: [],
         };
@@ -80,30 +81,36 @@ module.exports = React.createClass({
     },
     
     execute: function(){
-        $.ajax({
-            type: "POST",
-            url: this.props.siloBasePath+"/inventory/operation",
-            headers: {'Accept': 'application/json'},
-            data: {
+        $.post(
+            this.props.siloBasePath+"/inventory/operation",
+            {
                 children: this.state.children.slice(),
                 parent: this.state.parent
-            }
-        })
+            })
         .done(function(data, textStatus, jqXHR){
             // @todo if jqXHR.status != 201 then do something
             this.setState({
                 confirmation: true
             });
+        }.bind(this))
+        .fail(function(data, textStatus, jqXHR){
+            // @todo if jqXHR.status != 201 then do something
+            const error = JSON.parse(data.responseText);
+            this.setState({
+                error: error ? error.message : 'No message'
+            });
         }.bind(this));
 
         this.setState({
+            parent: null,
             children: []
         });
     },
 
     clearConfirmation: function(){
         this.setState({
-            confirmation: false
+            confirmation: false,
+            error: false
         });
     },
 
@@ -111,13 +118,22 @@ module.exports = React.createClass({
         const that = this;
         return (
             <div>
-                {this.state.confirmation ?
+                {this.state.confirmation &&
                     <div className="text-center">
                         <span style={{fontSize: "50px"}} className="glyphicon glyphicon-ok" />
                         <h3>Parent assigned</h3>
                         <button className="btn btn-block btn-success" onClick={this.clearConfirmation}>Continue</button>
                     </div>
-                    :
+                }
+                {this.state.error &&
+                <div className="text-center">
+                    <span style={{fontSize: "50px"}} className="glyphicon glyphicon-remove" />
+                    <h3>Failure</h3>
+                    {this.state.error}
+                    <button className="btn btn-block btn-default" onClick={this.clearConfirmation}>Continue</button>
+                </div>
+                }
+                {!this.state.confirmation && !this.state.error &&
                     <div>
                         <div className="panel panel-default">
                             <div className="panel-body text-center">{this.stepHelp[this.getStep()]} <HandheldScanner onScan={this.handleScan} /></div>
