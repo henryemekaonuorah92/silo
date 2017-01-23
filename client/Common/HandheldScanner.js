@@ -22,12 +22,13 @@ module.exports = React.createClass({
     componentDidMount: function(){
         $(document.body)
             .on({
-                'keyup': function(e){
-                    // Ignore keyups happening on something else than body
+                'keypress': function(e){
+                    // Ignore keypresses happening on something else than body
                     if (e.target.tagName !== 'BODY') {
                         return;
                     }
-                    this._inputString += String.fromCharCode(e.which);
+                    let charCode = (typeof e.which === "number") ? e.which : e.keyCode;
+                    this._inputString += String.fromCharCode(charCode);
 
                     if (this._timeoutHandler) {
                         clearTimeout(this._timeoutHandler);
@@ -38,12 +39,17 @@ module.exports = React.createClass({
                             return;
                         }
 
-                        this.props.onScan(this._inputString);
+                        this.props.onScan(this._inputString.trim());
                         this._inputString = '';
-                    }.bind(this), 500)
+                    }.bind(this), 100)
                 }.bind(this)
             }
         );
+    },
+
+    componentWillUnmount: function(){
+        $(document.body).off('keypress');
+        this._timeoutHandler = null;
     },
 
     render: function(){

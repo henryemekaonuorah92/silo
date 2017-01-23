@@ -105,9 +105,8 @@ class OperationEditor extends React.Component {
                                             return <Cell>
                                                 {data.source ? <Link route="location" code={data.source} /> : <span className="label label-success">CREATE</span>}
                                                 &nbsp;&rarr;&nbsp;
-                                                {data.location ? <Link route="location" code={data.location} /> : 'skus'}
-                                                &nbsp;&rarr;&nbsp;
                                                 {data.target ? <Link route="location" code={data.target} /> : <span className="label label-danger">DELETE</span>}
+                                                &nbsp;({data.location ? <Link route="location" code={data.location} /> : 'skus'})
                                                 </Cell>;
                                         }}
                                     />

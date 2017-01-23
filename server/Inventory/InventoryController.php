@@ -231,6 +231,11 @@ class InventoryController implements ControllerProviderInterface
             }
             $app['em']->flush();
 
+            foreach($operations as $op) {
+                $op->execute($app['current_user']);
+            }
+            $app['em']->flush();
+
             return new JsonResponse([]);
         });
 

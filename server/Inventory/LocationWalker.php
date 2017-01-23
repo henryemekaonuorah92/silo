@@ -28,6 +28,7 @@ class LocationWalker
      * @param callable $map
      * @param callable $reduce
      * @return mixed
+     * @todo Warn for cycles !
      */
     public function mapReduce(Location $location, callable $map, callable $reduce, $reduceInit)
     {

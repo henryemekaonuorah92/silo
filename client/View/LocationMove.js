@@ -1,6 +1,9 @@
 ;
 const React = require('react');
 const HandheldScanner = require('../Common/HandheldScanner');
+const Success = require('./Success');
+const Error = require('./Error');
+const Pending = require('./Pending');
 
 module.exports = React.createClass({
 
@@ -119,19 +122,10 @@ module.exports = React.createClass({
         return (
             <div>
                 {this.state.confirmation &&
-                    <div className="text-center">
-                        <span style={{fontSize: "50px"}} className="glyphicon glyphicon-ok" />
-                        <h3>Parent assigned</h3>
-                        <button className="btn btn-block btn-success" onClick={this.clearConfirmation}>Continue</button>
-                    </div>
+                    <Success title="Parent assigned" onAck={this.clearConfirmation} />
                 }
                 {this.state.error &&
-                <div className="text-center">
-                    <span style={{fontSize: "50px"}} className="glyphicon glyphicon-remove" />
-                    <h3>Failure</h3>
-                    {this.state.error}
-                    <button className="btn btn-block btn-default" onClick={this.clearConfirmation}>Continue</button>
-                </div>
+                    <Error title="Failure" onAck={this.clearConfirmation} />
                 }
                 {!this.state.confirmation && !this.state.error &&
                     <div>

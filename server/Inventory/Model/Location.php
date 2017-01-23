@@ -78,8 +78,12 @@ class Location
     {
         $that = $this;
         if (self::compare($operation->getLocation(), $this)) { // $this is the moved Location
-            if (!self::compare($this->parent, $operation->getSource())) {
-                throw new \LogicException("$this cannot by $operation has it is no longer in ".$this->parent);
+            $currentParent = $this->getParent();
+            if (!self::compare($currentParent, $operation->getSource())) {
+                throw new \LogicException("$this cannot be applied $operation has it is no longer in ".$this->parent);
+            }
+            if (self::compare($this, $operation->getTarget()->getParent())) {
+                throw new \LogicException("$this cannot be applied $operation has it would create a cycle");
             }
             $this->parent = $operation->getTarget();
         } elseif (self::compare($operation->getSource(), $this)) {
@@ -127,7 +131,7 @@ class Location
             return false;
         }
 
-        return $a->code == $b->code;
+        return $a->id == $b->id;
     }
 
     /**
