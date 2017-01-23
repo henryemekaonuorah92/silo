@@ -41,7 +41,10 @@ class Silo extends \Silex\Application
         $app->mount('/silo/inventory', new \Silo\Inventory\InventoryController());
 
         // Deal with exceptions
-        $app->error(function (\Exception $e, $request) {
+        $app->error(function (\Exception $e, $request) use ($app){
+            if ($app->offsetExists('logger')) {
+                $app['logger']->error($e);
+            }
             return new Response($e, Response::HTTP_INTERNAL_SERVER_ERROR);
         });
     }
