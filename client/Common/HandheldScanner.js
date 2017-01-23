@@ -48,9 +48,7 @@ module.exports = React.createClass({
 
     render: function(){
         return (
-            <div>
-                SCAN
-            </div>
+            <span className="glyphicon glyphicon-barcode"></span>
         );
     }
 });

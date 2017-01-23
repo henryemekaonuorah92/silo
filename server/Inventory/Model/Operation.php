@@ -132,6 +132,9 @@ class Operation
         if (is_null($source) && is_null($target)) {
             throw new \LogicException('A source or a target should at least be specified');
         }
+        if ($source && $target && $source->getCode() == $target->getCode()) {
+            throw new \LogicException('Source and target should be different');
+        }
         if (!$content instanceof Location && !$content instanceof ArrayCollection) {
             throw new \LogicException('Content should be either Location or ArrayCollection');
         }

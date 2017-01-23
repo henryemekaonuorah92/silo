@@ -211,6 +211,30 @@ class InventoryController implements ControllerProviderInterface
         });
 
         /*
+         * Create an operation
+         */
+        $controllers->post('/operation', function (Request $request) use ($app) {
+            $locations = $app['em']->getRepository('Inventory:Location');
+            /** @var Location $location */
+            $parent = $locations->forceFindOneByCode($request->get('parent'));
+
+            $operations = [];
+            foreach ($request->get('children') as $childCode) {
+                $child = $locations->forceFindOneByCode($childCode);
+
+                $op = new Operation($app['current_user'], $child->getParent(), $parent, $child);
+                array_push($operations, $op);
+            }
+
+            foreach($operations as $op) {
+                $app['em']->persist($op);
+            }
+            $app['em']->flush();
+
+            return new JsonResponse([]);
+        });
+
+        /*
          * Edit Batches in a given Location
          */
         $controllers->post('/location/{code}/batches', function ($code, Application $app, Request $request) {
