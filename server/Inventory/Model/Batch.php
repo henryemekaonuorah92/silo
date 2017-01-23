@@ -8,7 +8,12 @@ use Doctrine\ORM\Mapping as ORM;
  * An immutable (we hope so) quantity of Product.
  *
  * @ORM\Entity
- * @ORM\Table(name="batch", options={"comment":"Quantity of Product, immutable when Operation is set"})
+ * @ORM\Table(name="batch",
+ *     options={"comment":"Quantity of Product, immutable when Operation is set"},
+ *     uniqueConstraints={
+ *         @ORM\UniqueConstraint(name="product_operation_location_idx", columns={"product_id", "operation_id", "location_id"})
+ *     }
+ * )
  */
 class Batch
 {
