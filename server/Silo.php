@@ -7,6 +7,7 @@ use Silo\Base\ConstraintValidatorFactory;
 use Silo\Base\Provider\DoctrineProvider\SQLLogger;
 use Silo\Inventory\Model\User;
 use Silo\Inventory\ProductProviderInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Validation;
 
@@ -77,7 +78,11 @@ class Silo extends \Silex\Application
             if ($app->offsetExists('logger')) {
                 $app['logger']->error($e);
             }
-            return new Response($e, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new JsonResponse([
+                'message' => $e->getMessage(),
+                'trace' => $e->getTrace(),
+                'file' => $e->getFile().':'.$e->getLine()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         });
     }
 }
