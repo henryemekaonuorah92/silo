@@ -1,6 +1,6 @@
 ;
-import React from 'react';
-import {Popover} from 'react-bootstrap';
+const React = require('react');
+const {Popover} = require('react-bootstrap');
 
 module.exports = React.createClass({
 

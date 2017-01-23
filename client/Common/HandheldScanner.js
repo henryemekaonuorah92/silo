@@ -1,5 +1,5 @@
 ;
-import React from 'react';
+const React = require('react');
 
 module.exports = React.createClass({
     getInitialState: function(){return{

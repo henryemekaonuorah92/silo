@@ -1,6 +1,6 @@
 ;
-import React from 'react';
-import HandheldScanner from '../Common/HandheldScanner';
+const React = require('react');
+const HandheldScanner = require('../Common/HandheldScanner');
 
 module.exports = React.createClass({
 
