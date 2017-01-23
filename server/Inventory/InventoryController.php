@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Constraints as Constraint;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * Endpoints.
@@ -155,6 +156,13 @@ class InventoryController implements ControllerProviderInterface
                         'sku' => [new Constraint\Required(), new SkuExists()],
                         'quantity' => new Constraint\Range(['min' => -100, 'max' => 100]),
                     ]),
+                    new Constraint\Callback(function($payload, ExecutionContextInterface $context)
+                    {
+                        if ($payload['source'] === "VOID" && $payload['target'] === "VOID") {
+                            $context->buildViolation('Source and target cannot be both VOID')
+                                ->addViolation();
+                        }
+                    })
                 ]);
 
                 if ($violations->count() > 0) {
