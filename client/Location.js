@@ -1,8 +1,8 @@
 ;
-import React from 'react';
-import BatchEditor from './Editor/BatchEditor';
-import DataStore from './Editor/DataStore';
-import Link from './Common/Link';
+const React = require('react');
+const BatchEditor = require('./Editor/BatchEditor');
+const DataStore = require('./Editor/DataStore');
+const Link = require('./Common/Link');
 
 module.exports = React.createClass({
 

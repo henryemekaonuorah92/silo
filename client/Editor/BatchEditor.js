@@ -1,11 +1,11 @@
 ;
-import React from 'react';
-import {Table, Column, Cell} from 'fixed-data-table';
-import Measure from 'react-measure';
-import DataStoreWrapper from './DataStoreWrapper';
-import DownloadDataLink from '../Common/DownloadDataLink';
-import UploadModalMenu from './UploadModal';
-import TextCell from './TextCell';
+const React = require('react');
+const {Table, Column, Cell} = require('fixed-data-table');
+const Measure = require('react-measure');
+const DataStoreWrapper = require('./DataStoreWrapper');
+const DownloadDataLink = require('../Common/DownloadDataLink');
+const UploadModalMenu = require('./UploadModal');
+const TextCell = require('./TextCell');
 
 /**
  * Edit a set of Batches

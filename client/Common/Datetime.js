@@ -1,6 +1,6 @@
 ;
-import React from 'react';
-import moment from 'moment-timezone';
+const React = require('react');
+const moment = require('moment-timezone');
 
 module.exports = React.createClass({
 

@@ -1,7 +1,7 @@
 ;
-import React from 'react';
-import {Button, Modal} from 'react-bootstrap';
-import UploadField from './UploadField';
+const React = require('react');
+const {Button, Modal} = require('react-bootstrap');
+const UploadField = require('./UploadField');
 
 module.exports = React.createClass({
     getInitialState() {

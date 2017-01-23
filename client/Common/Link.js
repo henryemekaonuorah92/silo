@@ -1,5 +1,5 @@
 ;
-import React from 'react';
+const React = require('react');
 
 /**
  * @see https://github.com/petermoresi/react-download-link/blob/master/download-link.es6

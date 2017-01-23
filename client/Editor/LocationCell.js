@@ -1,7 +1,7 @@
 ;
-import React from 'react';
-import {Cell} from 'fixed-data-table';
-import Link from './../Common/Link';
+const React = require('react');
+const {Cell} = require('fixed-data-table');
+const Link = require('./../Common/Link');
 
 module.exports = React.createClass({
     render: function(){

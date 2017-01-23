@@ -1,14 +1,14 @@
 ;
-import React from 'react';
-import {Table, Column, Cell} from 'fixed-data-table';
-import Measure from 'react-measure';
-import DataStoreWrapper from './DataStoreWrapper';
-import DownloadDataLink from '../Common/DownloadDataLink';
-import UploadModalMenu from './UploadModal';
-import TextCell from './TextCell';
-import LocationCell from './LocationCell';
-import Datetime from '../Common/Datetime';
-import Link from './../Common/Link';
+const React = require('react');
+const {Table, Column, Cell} = require('fixed-data-table');
+const Measure = require('react-measure');
+const DataStoreWrapper = require('./DataStoreWrapper');
+const DownloadDataLink = require('../Common/DownloadDataLink');
+const UploadModalMenu = require('./UploadModal');
+const TextCell = require('./TextCell');
+const LocationCell = require('./LocationCell');
+const Datetime = require('../Common/Datetime');
+const Link = require('./../Common/Link');
 
 /**
  * Edit a set of Operations

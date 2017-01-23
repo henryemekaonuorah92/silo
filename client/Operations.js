@@ -1,8 +1,8 @@
 ;
-import React from 'react';
-import {Alert} from 'react-bootstrap';
-import OperationEditor from './Editor/OperationEditor';
-import DataStore from './Editor/DataStore';
+const React = require('react');
+const {Alert} = require('react-bootstrap');
+const OperationEditor = require('./Editor/OperationEditor');
+const DataStore = require('./Editor/DataStore');
 
 // @todo put some proofing in operation screen (no null loca)
 module.exports = React.createClass({

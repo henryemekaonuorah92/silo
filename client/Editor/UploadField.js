@@ -1,6 +1,6 @@
 ;
-import React from 'react';
-import {Alert} from 'react-bootstrap';
+const React = require('react');
+const {Alert} = require('react-bootstrap');
 
 /**
  * Upload popover to be used on all screens needing an import
