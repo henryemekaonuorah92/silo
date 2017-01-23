@@ -7,20 +7,22 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 use Doctrine\ORM\Mapping\Index;
 
 /**
+ * You shall not construct this Model by yourself. Use Silo\Inventory\Repository\Modifier.
+ *
  * @ORM\Table(
- *     name="context_type",
+ *     name="modifier_type",
  *     uniqueConstraints={
- *         @UniqueConstraint(name="name_idx", columns={"name"})
+ *         @UniqueConstraint(columns={"name"})
  *     }
  * )
  * @ORM\Entity
  */
-class ContextType
+class ModifierType
 {
     /**
      * @var int
      *
-     * @ORM\Column(name="context_type_id", type="integer")
+     * @ORM\Column(name="modifier_type_id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */

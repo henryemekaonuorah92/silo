@@ -9,6 +9,7 @@ use Silo\Inventory\Model\BatchCollection;
 use Silo\Inventory\Model\Context;
 use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation;
+use Silo\Inventory\Repository\Modifier;
 use Silo\Inventory\Validator\Constraints\LocationExists;
 use Silo\Inventory\Validator\Constraints\SkuExists;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,6 +20,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * Endpoints.
+ *
+ * @todo should factorize this a bit
  */
 class InventoryController implements ControllerProviderInterface
 {
@@ -30,7 +33,8 @@ class InventoryController implements ControllerProviderInterface
          * Inspect a Location given its code
          */
         $controllers->get('/location/{code}', function ($code, Application $app) {
-            $locations = $app['em']->getRepository('Inventory:Location');
+            $locations = $app['re']('Inventory:Location');
+
             /** @var Location $location */
             $location = $locations->forceFindOneByCode($code);
 
@@ -276,10 +280,11 @@ class InventoryController implements ControllerProviderInterface
          */
         $controllers->get('/operation', function (Application $app) {
             $query = $app['em']->createQueryBuilder();
-            $query->select('operation, source, target, type, context, contextType')
+            $query->select('operation, source, target, type, context, location, contextType')
                 ->from('Inventory:Operation', 'operation')
                 ->leftJoin('operation.source', 'source')
                 ->leftJoin('operation.target', 'target')
+                ->leftJoin('operation.location', 'location')
                 ->leftJoin('operation.operationType', 'type')
                 ->leftJoin('operation.contexts', 'context')
                 ->leftJoin('context.type', 'contextType')
@@ -297,6 +302,7 @@ class InventoryController implements ControllerProviderInterface
                         'target' => $op->getTarget() ? $op->getTarget()->getCode() : null,
                         'type' => $op->getType(),
                         'status' => $op->getStatus()->toArray(),
+                        'location' => $op->getLocation() ? $op->getLocation()->getCode() : null,
                         'contexts' => array_map(function(Context $context){
                             return [
                                 'name' => $context->getName(),
@@ -389,6 +395,61 @@ class InventoryController implements ControllerProviderInterface
             $app['em']->flush();
 
             return new JsonResponse([], 201);
+        });
+
+        $controllers->get('/location/{code}/modifiers', function ($code, Application $app, Request $request) {
+            $query = $app['em']->createQueryBuilder();
+            $query->select('modifier, type, location')
+                ->from('Inventory:Modifier', 'modifier')
+                ->innerJoin('modifier.location', 'location')
+                ->innerJoin('modifier.type', 'type')
+                ->andWhere('location.code = :code')
+                ->setParameter('code', $code)
+            ;
+
+            $result = $query->getQuery()->execute();
+
+            return new JsonResponse(
+                array_map(function (\Silo\Inventory\Model\Modifier $modifier) {
+                    return [
+                        'name' => $modifier->getName(),
+                        'value' => $modifier->getValue()
+                    ];
+                }, $result)
+            );
+        });
+
+        // does not follow REST
+        $controllers->post('/location/{code}/modifiers', function ($code, Application $app, Request $request) {
+            $locations = $app['re']('Inventory:Location');
+
+            $name = $request->get('name');
+
+            /** @var Location $location */
+            $location = $locations->forceFindOneByCode($code);
+            /** @var Modifier $modifiers */
+            $modifiers = $app['re']('Inventory:Modifier');
+            $modifiers->add($location, $name);
+            $app['em']->flush();
+
+            return new JsonResponse([], Response::HTTP_ACCEPTED);
+        });
+
+        // does not follow REST
+        $controllers->delete('/location/{code}/modifiers', function ($code, Application $app, Request $request) {
+            $locations = $app['re']('Inventory:Location');
+
+            $name = $request->get('name');
+
+            /** @var Location $location */
+            $location = $locations->forceFindOneByCode($code);
+            /** @var Modifier $modifiers */
+            $modifiers = $app['re']('Inventory:Modifier');
+            $modifiers->remove($location, $name);
+
+            $app['em']->flush();
+
+            return new JsonResponse([], Response::HTTP_ACCEPTED);
         });
 
         return $controllers;

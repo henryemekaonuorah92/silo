@@ -1,7 +1,8 @@
-code-coverage-report
 bin/
 .idea/
 vendor
 node_modules
+composer.lock
 reports
+public/*.js
 **.DS_Store

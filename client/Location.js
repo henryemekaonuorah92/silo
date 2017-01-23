@@ -3,6 +3,7 @@ const React = require('react');
 const BatchEditor = require('./Editor/BatchEditor');
 const DataStore = require('./Editor/DataStore');
 const Link = require('./Common/Link');
+const ModifierEditor = require('./ModifierEditor');
 
 module.exports = React.createClass({
 
@@ -20,42 +21,44 @@ module.exports = React.createClass({
         };
     },
 
+    propTypes: {
+        cache: React.PropTypes.object.isRequired
+    },
+
     componentDidMount: function () {
 
-        this.props.cache.setCallbackWithUrl(
-            'location/'+this.props.code,
-            this.props.siloBasePath+"/inventory/location/"+this.props.code
-        ).get('location/'+this.props.code).then(function(value){
-            this.setState({
-                data: value
-            });
-        }.bind(this));
+        this.props.cache.get('location/'+this.props.code)
+            .from(this.props.siloBasePath+"/inventory/location/"+this.props.code)
+            .onUpdate(function(value){
+                this.setState({
+                    data: value
+                });
+            }.bind(this))
+            .refresh();
 
-        this.props.cache.setCallbackWithUrl(
-            'locationBatch/'+this.props.code,
-            this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches'
-        );
-
-        this.props.cache.get('locationBatch/'+this.props.code).then(function(value){
-            this.setState({
-                batches: new DataStore(value)
-            });
-        }.bind(this));
+        this.props.cache.get('locationBatch/'+this.props.code)
+            .from(this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches')
+            .onUpdate(function(value){
+                this.setState({
+                    batches: new DataStore(value)
+                });
+            }.bind(this))
+            .refresh();
     },
 
     refresh: function(){
-        let key = 'locationBatch/'+this.props.code;
-        this.props.cache.clear(key);
-        this.props.cache.get(key).then(function(value){
-            this.setState({
-                batches: new DataStore(value)
-            });
-        }.bind(this));
+        this.props.cache.refresh('locationBatch/'+this.props.code);
+    },
+
+    componentWillUnmount : function () {
+        this.props.cache.cleanup('locationBatch/'+this.props.code);
+        this.props.cache.cleanup('location/'+this.props.code);
     },
 
     render: function(){
         let data = this.state.data;
         let uploadUrl = this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches';
+
         return (
             <div>
                 <h3>{this.props.code}</h3>
@@ -66,6 +69,8 @@ module.exports = React.createClass({
                                 <Link route="location" code={child} />
                             </li>;})}</ul> : "No child"
                         }<br />
+                        <ModifierEditor cache={this.props.cache}
+                                        endpoint={this.props.siloBasePath+"/inventory/location/"+this.props.code+'/modifiers'} /><br />
                         <b>Batches:</b>
                     <BatchEditor
                         exportFilename={'location-'+this.props.code+'-batches.csv'}

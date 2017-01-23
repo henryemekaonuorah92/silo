@@ -98,15 +98,18 @@ class OperationEditor extends React.Component {
                                         cell={<TextCell data={operations} col="type" />}
                                     />
                                     <Column
-                                        width={75}
-                                        header="Source"
-                                        cell={<LocationCell data={operations} col="source" />}
-                                    />
-
-                                    <Column
-                                        width={75}
-                                        header="Target"
-                                        cell={<LocationCell data={operations} col="target" />}
+                                        width={225}
+                                        header="Content"
+                                        cell={({rowIndex}) => {
+                                            const data = operations.getObjectAt(rowIndex);
+                                            return <Cell>
+                                                {data.source ? <Link route="location" code={data.source} /> : <span className="label label-success">CREATE</span>}
+                                                &nbsp;&rarr;&nbsp;
+                                                {data.location ? <Link route="location" code={data.location} /> : 'skus'}
+                                                &nbsp;&rarr;&nbsp;
+                                                {data.target ? <Link route="location" code={data.target} /> : <span className="label label-danger">DELETE</span>}
+                                                </Cell>;
+                                        }}
                                     />
                                     <Column
                                         width={175}
