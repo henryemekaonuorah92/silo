@@ -44,6 +44,12 @@ class Location
     private $batches;
 
     /**
+     * @var ArrayCollection|Modifier[] One Operation has many Modifiers.
+     * @ORM\OneToMany(targetEntity="Modifier", mappedBy="location")
+     */
+    private $modifiers;
+
+    /**
      * @param $code
      *
      * @todo Code should be constrained by a regex
@@ -52,6 +58,7 @@ class Location
     {
         $this->code = $code;
         $this->batches = new ArrayCollection();
+        $this->modifiers = new ArrayCollection();
     }
 
     /**
@@ -156,5 +163,13 @@ class Location
     public function getCode()
     {
         return $this->code;
+    }
+
+    /**
+     * @return Modifier[]
+     */
+    public function getModifiers()
+    {
+        return $this->modifiers;
     }
 }

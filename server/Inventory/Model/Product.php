@@ -5,7 +5,7 @@ namespace Silo\Inventory\Model;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\ProductRepository")
  * @ORM\Table(name="product")
  */
 class Product
@@ -35,6 +35,11 @@ class Product
      * @return string
      */
     public function getSku()
+    {
+        return $this->sku;
+    }
+
+    public function __toString()
     {
         return $this->sku;
     }

@@ -169,4 +169,20 @@ class Batch
 
         return $a->product == $b->product && $a->quantity == $b->quantity;
     }
+
+    /**
+     * @return Operation
+     */
+    public function getOperation()
+    {
+        return $this->operation;
+    }
+
+    /**
+     * @return Location
+     */
+    public function getLocation()
+    {
+        return $this->location;
+    }
 }

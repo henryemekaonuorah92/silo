@@ -88,6 +88,8 @@ class Location extends EntityRepository
 
         $operation->execute($user);
         $this->_em->flush();
+
+        return $location;
     }
 
     /**

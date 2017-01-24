@@ -17,6 +17,10 @@ use Doctrine\ORM\Mapping\Index;
  */
 class Modifier
 {
+    // @todo maybe move somewhere else
+    const TYPE_REPLENISH_SOURCE = 'RSource';
+    const TYPE_REPLENISH_SINK = 'RSink';
+
     /**
      * @var int
      *
