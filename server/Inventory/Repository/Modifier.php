@@ -65,7 +65,6 @@ class Modifier extends EntityRepository
             if ($instance) {
                 $this->_em->remove($instance);
             }
-
         }
     }
 }

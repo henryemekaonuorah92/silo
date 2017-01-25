@@ -40,14 +40,14 @@ class Batch
 
     /**
      * @var Operation
-     * @ORM\ManyToOne(targetEntity="Operation", inversedBy="productQuantities")
+     * @ORM\ManyToOne(targetEntity="Operation", inversedBy="batches")
      * @ORM\JoinColumn(name="operation_id", referencedColumnName="operation_id")
      */
     private $operation;
 
     /**
      * @var Location
-     * @ORM\ManyToOne(targetEntity="Location", inversedBy="productQuantities")
+     * @ORM\ManyToOne(targetEntity="Location", inversedBy="batches")
      * @ORM\JoinColumn(name="location_id", referencedColumnName="location_id")
      */
     private $location;
