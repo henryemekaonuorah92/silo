@@ -80,6 +80,7 @@ class OperationStatus
             'doneAt' => $this->doneAt ? $this->doneAt->format('Y-m-d H:i:s') : null,
             'cancelledBy' => $this->cancelledBy ? $this->cancelledBy->getName() : null,
             'cancelledAt' => $this->cancelledAt ? $this->cancelledAt->format('Y-m-d H:i:s') : null,
+            'isCancelled' => !!$this->cancelledAt,
             'isRollbacked' => $this->isRollbacked,
             'isRollbackable' => !$this->isRollbacked && $this->doneAt,
             'isPending' => !$this->doneAt && !$this->cancelledAt

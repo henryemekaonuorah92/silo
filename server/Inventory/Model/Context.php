@@ -6,7 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\Context")
+ * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\ContextRepository")
  * @ORM\Table(name="context")
  */
 class Context
@@ -27,9 +27,17 @@ class Context
     private $type;
 
     /**
-     * @ORM\Column(name="value", type="integer")
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="user_id")
+     */
+    private $user;
+
+    /**
+     * @ORM\Column(name="value", type="json_array", nullable=true)
      */
     private $value;
+
+    //@todo createdAt could be interesting to have
 
     /**
      * @ORM\ManyToMany(targetEntity="Silo\Inventory\Model\Operation")
@@ -40,10 +48,11 @@ class Context
      */
     private $operations;
 
-    public function __construct(ContextType $type, $value)
+    public function __construct(ContextType $type, $value = null, User $user = null)
     {
         $this->type = $type;
         $this->value = $value;
+        $this->user = $user;
         $this->operations = new ArrayCollection();
     }
 
@@ -74,5 +83,21 @@ class Context
     public function addOperation(Operation $operation)
     {
         $this->operations->add($operation);
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getOperations()
+    {
+        return $this->operations;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
     }
 }

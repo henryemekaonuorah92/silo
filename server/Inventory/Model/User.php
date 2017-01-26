@@ -5,7 +5,7 @@ namespace Silo\Inventory\Model;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\User")
+ * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\UserRepository")
  * @ORM\Table(name="user")
  */
 class User

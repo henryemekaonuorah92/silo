@@ -1,6 +1,6 @@
 ;
 const React = require('react');
-
+const {Popover, OverlayTrigger} = require('react-bootstrap');
 module.exports = React.createClass({
     getInitialState: function(){return{
         hasFocus: false
@@ -18,6 +18,16 @@ module.exports = React.createClass({
             hasFocus: $(document.activeElement).prop("tagName") === "BODY"
         });
     },
+
+    // @todo
+    /*
+    on open, focus on input
+    on enter, send scan
+    on close, focus body
+    listen to enter to display the popover
+    in ideal world, should be coupled to search ("f" for find, "s" for scan, "?" for help)
+    f + scan => search !
+     */
 
     componentDidMount: function(){
         $(document.body)
@@ -53,8 +63,20 @@ module.exports = React.createClass({
     },
 
     render: function(){
+        const popoverBottom = (
+            <Popover id="popover-positioned-bottom" title="Manual Barcode entry">
+                <div className="input-group">
+                    <input type="text" className="form-control" placeholder="Enter barcode..." />
+                    <span className="input-group-btn">
+                        <button className="btn btn-success" type="button">Scan</button>
+                    </span>
+                </div>
+            </Popover>
+        );
         return (
-            <span className="glyphicon glyphicon-barcode"></span>
+        <OverlayTrigger trigger="click" placement="bottom" overlay={popoverBottom} show={true}>
+            <span className="glyphicon glyphicon-barcode" />
+        </OverlayTrigger>
         );
     }
 });

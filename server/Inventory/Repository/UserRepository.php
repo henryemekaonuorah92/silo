@@ -5,7 +5,7 @@ namespace Silo\Inventory\Repository;
 use Doctrine\ORM\EntityRepository;
 use Silo\Inventory\Model\User as Model;
 
-class User extends EntityRepository
+class UserRepository extends EntityRepository
 {
     /**
      * System user by name. If does not exist, create it.

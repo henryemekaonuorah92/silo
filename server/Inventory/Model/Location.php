@@ -172,4 +172,19 @@ class Location
     {
         return $this->modifiers;
     }
+
+    /**
+     * @return bool True if the location contain exclusively Product. Does not count children
+     * and children's Products.
+     */
+    public function isEmpty()
+    {
+        foreach ($this->getBatches() as $batch) {
+            if ($batch->getQuantity() > 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

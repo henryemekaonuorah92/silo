@@ -6,8 +6,9 @@ use Doctrine\ORM\EntityRepository;
 use Silo\Inventory\Model\Context as Model;
 use Silo\Inventory\Model\ContextType;
 use Doctrine\ORM\Mapping;
+use Silo\Inventory\Model\User;
 
-class Context extends EntityRepository
+class ContextRepository extends EntityRepository
 {
     private $createContextType;
 
@@ -30,10 +31,7 @@ class Context extends EntityRepository
         );
     }
 
-    /**
-     * @return Model
-     */
-    public function spawn($name, $value)
+    public function create($name, $value, User $user = null)
     {
         $type = $this->_em->getRepository('Inventory:ContextType')
             ->findOneBy(['name' => $name]);
@@ -43,9 +41,26 @@ class Context extends EntityRepository
             $this->_em->flush($type);
         }
 
-        $instance = $this->findOneBy(['type' => $type, 'value' => $value]);
+        return new Model($type, $value, $user);
+    }
+
+    /**
+     * @return Model
+     * @todo refactor this
+     */
+    public function spawn($name, $value, User $user = null)
+    {
+        $type = $this->_em->getRepository('Inventory:ContextType')
+            ->findOneBy(['name' => $name]);
+        if (!$type) {
+            $type = call_user_func($this->createContextType, $name);
+            $this->_em->persist($type);
+            $this->_em->flush($type);
+        }
+
+        $instance = $this->findOneBy(['type' => $type, 'value' => $value, 'user' => $user]);
         if (!$instance) {
-            $instance = new Model($type, $value);
+            $instance = new Model($type, $value, $user);
         }
 
         return $instance;
