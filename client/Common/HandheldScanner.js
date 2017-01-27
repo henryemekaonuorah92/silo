@@ -1,33 +1,53 @@
 ;
 const React = require('react');
-const {Popover, OverlayTrigger} = require('react-bootstrap');
+const ReactDOM = require('react-dom');
+const {Popover, Overlay} = require('react-bootstrap');
+
+/**
+ * Provide a handheld scanner handler component.
+ * Expose an interface for manual input as a fallback.
+ *
+ * @todo this could be greatly improved by:
+ * - detect raw keys to send commands, like "s" for scan, "?" for help
+ */
 module.exports = React.createClass({
     getInitialState: function(){return{
-        hasFocus: false
+        show: false
     }},
+
     getDefaultProps: function(){return{
         onScan: function(value){console.log('Scan '+value);}
     }},
+
     _timeoutHandler: 0,
     _inputString: '',
 
-    // This thing does not work
-    evalHasFocus: function(){
-        console.log('has focus');
-        this.setState({
-            hasFocus: $(document.activeElement).prop("tagName") === "BODY"
+    toggle() {
+        let show = !this.state.show;
+        this.setState({ show: show }, function(){
+            if (show) {
+                this.manualInput.focus();
+            } else {
+                this.manualInput.blur();
+            }
         });
     },
 
-    // @todo
-    /*
-    on open, focus on input
-    on enter, send scan
-    on close, focus body
-    listen to enter to display the popover
-    in ideal world, should be coupled to search ("f" for find, "s" for scan, "?" for help)
-    f + scan => search !
-     */
+    handleManualInput: function(){
+        this.props.onScan(this.manualInput.value.trim());
+        this.manualInput.value = null;
+    },
+
+    handleKeyPress: function(e) {
+        if (e.key === 'Enter') {
+            this.handleManualInput();
+        }
+        let charCode = (typeof e.which === "number") ? e.which : e.keyCode;
+        if (String.fromCharCode(charCode) === '/') {
+            this.manualInput.value = null;
+            this.toggle();
+        }
+    },
 
     componentDidMount: function(){
         $(document.body)
@@ -45,6 +65,10 @@ module.exports = React.createClass({
                     }
                     this._timeoutHandler = setTimeout(function () {
                         if (this._inputString.length <= 3) {
+                            if (this._inputString == '/') {
+                                this.toggle();
+                            }
+
                             this._inputString = '';
                             return;
                         }
@@ -63,20 +87,24 @@ module.exports = React.createClass({
     },
 
     render: function(){
-        const popoverBottom = (
-            <Popover id="popover-positioned-bottom" title="Manual Barcode entry">
-                <div className="input-group">
-                    <input type="text" className="form-control" placeholder="Enter barcode..." />
-                    <span className="input-group-btn">
-                        <button className="btn btn-success" type="button">Scan</button>
-                    </span>
-                </div>
-            </Popover>
-        );
         return (
-        <OverlayTrigger trigger="click" placement="bottom" overlay={popoverBottom} show={true}>
-            <span className="glyphicon glyphicon-barcode" />
-        </OverlayTrigger>
+            <span className="glyphicon glyphicon-barcode" ref="target" onClick={this.toggle}>
+                <Overlay show={this.state.show}
+                         onHide={() => this.setState({ show: false })}
+                         placement="bottom"
+                         target={() => ReactDOM.findDOMNode(this.refs.target)}
+                >
+                    <Popover id="popover-positioned-bottom" title="Manual Barcode entry">
+                        <div className="input-group">
+                            <input type="text" ref={(input) => {this.manualInput = input;}} className="form-control" placeholder="Enter barcode..." onKeyPress={this.handleKeyPress} />
+                            <span className="input-group-btn">
+                                <button className="btn btn-success" type="button" onClick={this.handleManualInput}>Scan</button>
+                            </span>
+                        </div>
+                    </Popover>
+                </Overlay>
+            </span>
+
         );
     }
 });
