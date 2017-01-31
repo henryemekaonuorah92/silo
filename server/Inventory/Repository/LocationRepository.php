@@ -9,7 +9,7 @@ use Silo\Inventory\Model\Location as Model;
 use Silo\Inventory\Model\Operation as OperationModel;
 use Silo\Inventory\Model\User as UserModel;
 
-class Location extends EntityRepository
+class LocationRepository extends EntityRepository
 {
     /**
      * Retrieve System location by code. If does not exist, create it.

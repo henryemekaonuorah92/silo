@@ -3,6 +3,7 @@
 namespace Silo\Inventory\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation as Model;
 
 class Operation extends EntityRepository
@@ -11,8 +12,12 @@ class Operation extends EntityRepository
     {
         $locations = $this->_em->getRepository('Inventory:Location');
 
-        $from = $from ? $locations->findOneByCode($from) : null;
-        $to = $to ? $locations->findOneByCode($to) : null;
+        if (!$from instanceof Location) {
+            $from = $from ? $locations->findOneByCode($from) : null;
+        }
+        if (!$to instanceof Location) {
+            $to = $to ? $locations->findOneByCode($to) : null;
+        }
 
         $operation = new Model($user, $from, $to, $content);
         $operation->setType(

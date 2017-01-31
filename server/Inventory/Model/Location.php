@@ -6,7 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\Location")
+ * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\LocationRepository")
  * @ORM\Table(name="location", uniqueConstraints={
  *     @ORM\UniqueConstraint(name="location_idx", columns={"code"})
  * })
@@ -37,6 +37,11 @@ class Location
     private $parent;
 
     /**
+     * @ORM\OneToMany(targetEntity="Location", mappedBy="parent")
+     */
+    private $children;
+
+    /**
      * One Operation has many Batches.
      *
      * @ORM\OneToMany(targetEntity="Batch", mappedBy="location", cascade={"persist"})
@@ -50,6 +55,12 @@ class Location
     private $modifiers;
 
     /**
+     * @var boolean
+     * @ORM\Column(name="isDeleted", type="boolean")
+     */
+    private $isDeleted = false;
+
+    /**
      * @param $code
      *
      * @todo Code should be constrained by a regex
@@ -59,6 +70,7 @@ class Location
         $this->code = $code;
         $this->batches = new ArrayCollection();
         $this->modifiers = new ArrayCollection();
+        $this->children = new ArrayCollection();
     }
 
     /**
@@ -89,15 +101,23 @@ class Location
             if (!self::compare($currentParent, $operation->getSource())) {
                 throw new \LogicException("$this cannot be applied $operation has it is no longer in ".$this->parent);
             }
-            if (self::compare($this, $operation->getTarget()->getParent())) {
+            if (!is_null($operation->getTarget()) && self::compare($this, $operation->getTarget()->getParent())) {
                 throw new \LogicException("$this cannot be applied $operation has it would create a cycle");
             }
             $this->parent = $operation->getTarget();
-        } elseif (self::compare($operation->getSource(), $this)) {
+
+            // Deal with deletion and creation cases
+            if (is_null($operation->getSource())) { // Creation
+                $this->isDeleted = false;
+            } else if (is_null($operation->getTarget())) {  // Deletion
+                $this->isDeleted = true;
+            }
+            $this->parent = $operation->getTarget();
+        } else if (self::compare($operation->getSource(), $this)) {
             // $this is the source Location, we substract the Operation Batches
             $this->batches = BatchCollection::fromCollection($this->batches);
             $this->batches->merge($operation->getBatches()->opposite());
-        } elseif (self::compare($operation->getTarget(), $this)) {
+        } else if (self::compare($operation->getTarget(), $this)) {
             // $this is the target Location, we add the Operation Batches
             $this->batches = BatchCollection::fromCollection($this->batches);
             $this->batches->merge($operation->getBatches()->copy());
@@ -186,5 +206,21 @@ class Location
         }
 
         return true;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getChildren()
+    {
+        return $this->children;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDeleted()
+    {
+        return $this->isDeleted;
     }
 }
