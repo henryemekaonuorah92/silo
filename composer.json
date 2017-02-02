@@ -18,7 +18,9 @@
   },
   "require-dev": {
     "behat/behat": "v2.5.5",
-    "phpunit/php-code-coverage": "^2.2"
+    "phpunit/php-code-coverage": "^2.2",
+    "symfony/browser-kit": "^3.2",
+    "symfony/css-selector": "^3.2"
   },
   "config": {
     "bin-dir": "bin/"

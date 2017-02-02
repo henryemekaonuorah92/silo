@@ -30,6 +30,11 @@ class LocationController implements ControllerProviderInterface
     {
         $controllers = $app['controllers_factory'];
 
+        $locations = $app['em']->getRepository('Inventory:Location');
+        $locationProvider = function ($code) use ($locations) {
+            return $locations->forceFindOneByCode($code);
+        };
+
         /*
          * Inspect a Location given its code
          */
@@ -98,7 +103,7 @@ class LocationController implements ControllerProviderInterface
         });
 
         /*
-         * Inspect a Location given its code
+         * Inspect content of a Location
          */
         $controllers->get('/{code}/batches', function ($code, Application $app) {
             $query = $app['em']->createQueryBuilder();
@@ -124,6 +129,64 @@ class LocationController implements ControllerProviderInterface
                 }, $result[0]->getBatches()->toArray())
             );
         });
+
+        $controllers->match('/{location}/batches', function (Location $location, Request $request) use ($app) {
+            // Create a BatchCollection out of a CSV file
+            $batches = new BatchCollection();
+
+            foreach ($request->request as $line) {
+                ++$line;
+                /** @var ConstraintViolationList $violations */
+                $violations = $app['validator']->validate($line, [
+                    new Constraint\Collection([
+                        'sku' => [new Constraint\Required(), new SkuExists()],
+                        // Negatives ?
+                        'quantity' => new Constraint\Range(['min' => -100, 'max' => 100]),
+                    ]),
+                ]);
+
+                if ($violations->count() > 0) {
+                    return new JsonResponse(['errors' => array_map(function ($violation) {
+                        return (string) $violation;
+                    }, iterator_to_array($violations->getIterator()))], JsonResponse::HTTP_BAD_REQUEST);
+                }
+
+                $product = $app['em']->getRepository('Inventory:Product')->findOneBy(['sku' => $line['sku']]);
+                $batch = new Batch($product, $line['quantity']);
+
+                $batches->addBatch($batch);
+            }
+
+            switch ($request->getMethod()) {
+                // Merge the uploaded batch into the location
+                case 'PATCH':
+                    $typeName = 'batch merge';
+                    $operation = new Operation($app['current_user'], null, $location, $batches);
+                    break;
+                // the Location batches are replaced by the uploaded ones
+                // We achieve this by computing the difference and applying it with an operation
+                // SOURCE + OP = TARGET
+                // hence OP = TARGET - SOURCE
+                case 'false':
+                    $typeName = 'batch replace';
+                    $diffBatches = $batches->diff($location->getBatches());
+                    $operation = new Operation($app['current_user'], null, $location, $diffBatches);
+                    break;
+                default:
+                    throw new \Exception('merge parameter should be present and be either true or false');
+            }
+
+            $type = $app['em']->getRepository('Inventory:OperationType')->getByName($typeName);
+            $operation->setType($type);
+
+            $app['em']->persist($operation);
+            $app['em']->flush();
+            $operation->execute($app['current_user']);
+            $app['em']->flush();
+
+            // Is it merge or adjust ?
+            return new JsonResponse(null, JsonResponse::HTTP_ACCEPTED);
+        })->method('PATCH')->convert('location', $locationProvider); // PUT ?
 
         /*
          * Edit Batches in a given Location

@@ -34,6 +34,15 @@ Feature: Basic and special Location actions
     Then Operation "one" is cancelled
     And Location A does not exist
 
+    # Batches are Product inside Location
+    # There's a few ways to edit them
+  Scenario: Location can hold Batches
+    Given a Location A
+    When one fill Location A with:
+      | X | 10 |
+    Then A contains:
+      | X | 10 |
+
     # Modifiers can be added to any Location
   Scenario: Add a modifier to a Location
     Given a Location A

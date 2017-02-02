@@ -72,7 +72,7 @@ class Silo extends \Silex\Application
 
         // Deal with exceptions
         $app->error(function (\Exception $e, $request) use ($app){
-            if ($app->offsetExists('logger')) {
+            if ($app['logger']) {
                 $app['logger']->error($e);
             }
             return new JsonResponse([

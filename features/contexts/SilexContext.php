@@ -4,6 +4,7 @@ use Behat\Behat\Context\BehatContext;
 use Symfony\Component\HttpKernel\Client;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Behat\Behat\Exception\PendingException;
+use Behat\Gherkin\Node\TableNode;
 
 /**
  * @see Silex\WebTestCase
@@ -103,9 +104,9 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
         $response = $this->getClient()->getResponse();
         switch($what){
             case 'exists':
-                $this->assertTrue($response->isSuccessful()); break;
+                $this->assertSuccessful($response); break;
             case 'does not exist':
-                $this->assertTrue($response->isClientError()); break;
+                $this->assertClientError($response); break;
         }
     }
 
@@ -162,6 +163,33 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
         }
     }
 
+    private function transformBatch(TableNode $table)
+    {
+        return array_map(function($row){
+            if (count($row) != 2) {throw new \Exception("Cannot parse batch");}
+            $qtyFirst = is_numeric($row[0]);
+            return [
+                'sku' => $qtyFirst ? $row[1] : $row[0],
+                'quantity' => $qtyFirst ? $row[0] : $row[1]
+            ];
+        }, $table->getRows());
+    }
+
+    /**
+     * @When /^one fill Location (\w+) with:$/
+     */
+    public function oneFillLocationWith($code, TableNode $table)
+    {
+        $this->getClient()->request(
+            'PATCH',
+            "/silo/inventory/location/$code/batches",
+            $this->transformBatch($table)
+        );
+        $response = $this->getClient()->getResponse();
+        $this->assertSuccessful($response);
+
+    }
+
     private function assertTrue($flag)
     {
         if ($flag !== true) {
@@ -197,6 +225,20 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
     {
         if (!empty($data)) {
             throw new \Exception('should be empty');
+        }
+    }
+
+    private function assertSuccessful(\Symfony\Component\HttpFoundation\Response $response)
+    {
+        if (!$response->isSuccessful()) {
+            throw new \Exception($response);
+        }
+    }
+
+    private function assertClientError(\Symfony\Component\HttpFoundation\Response $response)
+    {
+        if (!$response->isClientError()) {
+            throw new \Exception($response);
         }
     }
 }

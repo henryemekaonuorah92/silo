@@ -9,7 +9,8 @@ Feature: Basic and special Operation actions
   Scenario: Operation can be executed
 
   Scenario: Operation can create Batches inside a Location
-    Given Locations A
+    Given a Location A with:
+      | X | 10 |
     And an Operation "two" to A with:
       | X | 10 |
     When "two" is executed

@@ -68,7 +68,16 @@ class FeatureContext extends BehatContext
     /** @BeforeScenario */
     public function before($event)
     {
-        $this->app = $app = new \Silo\Silo(['em.dsn' => $this->dsn ?: 'sqlite:///:memory:']);
+        $that = $this;
+        $logger = new \Monolog\Logger('test');
+        $logger->pushHandler(new \Silo\Base\CallbackHandler(function($record)use($that){
+            $that->printDebug($record['message']);
+        }, \Monolog\Logger::INFO));
+
+        $this->app = $app = new \Silo\Silo([
+            'em.dsn' => $this->dsn ?: 'sqlite:///:memory:',
+            'logger' => $logger
+        ]);
         $app->boot();
         $this->em = $em = $app['em'];
 
