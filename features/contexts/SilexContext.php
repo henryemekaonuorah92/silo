@@ -20,7 +20,7 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
 
     private $client;
 
-    private function getClient(array $server = array())
+    public function getClient(array $server = array())
     {
         if (!$this->client) {
             $this->client = new Client($this->app, $server);
@@ -137,6 +137,29 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
         $this->getClient()->request('POST', "/silo/inventory/location/$parentCode/child", ['name' => $code]);
         $response = $this->getClient()->getResponse();
         $this->assertTrue($response->isSuccessful());
+    }
+
+    /**
+     * @Given /^one move (\w+) to (\w+)$/
+     */
+    public function oneMoveCToB($code, $parentCode)
+    {
+        $this->getClient()->request('PATCH', "/silo/inventory/location/$parentCode/child", ['codes' => [$code]]);
+        $response = $this->getClient()->getResponse();
+        $this->assertTrue($response->isSuccessful());
+    }
+
+    /**
+     * @Then /^(\w+) is in (\w+)$/
+     */
+    public function cIsInB($code, $parentCode)
+    {
+        $this->getClient()->request('GET', "/silo/inventory/location/$code");
+        $response = $this->getClient()->getResponse();
+        $data = json_decode($response->getContent(), true);
+        if ($data['parent'] !== $parentCode) {
+            throw new \Exception("Wrong parent");
+        }
     }
 
     private function assertTrue($flag)

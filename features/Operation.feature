@@ -6,14 +6,7 @@ Feature: Basic and special Operation actions
     Given a Product "X"
     And a Product "Y"
 
-  Scenario: Operation can move a Location
-    Given Locations A,B
-    And B has no parent
-    And an Operation "one" to A moving B
-    And "one" is typed as "stuff"
-    When "one" is executed
-    # Then show Inventory:Location,Inventory:Batch,Inventory:Operation,Inventory:OperationType
-    Then B parent is A
+  Scenario: Operation can be executed
 
   Scenario: Operation can create Batches inside a Location
     Given Locations A

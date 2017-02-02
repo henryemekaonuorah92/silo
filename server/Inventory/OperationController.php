@@ -158,35 +158,6 @@ class OperationController implements ControllerProviderInterface
         });
 
         /*
-         * Create an operation
-         */
-        $controllers->post('/', function (Request $request) use ($app) {
-            $locations = $app['em']->getRepository('Inventory:Location');
-            /** @var Location $location */
-            $parent = $locations->forceFindOneByCode($request->get('parent'));
-
-            $operations = [];
-            foreach ($request->get('children') as $childCode) {
-                $child = $locations->forceFindOneByCode($childCode);
-
-                $op = new Operation($app['current_user'], $child->getParent(), $parent, $child);
-                array_push($operations, $op);
-            }
-
-            foreach($operations as $op) {
-                $app['em']->persist($op);
-            }
-            $app['em']->flush();
-
-            foreach($operations as $op) {
-                $op->execute($app['current_user']);
-            }
-            $app['em']->flush();
-
-            return new JsonResponse([]);
-        });
-
-        /*
          * Inspect Operations
          */
         $controllers->get('/', function (Application $app) {

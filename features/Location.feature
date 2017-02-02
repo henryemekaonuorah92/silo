@@ -18,6 +18,12 @@ Feature: Basic and special Location actions
     When one add a child Location A to root
     Then Location A exists
 
+  Scenario: Location can be moved around
+    Given Locations A,B
+    When one add a child Location C to A
+    And one move C to B
+    Then C is in B
+
     # Removing a Location will cancel all pending Operations
     # related to it
   Scenario: Location can be deleted

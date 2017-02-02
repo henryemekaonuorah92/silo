@@ -71,6 +71,33 @@ class LocationController implements ControllerProviderInterface
         });
 
         /*
+         * Move locations to a new parent
+         */
+        $controllers->patch('/{code}/child', function ($code, Request $request) use ($app) {
+            $locations = $app['em']->getRepository('Inventory:Location');
+            /** @var Location $location */
+            $parent = $locations->forceFindOneByCode($code);
+
+            $operations = [];
+            foreach ($request->get('codes') as $childCode) {
+                $child = $locations->forceFindOneByCode($childCode);
+
+                $op = new Operation($app['current_user'], $child->getParent(), $parent, $child);
+                array_push($operations, $op);
+
+                $app['em']->persist($op);
+            }
+            $app['em']->flush();
+
+            foreach($operations as $op) {
+                $op->execute($app['current_user']);
+            }
+            $app['em']->flush();
+
+            return new JsonResponse([]);
+        });
+
+        /*
          * Inspect a Location given its code
          */
         $controllers->get('/{code}/batches', function ($code, Application $app) {
@@ -230,6 +257,16 @@ class LocationController implements ControllerProviderInterface
             $em = $app['em'];
             $location = $app['re']('Inventory:Location')->forceFindOneByCode($code);
             $operations = $app['re']('Inventory:Operation');
+
+            /*
+            if ($location->isDeleted()) {
+            throw new \LogicException("$location is already deleted");
+            }
+
+            if ($location->getChildren()->count() > 0) {
+                throw new \LogicException("Cannot delete $location because it has children");
+            }
+            */
 
             // Cancel all pending operations
             $query = $em->createQueryBuilder();
