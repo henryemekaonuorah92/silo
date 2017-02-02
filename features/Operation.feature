@@ -8,15 +8,6 @@ Feature: Basic and special Operation actions
 
   Scenario: Operation can be executed
 
-  Scenario: Operation can create Batches inside a Location
-    Given a Location A with:
-      | X | 10 |
-    And an Operation "two" to A with:
-      | X | 10 |
-    When "two" is executed
-    Then A contains:
-      | X | 10 |
-
   Scenario: Operation can transfer Batches between two Locations
     # We also test that only wanted Batch is moved
     Given a Location A with:

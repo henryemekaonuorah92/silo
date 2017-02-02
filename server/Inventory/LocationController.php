@@ -167,13 +167,13 @@ class LocationController implements ControllerProviderInterface
                 // We achieve this by computing the difference and applying it with an operation
                 // SOURCE + OP = TARGET
                 // hence OP = TARGET - SOURCE
-                case 'false':
+                case 'PUT':
                     $typeName = 'batch replace';
                     $diffBatches = $batches->diff($location->getBatches());
                     $operation = new Operation($app['current_user'], null, $location, $diffBatches);
                     break;
                 default:
-                    throw new \Exception('merge parameter should be present and be either true or false');
+                    throw new \Exception('Method is not allowed');
             }
 
             $type = $app['em']->getRepository('Inventory:OperationType')->getByName($typeName);
@@ -186,7 +186,7 @@ class LocationController implements ControllerProviderInterface
 
             // Is it merge or adjust ?
             return new JsonResponse(null, JsonResponse::HTTP_ACCEPTED);
-        })->method('PATCH')->convert('location', $locationProvider); // PUT ?
+        })->method('PATCH|PUT')->convert('location', $locationProvider);
 
         /*
          * Edit Batches in a given Location

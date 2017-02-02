@@ -117,15 +117,8 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
     {
         foreach (explode(',', $codes) as $code) {
             $this->oneAddChildLocationTo($code);
-
             if ($table) {
-                throw new \Behat\Behat\Exception\PendingException();
-                $op = new Inventory\Operation(
-                    $this->getRef('User'),
-                    null,
-                    $l,
-                    $this->tableNodeToProductQuantities($table)
-                );
+                $this->oneFillLocationWith($code, $table);
             }
         }
     }
