@@ -19,36 +19,11 @@ use Symfony\Component\Validator\Constraints as Constraint;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-/**
- * Endpoints.
- *
- * @todo should factorize this a bit
- */
-class InventoryController implements ControllerProviderInterface
+class OperationController implements ControllerProviderInterface
 {
     public function connect(Application $app)
     {
         $controllers = $app['controllers_factory'];
-
-        /*
-         * Inspect a Location given its code
-         */
-        $controllers->get('/location/{code}', function ($code, Application $app) {
-            $locations = $app['re']('Inventory:Location');
-
-            /** @var Location $location */
-            $location = $locations->forceFindOneByCode($code);
-
-            $parent = $location->getParent();
-
-            return new JsonResponse([
-                'code' => $code,
-                'parent' => $parent ? $parent->getCode() : null,
-                'childs' => array_map(function (Location $l) {
-                    return $l->getCode();
-                }, $locations->findByParent($location)),
-            ]);
-        });
 
         /*
          * Fetch all modified Location
@@ -113,37 +88,9 @@ class InventoryController implements ControllerProviderInterface
         });
 
         /*
-         * Inspect a Location given its code
-         */
-        $controllers->get('/location/{code}/batches', function ($code, Application $app) {
-            $query = $app['em']->createQueryBuilder();
-            $query->select('location, batch, product')
-                ->from('Inventory:Location', 'location')
-                ->innerJoin('location.batches', 'batch')
-                ->innerJoin('batch.product', 'product')
-                ->andWhere('location.code = :code')
-                ->andWhere('batch.quantity != 0')
-                ->setParameter('code', $code);
-
-            $result = $query->getQuery()->execute();
-            if (empty($result)) {
-                return new JsonResponse([]);
-            }
-
-            return new JsonResponse(
-                array_map(function (Batch $b) {
-                    return [
-                        'product' => $b->getProduct()->getSku(),
-                        'quantity' => $b->getQuantity(),
-                    ];
-                }, $result[0]->getBatches()->toArray())
-            );
-        });
-
-        /*
          * Create operations massively by uploading a CSV file
          */
-        $controllers->post('/operation/import', function () use ($app) {
+        $controllers->post('/import', function () use ($app) {
             $csv = new \parseCSV($_FILES['file']['tmp_name']);
             $operationMap = [];
             foreach ($csv->data as $line) {
@@ -213,7 +160,7 @@ class InventoryController implements ControllerProviderInterface
         /*
          * Create an operation
          */
-        $controllers->post('/operation', function (Request $request) use ($app) {
+        $controllers->post('/', function (Request $request) use ($app) {
             $locations = $app['em']->getRepository('Inventory:Location');
             /** @var Location $location */
             $parent = $locations->forceFindOneByCode($request->get('parent'));
@@ -240,82 +187,9 @@ class InventoryController implements ControllerProviderInterface
         });
 
         /*
-         * Edit Batches in a given Location
-         */
-        $controllers->post('/location/{code}/batches', function ($code, Application $app, Request $request) {
-            $locations = $app['em']->getRepository('Inventory:Location');
-            /** @var Location $location */
-            $location = $locations->forceFindOneByCode($code);
-            $csv = new \parseCSV();
-            $csv->offset = 1;
-            $csv->keep_file_data = true;
-            $csv->parse($_FILES['file']['tmp_name']);
-
-            // Check first line of file
-            $shouldStartWith = $request->get('merge') === 'true' ? 'merge' : 'replace';
-            if (substr($csv->file_data, 0, strlen($shouldStartWith)) !== $shouldStartWith) {
-                return new JsonResponse(['errors' => ["File should start with \"$shouldStartWith\""]]);
-            }
-
-            // Create a BatchCollection out of a CSV file
-            $batches = new BatchCollection();
-            foreach ($csv->data as $line) {
-                ++$line;
-                /** @var ConstraintViolationList $violations */
-                $violations = $app['validator']->validate($line, [
-                    new Constraint\Collection([
-                        'sku' => [new Constraint\Required(), new SkuExists()],
-                        'quantity' => new Constraint\Range(['min' => -100, 'max' => 100]),
-                    ]),
-                ]);
-
-                if ($violations->count() > 0) {
-                    return new JsonResponse(['errors' => array_map(function ($violation) {
-                        return (string) $violation;
-                    }, iterator_to_array($violations->getIterator()))]);
-                }
-
-                $product = $app['em']->getRepository('Inventory:Product')->findOneBy(['sku' => $line['sku']]);
-                $batch = new Batch($product, $line['quantity']);
-
-                $batches->addBatch($batch);
-            }
-
-            switch ($request->get('merge')) {
-                // Merge the uploaded batch into the location
-                case 'true':
-                    $typeName = 'batch merge';
-                    $operation = new Operation($app['current_user'], null, $location, $batches);
-                    break;
-                // the Location batches are replaced by the uploaded ones
-                // We achieve this by computing the difference and applying it with an operation
-                // SOURCE + OP = TARGET
-                // hence OP = TARGET - SOURCE
-                case 'false':
-                    $typeName = 'batch replace';
-                    $diffBatches = $batches->diff($location->getBatches());
-                    $operation = new Operation($app['current_user'], null, $location, $diffBatches);
-                    break;
-                default:
-                    throw new \Exception('merge parameter should be present and be either true or false');
-            }
-
-            $type = $app['em']->getRepository('Inventory:OperationType')->getByName($typeName);
-            $operation->setType($type);
-
-            $app['em']->persist($operation);
-            $app['em']->flush();
-            $operation->execute($app['current_user']);
-            $app['em']->flush();
-
-            // Is it merge or adjust ?
-            return new Response('', Response::HTTP_ACCEPTED);
-        });
-
-        /*
          * Inspect Operations
          */
-        $controllers->get('/operation', function (Application $app) {
+        $controllers->get('/', function (Application $app) {
             $query = $app['em']->createQueryBuilder();
             $query->select('operation, source, target, type, context, location, contextType')
                 ->from('Inventory:Operation', 'operation')
@@ -351,7 +225,7 @@ class InventoryController implements ControllerProviderInterface
             );
         });
 
-        $controllers->get('/operation/{id}', function ($id, Application $app) {
+        $controllers->get('/{id}', function ($id, Application $app) {
             $operations = $app['em']->getRepository('Inventory:Operation');
             /** @var Operation $operation */
             $op = $operations->find($id);
@@ -384,7 +258,7 @@ class InventoryController implements ControllerProviderInterface
             ]);
         });
 
-        $controllers->post('/operation/{id}/{action}', function ($id, $action, Application $app) {
+        $controllers->post('/{id}/{action}', function ($id, $action, Application $app) {
             $operations = $app['em']->getRepository('Inventory:Operation');
             /** @var Operation $op */
             $op = $operations->find($id);
@@ -415,7 +289,7 @@ class InventoryController implements ControllerProviderInterface
             return new JsonResponse([], 201);
         })->assert('action', 'rollback|cancel|execute');;
 
-        $controllers->post('/operation/{id}/execute', function ($id, Application $app) {
+        $controllers->post('/{id}/execute', function ($id, Application $app) {
             $operations = $app['em']->getRepository('Inventory:Operation');
             /** @var Operation $op */
             $op = $operations->find($id);
@@ -432,61 +306,6 @@ class InventoryController implements ControllerProviderInterface
             $app['em']->flush();
 
             return new JsonResponse([], 201);
-        });
-
-        $controllers->get('/location/{code}/modifiers', function ($code, Application $app, Request $request) {
-            $query = $app['em']->createQueryBuilder();
-            $query->select('modifier, type, location')
-                ->from('Inventory:Modifier', 'modifier')
-                ->innerJoin('modifier.location', 'location')
-                ->innerJoin('modifier.type', 'type')
-                ->andWhere('location.code = :code')
-                ->setParameter('code', $code)
-            ;
-
-            $result = $query->getQuery()->execute();
-
-            return new JsonResponse(
-                array_map(function (\Silo\Inventory\Model\Modifier $modifier) {
-                    return [
-                        'name' => $modifier->getName(),
-                        'value' => $modifier->getValue()
-                    ];
-                }, $result)
-            );
-        });
-
-        // does not follow REST
-        $controllers->post('/location/{code}/modifiers', function ($code, Application $app, Request $request) {
-            $locations = $app['re']('Inventory:Location');
-
-            $name = $request->get('name');
-
-            /** @var Location $location */
-            $location = $locations->forceFindOneByCode($code);
-            /** @var Modifier $modifiers */
-            $modifiers = $app['re']('Inventory:Modifier');
-            $modifiers->add($location, $name);
-            $app['em']->flush();
-
-            return new JsonResponse([], Response::HTTP_ACCEPTED);
-        });
-
-        // does not follow REST
-        $controllers->delete('/location/{code}/modifiers', function ($code, Application $app, Request $request) {
-            $locations = $app['re']('Inventory:Location');
-
-            $name = $request->get('name');
-
-            /** @var Location $location */
-            $location = $locations->forceFindOneByCode($code);
-            /** @var Modifier $modifiers */
-            $modifiers = $app['re']('Inventory:Modifier');
-            $modifiers->remove($location, $name);
-
-            $app['em']->flush();
-
-            return new JsonResponse([], Response::HTTP_ACCEPTED);
         });
 
         return $controllers;

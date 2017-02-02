@@ -67,6 +67,11 @@ class Location
      */
     public function __construct($code)
     {
+        $regex = '/^[\w\d-]+$/';
+        if (!preg_match($regex, $code)) {
+            throw new \LogicException("Location name should follow $regex");
+        }
+
         $this->code = $code;
         $this->batches = new ArrayCollection();
         $this->modifiers = new ArrayCollection();
@@ -95,6 +100,10 @@ class Location
      */
     public function apply(Operation $operation)
     {
+        if ($this->isDeleted) {
+            throw new \LogicException("Cannt apply an Operation to a deleted Location");
+        }
+
         $that = $this;
         if (self::compare($operation->getLocation(), $this)) { // $this is the moved Location
             $currentParent = $this->getParent();
@@ -213,7 +222,7 @@ class Location
      */
     public function getChildren()
     {
-        return $this->children;
+        return $this->children->toArray();
     }
 
     /**

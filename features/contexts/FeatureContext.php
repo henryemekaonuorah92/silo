@@ -45,6 +45,8 @@ class FeatureContext extends BehatContext
         $this->refs[$name] = $object;
     }
 
+    protected $dsn;
+
     /**
      * {@inheritdoc}
      */
@@ -52,6 +54,9 @@ class FeatureContext extends BehatContext
     {
         if (isset($parameters['coverage']) && $parameters['coverage']) {
             $this->useContext('coverage', new CoverageContext($parameters));
+        }
+        if (isset($parameters['dsn']) && $parameters['dsn']) {
+            $this->dsn = $parameters['dsn'];
         }
 
         // $this->useContext('ranking', $ranking);
@@ -63,7 +68,7 @@ class FeatureContext extends BehatContext
     /** @BeforeScenario */
     public function before($event)
     {
-        $this->app = $app = new \Silo\Silo(['em.dsn' => 'sqlite:///:memory:']);
+        $this->app = $app = new \Silo\Silo(['em.dsn' => $this->dsn ?: 'sqlite:///:memory:']);
         $app->boot();
         $this->em = $em = $app['em'];
 
@@ -75,11 +80,12 @@ class FeatureContext extends BehatContext
 
         $user = new Inventory\User('test');
         $em->persist($user);
+
         $em->flush();
 
-        $this->setRef('User', $user);
+        $app['current_user'] = $user;
 
-        $this->printDebug('Created the database');
+        $this->setRef('User', $user);
 
         foreach ($this->getSubcontexts() as $context) {
             if ($context instanceof AppAwareContextInterface) {
@@ -94,30 +100,6 @@ class FeatureContext extends BehatContext
     public function aProduct($sku)
     {
         $this->em->persist(new Inventory\Product($sku));
-        $this->em->flush();
-    }
-
-    /**
-     * @Given /^(?:a )?Locations? ([\w,]+)(?: with:)?$/
-     */
-    public function aLocation($codes, TableNode $table = null)
-    {
-        foreach (explode(',', $codes) as $code) {
-            $l = new Inventory\Location($code);
-
-            if ($table) {
-                $op = new Inventory\Operation(
-                    $this->getRef('User'),
-                    null,
-                    $l,
-                    $this->tableNodeToProductQuantities($table)
-                );
-                $op->execute($this->getRef('User'));
-                $this->em->persist($op);
-            }
-
-            $this->em->persist($l);
-        }
         $this->em->flush();
     }
 
@@ -191,7 +173,20 @@ class FeatureContext extends BehatContext
         $this->em->persist($op);
         $this->em->flush();
 
-        $this->setRef($ref, $op);
+        $this->setRef($ref, $op->getId());
+    }
+
+    /**
+     * @Then /^Operation "([^"]*)" is cancelled$/
+     */
+    public function operationIsCancelled($ref)
+    {
+        /** @var Inventory\Operation $op */
+        $op = $this->em->find('Inventory:Operation', $this->getRef($ref));
+
+        if (!$op->getStatus()->toArray()['isCancelled']) {
+            throw new \Exception("$op should be cancelled");
+        }
     }
 
     /**

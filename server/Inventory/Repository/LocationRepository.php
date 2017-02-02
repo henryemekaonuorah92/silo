@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityRepository;
 use Silo\Inventory\LocationWalker;
 use Silo\Inventory\Model\BatchCollection;
 use Silo\Inventory\Model\Location as Model;
+use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation as OperationModel;
 use Silo\Inventory\Model\User as UserModel;
 
@@ -31,6 +32,21 @@ class LocationRepository extends EntityRepository
 
         return $location;
     }
+
+    public function findOneByCode($code)
+    {
+        $location = parent::findOneByCode($code);
+
+        if (!$location && $code == Location::CODE_ROOT) {
+            $location = new Location(Location::CODE_ROOT);
+            $this->_em->persist($location);
+            $this->_em->flush();
+        }
+
+        return $location;
+    }
+
+
 
     /**
      * @param $location

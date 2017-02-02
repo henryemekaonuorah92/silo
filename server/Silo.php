@@ -67,11 +67,8 @@ class Silo extends \Silex\Application
                 ->getValidator();
         };
 
-        $app->get('/silo/', function(){
-            return "hello world";
-        });
-
-        $app->mount('/silo/inventory', new \Silo\Inventory\InventoryController());
+        $app->mount('/silo/inventory/location', new \Silo\Inventory\LocationController());
+        $app->mount('/silo/inventory/operation', new \Silo\Inventory\OperationController());
 
         // Deal with exceptions
         $app->error(function (\Exception $e, $request) use ($app){

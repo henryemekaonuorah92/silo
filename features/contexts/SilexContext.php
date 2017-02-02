@@ -30,6 +30,20 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
     }
 
     /**
+     * @When /^one delete Location (\w+)$/
+     */
+    public function oneDeleteLocation($code)
+    {
+        $this->getClient()->request(
+            'DELETE',
+            "/silo/inventory/location/$code"
+        );
+        $response = $this->getClient()->getResponse();
+
+        $this->assertTrue($response->isSuccessful());
+    }
+
+    /**
      * @When /^one assign modifier "([^"]*)" to (\w+)$/
      */
     public function oneAssignModifierToA($name, $code)
@@ -78,6 +92,51 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
         $response = $this->getClient()->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEmpty($data);
+    }
+
+    /**
+     * @Then /^Location (\w+) (exists|does not exist)$/
+     */
+    public function locationExists($code, $what)
+    {
+        $this->getClient()->request('GET', "/silo/inventory/location/$code");
+        $response = $this->getClient()->getResponse();
+        switch($what){
+            case 'exists':
+                $this->assertTrue($response->isSuccessful()); break;
+            case 'does not exist':
+                $this->assertTrue($response->isClientError()); break;
+        }
+    }
+
+    /**
+     * @Given /^(?:a )?Locations? ([\w,]+)(?: with:)?$/
+     */
+    public function aLocation($codes, TableNode $table = null)
+    {
+        foreach (explode(',', $codes) as $code) {
+            $this->oneAddChildLocationTo($code);
+
+            if ($table) {
+                throw new \Behat\Behat\Exception\PendingException();
+                $op = new Inventory\Operation(
+                    $this->getRef('User'),
+                    null,
+                    $l,
+                    $this->tableNodeToProductQuantities($table)
+                );
+            }
+        }
+    }
+
+    /**
+     * @When /^one add a child Location (\w+) to (\w+)$/
+     */
+    public function oneAddChildLocationTo($code, $parentCode = \Silo\Inventory\Model\Location::CODE_ROOT)
+    {
+        $this->getClient()->request('POST', "/silo/inventory/location/$parentCode/child", ['name' => $code]);
+        $response = $this->getClient()->getResponse();
+        $this->assertTrue($response->isSuccessful());
     }
 
     private function assertTrue($flag)
