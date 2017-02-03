@@ -46,7 +46,7 @@ Feature: Basic and special Location actions
     # Modifiers can be added to any Location
   Scenario: Add a modifier to a Location
     Given a Location A
-    When one assign modifier "surplus" to A
-    Then A has "surplus" modifier
-    When one remove modifier "surplus" from A
-    Then A has no "surplus" modifier
+    When one assign modifier Flag to A
+    Then A has Flag modifier
+    When one remove modifier Flag from A
+    Then A has no modifier

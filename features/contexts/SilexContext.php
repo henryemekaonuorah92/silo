@@ -45,33 +45,42 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
     }
 
     /**
-     * @When /^one assign modifier "([^"]*)" to (\w+)$/
+     * @When /^one assign modifier (\w+) to (\w+)(?: with:)?$/
      */
-    public function oneAssignModifierToA($name, $code)
+    public function oneAddModifierTo($name, $code, \Behat\Gherkin\Node\PyStringNode $value = null)
     {
+        if (!is_null($value)) {
+            $value = ['value' => json_decode($value, true)];
+        } else {
+            $value = [];
+        }
         $this->getClient()->request(
             'POST',
             "/silo/inventory/location/$code/modifiers",
-            ['name' => $name]
+            ['name' => $name] + $value
         );
         $response = $this->getClient()->getResponse();
         $this->assertTrue($response->isSuccessful());
     }
 
     /**
-     * @Then /^(\w+) has "([^"]*)" modifier$/
+     * @Then /^(\w+) has (\w+|no) modifier$/
      */
     public function aHasModifier($code, $name)
     {
         $this->getClient()->request('GET', "/silo/inventory/location/$code/modifiers");
         $response = $this->getClient()->getResponse();
         $data = json_decode($response->getContent(), true);
-        $this->assertNotEmpty($data);
-        $this->assertContainsKeyWithValue($data[0], 'name', $name);
+        if ($name == 'no') {
+            $this->assertEmpty($data);
+        } else {
+            $this->assertNotEmpty($data);
+            $this->assertContainsKeyWithValue($data[0], 'name', $name);
+        }
     }
 
     /**
-     * @When /^one remove modifier "([^"]*)" from (\w+)$/
+     * @When /^one remove modifier (\w+) from (\w+)$/
      */
     public function oneRemoveModifierFromA($name, $code)
     {
@@ -82,17 +91,6 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
         );
         $response = $this->getClient()->getResponse();
         $this->assertTrue($response->isSuccessful());
-    }
-
-    /**
-     * @Then /^A has no "([^"]*)" modifier$/
-     */
-    public function aHasNoModifier($code)
-    {
-        $this->getClient()->request('GET', "/silo/inventory/location/$code/modifiers");
-        $response = $this->getClient()->getResponse();
-        $data = json_decode($response->getContent(), true);
-        $this->assertEmpty($data);
     }
 
     /**
