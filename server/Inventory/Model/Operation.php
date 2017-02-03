@@ -176,7 +176,14 @@ class Operation
         }
 
         if ($override) {
-            $this->batches = $override;
+            foreach($this->batches->toArray() as $batch) {
+                $batch->detach();
+            }
+            $this->batches->clear();
+            foreach($override->toArray() as $batch) {
+                $this->batches->add($batch);
+                $batch->setOperation($this);
+            }
         }
 
         if ($location = $this->location) {

@@ -92,6 +92,12 @@ class Batch
         return $this->quantity;
     }
 
+    public function detach()
+    {
+        $this->operation = null;
+        $this->location = null;
+    }
+
     /**
      * @param mixed $operation
      */

@@ -231,28 +231,7 @@ class LocationController implements ControllerProviderInterface
             }
 
             // Create a BatchCollection out of a CSV file
-            $batches = new BatchCollection();
-            foreach ($csv->data as $line) {
-                ++$line;
-                /** @var ConstraintViolationList $violations */
-                $violations = $app['validator']->validate($line, [
-                    new Constraint\Collection([
-                        'product' => [new Constraint\Required(), new SkuExists()],
-                        'quantity' => new Constraint\Range(['min' => -100, 'max' => 100]),
-                    ]),
-                ]);
-
-                if ($violations->count() > 0) {
-                    return new JsonResponse(['errors' => array_map(function ($violation) {
-                        return (string) $violation;
-                    }, iterator_to_array($violations->getIterator()))]);
-                }
-
-                $product = $app['em']->getRepository('Inventory:Product')->findOneBy(['sku' => $line['sku']]);
-                $batch = new Batch($product, $line['quantity']);
-
-                $batches->addBatch($batch);
-            }
+            $batches = $app['BatchCollectionFactory']->makeFromArray($csv->data);
 
             switch ($request->get('merge')) {
                 // Merge the uploaded batch into the location

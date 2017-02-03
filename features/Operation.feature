@@ -8,6 +8,7 @@ Feature: Basic and special Operation actions
     And a Location A with:
       | X | 10 |
     And a Location B
+      | X | 1  |
     And an Operation "one" from A to B with:
       | X | 5  |
 
@@ -16,7 +17,7 @@ Feature: Basic and special Operation actions
     Then A contains:
       | X | 5  |
     And B contains:
-      | X | 5 |
+      | X | 6 |
 
   Scenario: Operation's Batches can be changed on execution
     When one execute Operation "one" with:
@@ -24,7 +25,7 @@ Feature: Basic and special Operation actions
     Then A contains:
       | X | 8  |
     And B contains:
-      | X | 2 |
+      | X | 3 |
     And Operation "one" contains:
       | X | 2 |
 
