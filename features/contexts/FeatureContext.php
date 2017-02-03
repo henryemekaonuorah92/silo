@@ -28,7 +28,7 @@ class FeatureContext extends BehatContext
 
     private $refs = [];
 
-    private function getRef($name)
+    public function getRef($name)
     {
         if (!isset($this->refs[$name])) {
             throw new \Exception("No such ref $name");
@@ -42,6 +42,7 @@ class FeatureContext extends BehatContext
         if (isset($this->refs[$name])) {
             throw new \Exception("Ref $name is already set");
         }
+        $this->printDebug("Set Ref $name as $object");
         $this->refs[$name] = $object;
     }
 
@@ -71,7 +72,8 @@ class FeatureContext extends BehatContext
         $that = $this;
         $logger = new \Monolog\Logger('test');
         $logger->pushHandler(new \Silo\Base\CallbackHandler(function($record)use($that){
-            $that->printDebug($record['message']);
+            if (stripos($record['message'], 'Matched route') === 0){return;}
+            echo "\033[36m|  ".strtr($record['message'], array("\n" => "\n|  "))."\033[0m\n";
         }, \Monolog\Logger::INFO));
 
         $this->app = $app = new \Silo\Silo([

@@ -5,25 +5,30 @@ Feature: Basic and special Operation actions
   Background:
     Given a Product "X"
     And a Product "Y"
+    And a Location A with:
+      | X | 10 |
+    And a Location B
+    And an Operation "one" from A to B with:
+      | X | 5  |
 
   Scenario: Operation can be executed
+    When one execute Operation "one"
+    Then A contains:
+      | X | 5  |
+    And B contains:
+      | X | 5 |
+
+  Scenario: Operation's Batches can be changed on execution
+    When one execute Operation "one" with:
+      | X | 2 |
+    Then A contains:
+      | X | 8  |
+    And B contains:
+      | X | 2 |
+    And Operation "one" contains:
+      | X | 2 |
+
 
   Scenario: Operation can transfer Batches between two Locations
-    # We also test that only wanted Batch is moved
-    Given a Location A with:
-      | X | 10 |
-      | Y |  1 |
-    And a Location B with:
-      | X | 1 |
-    And an Operation "three" from A to B with:
-      | X | 6 |
-    When "three" is executed
-    # Then show Inventory:Location,Inventory:Batch,Inventory:Operation
-    Then A contains:
-      | X | 4 |
-      | Y | 1 |
-    And B contains:
-      | X | 7 |
-
   Scenario: Operation can be rollbacked
   Scenario: Operation can be cancelled

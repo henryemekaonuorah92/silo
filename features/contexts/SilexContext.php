@@ -160,7 +160,7 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
             if (count($row) != 2) {throw new \Exception("Cannot parse batch");}
             $qtyFirst = is_numeric($row[0]);
             return [
-                'sku' => $qtyFirst ? $row[1] : $row[0],
+                'product' => $qtyFirst ? $row[1] : $row[0],
                 'quantity' => $qtyFirst ? $row[0] : $row[1]
             ];
         }, $table->getRows());
@@ -178,6 +178,45 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
         );
         $response = $this->getClient()->getResponse();
         $this->assertSuccessful($response);
+    }
+
+    /**
+     * @When /^one execute Operation "(\w+)"(?: with:)?$/
+     */
+    public function oneExecuteOperation($opRef, TableNode $table = null)
+    {
+        $data = [];
+        if ($table) {
+            $data = $this->transformBatch($table);
+        }
+
+        $id = $this->getMainContext()->getRef($opRef);
+
+        $this->getClient()->request(
+            'POST',
+            "/silo/inventory/operation/$id/execute",
+            $data
+        );
+        $response = $this->getClient()->getResponse();
+        $this->assertSuccessful($response);
+    }
+
+    /**
+     * @Given /^Operation "(\w+)" contains:$/
+     */
+    public function operationContains($opRef, TableNode $table)
+    {
+        $expected = $this->transformBatch($table);
+        $id = $this->getMainContext()->getRef($opRef);
+
+        $this->getClient()->request(
+            'GET',
+            "/silo/inventory/operation/$id"
+        );
+        $response = $this->getClient()->getResponse();
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertSame($expected, $data['batches']);
     }
 
     private function assertTrue($flag)
@@ -229,6 +268,33 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
     {
         if (!$response->isClientError()) {
             throw new \Exception($response);
+        }
+    }
+
+    private function assertSame($expected, $actual)
+    {
+        function arrayRecursiveDiff($aArray1, $aArray2) {
+            $aReturn = array();
+
+            foreach ($aArray1 as $mKey => $mValue) {
+                if (array_key_exists($mKey, $aArray2)) {
+                    if (is_array($mValue)) {
+                        $aRecursiveDiff = arrayRecursiveDiff($mValue, $aArray2[$mKey]);
+                        if (count($aRecursiveDiff)) { $aReturn[$mKey] = $aRecursiveDiff; }
+                    } else {
+                        if ($mValue != $aArray2[$mKey]) {
+                            $aReturn[$mKey] = $mValue;
+                        }
+                    }
+                } else {
+                    $aReturn[$mKey] = $mValue;
+                }
+            }
+            return $aReturn;
+        }
+
+        if(!empty(arrayRecursiveDiff($expected, $actual))) {
+            throw new \Exception("Arrays are not identical. Expected ".var_export($expected, true)." but got ".var_export($actual, true));
         }
     }
 }

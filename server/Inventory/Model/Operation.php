@@ -164,14 +164,19 @@ class Operation
      * done after flush.
      *
      * @param User $doneBy
+     * @param BatchCollection $overrideBatches Batches that will replace current ones
      */
-    public function execute(User $doneBy)
+    public function execute(User $doneBy, BatchCollection $override = null)
     {
         if ($this->doneAt) {
             throw new \LogicException("Cannot execute $this, it has already been executed");
         }
         if ($this->cancelledAt) {
             throw new \LogicException("Cannot execute $this, it has been cancelled");
+        }
+
+        if ($override) {
+            $this->batches = $override;
         }
 
         if ($location = $this->location) {
@@ -217,9 +222,7 @@ class Operation
         if (!$this->doneAt) {
             throw new \Exception("Cannot rollback $this, it is still pending");
         }
-        if ($this->cancelledAt) {
-            throw new \LogicException("Cannot rollback $this, it has been cancelled");
-        }
+        $this->cancel($rollbackUser);
 
         // @todo evaluate rollbacking with the same Batch instead of copying it
         $rollbackingOperation = new Operation(

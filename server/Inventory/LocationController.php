@@ -7,18 +7,16 @@ use Silex\Api\ControllerProviderInterface;
 use Silo\Base\JsonRequest;
 use Silo\Inventory\Model\Batch;
 use Silo\Inventory\Model\BatchCollection;
-use Silo\Inventory\Model\Context;
 use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation;
 use Silo\Inventory\Repository\Modifier;
-use Silo\Inventory\Validator\Constraints\LocationExists;
 use Silo\Inventory\Validator\Constraints\SkuExists;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Validator\Constraints as Constraint;
 use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * Endpoints.
@@ -33,28 +31,28 @@ class LocationController implements ControllerProviderInterface
 
         $locations = $app['em']->getRepository('Inventory:Location');
         $locationProvider = function ($code) use ($locations) {
-            return $locations->forceFindOneByCode($code);
+            $location = $locations->findOneByCode($code);
+            if (!$location || $location->isDeleted()) {
+                throw new NotFoundHttpException("Location $code cannot be found");
+            }
+
+            return $location;
         };
 
         /*
          * Inspect a Location given its code
          */
-        $controllers->get('/{code}', function ($code, Application $app) {
-            /** @var Location $location */
-            $location = $app['re']('Inventory:Location')->findOneByCode($code);
-            if (!$location || $location->isDeleted()) {
-                return new JsonResponse([], Response::HTTP_NOT_FOUND);
-            }
+        $controllers->get('/{location}', function (Location $location, Application $app) {
             $parent = $location->getParent();
 
             return new JsonResponse([
-                'code' => $code,
+                'code' => $location->getCode(),
                 'parent' => $parent ? $parent->getCode() : null,
                 'childs' => array_map(function (Location $l) {
                     return $l->getCode();
                 }, $location->getChildren()),
             ]);
-        });
+        })->convert('location', $locationProvider);
 
         /*
          * Delete a Location
@@ -179,31 +177,9 @@ class LocationController implements ControllerProviderInterface
         });
 
         $controllers->match('/{location}/batches', function (Location $location, Request $request) use ($app) {
-            // Create a BatchCollection out of a CSV file
-            $batches = new BatchCollection();
-
-            foreach ($request->request as $line) {
-                ++$line;
-                /** @var ConstraintViolationList $violations */
-                $violations = $app['validator']->validate($line, [
-                    new Constraint\Collection([
-                        'sku' => [new Constraint\Required(), new SkuExists()],
-                        // Negatives ?
-                        'quantity' => new Constraint\Range(['min' => -100, 'max' => 100]),
-                    ]),
-                ]);
-
-                if ($violations->count() > 0) {
-                    return new JsonResponse(['errors' => array_map(function ($violation) {
-                        return (string) $violation;
-                    }, iterator_to_array($violations->getIterator()))], JsonResponse::HTTP_BAD_REQUEST);
-                }
-
-                $product = $app['em']->getRepository('Inventory:Product')->findOneBy(['sku' => $line['sku']]);
-                $batch = new Batch($product, $line['quantity']);
-
-                $batches->addBatch($batch);
-            }
+            /** @var BatchCollection $batches */
+            $batches = $app['BatchCollectionFactory']
+                ->makeFromArray($request->request);
 
             switch ($request->getMethod()) {
                 // Merge the uploaded batch into the location
@@ -261,7 +237,7 @@ class LocationController implements ControllerProviderInterface
                 /** @var ConstraintViolationList $violations */
                 $violations = $app['validator']->validate($line, [
                     new Constraint\Collection([
-                        'sku' => [new Constraint\Required(), new SkuExists()],
+                        'product' => [new Constraint\Required(), new SkuExists()],
                         'quantity' => new Constraint\Range(['min' => -100, 'max' => 100]),
                     ]),
                 ]);

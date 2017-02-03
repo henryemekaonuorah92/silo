@@ -4,6 +4,7 @@ namespace Silo\Inventory;
 
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
+use Silo\Base\JsonRequest;
 use Silo\Inventory\Model\Batch;
 use Silo\Inventory\Model\BatchCollection;
 use Silo\Inventory\Model\Context;
@@ -15,6 +16,7 @@ use Silo\Inventory\Validator\Constraints\SkuExists;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Validator\Constraints as Constraint;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -24,6 +26,14 @@ class OperationController implements ControllerProviderInterface
     public function connect(Application $app)
     {
         $controllers = $app['controllers_factory'];
+        $operations = $app['em']->getRepository('Inventory:Operation');
+        $operationProvider = function ($id) use ($operations) {
+            $operation = $operations->find($id);
+            if (!$operation) {
+                throw new NotFoundHttpException("Operation $id cannot be found");
+            }
+            return $operation;
+        };
 
         /*
          * Fetch all modified Location
@@ -78,7 +88,7 @@ class OperationController implements ControllerProviderInterface
                         'code' => $l->getCode(),
                         'batches' => array_map(function (Batch $b) {
                             return [
-                                'sku' => $b->getProduct()->getSku(),
+                                'product' => $b->getProduct()->getSku(),
                                 'quantity' => $b->getQuantity()
                             ];
                         }, $l->getBatches()->toArray())
@@ -211,7 +221,6 @@ class OperationController implements ControllerProviderInterface
                     return [
                         'product' => $b->getProduct()->getSku(),
                         'quantity' => $b->getQuantity(),
-
                     ];
                 }, $op->getBatches()->toArray()),
                 'location' => $op->getLocation() ? $op->getLocation()->getCode() : null,
@@ -229,55 +238,39 @@ class OperationController implements ControllerProviderInterface
             ]);
         });
 
-        $controllers->post('/{id}/{action}', function ($id, $action, Application $app) {
-            $operations = $app['em']->getRepository('Inventory:Operation');
-            /** @var Operation $op */
-            $op = $operations->find($id);
-
-            if (!$op) {
-                throw new \Exception("Operation $id does not exist");
-            }
-
+        $controllers->post('/{operation}/{action}', function (
+            Operation $operation,
+            $action,
+            Request $request
+        ) use ($app) {
             $user = $app['current_user'];
-
             switch ($action) {
                 case 'rollback':
-                    $rollbackOp = $op->createRollback($user);
+                    $rollbackOp = $operation->createRollback($user);
                     $app['em']->persist($rollbackOp);
                     $app['em']->flush();
                     $rollbackOp->execute($user);
                     break;
                 case 'execute':
-                    $op->execute($user);
+                    $override = null;
+                    if (!empty($request->request->all())) {
+                        $override = $app['BatchCollectionFactory']->makeFromArray($request->request);
+                    }
+                    $operation->execute($user, $override);
                     break;
                 case 'cancel':
-                    $op->cancel($user);
+                    $operation->cancel($user);
                     break;
             }
 
             $app['em']->flush();
 
             return new JsonResponse([], 201);
-        })->assert('action', 'rollback|cancel|execute');;
-
-        $controllers->post('/{id}/execute', function ($id, Application $app) {
-            $operations = $app['em']->getRepository('Inventory:Operation');
-            /** @var Operation $op */
-            $op = $operations->find($id);
-
-            if (!$op) {
-                throw new \Exception("Operation $id does not exist");
-            }
-
-            $rollbackOp = $op->createRollback($app['current_user']);
-            $app['em']->persist($rollbackOp);
-            $app['em']->flush();
-
-            $rollbackOp->execute($app['current_user']);
-            $app['em']->flush();
-
-            return new JsonResponse([], 201);
-        });
+        })
+            ->assert('action', 'rollback|cancel|execute')
+            ->before(new JsonRequest())
+            ->convert('operation', $operationProvider)
+        ;
 
         return $controllers;
     }

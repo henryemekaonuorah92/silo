@@ -5,10 +5,14 @@ namespace Silo;
 use Doctrine\ORM\EntityManager;
 use Silo\Base\ConstraintValidatorFactory;
 use Silo\Base\Provider\DoctrineProvider\SQLLogger;
+use Silo\Base\ValidationException;
+use Silo\Inventory\BatchCollectionFactory;
 use Silo\Inventory\Model\User;
 use Silo\Inventory\ProductProviderInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -67,11 +71,24 @@ class Silo extends \Silex\Application
                 ->getValidator();
         };
 
+        $app['BatchCollectionFactory'] = function () use ($app) {
+            return new BatchCollectionFactory($app['em'], $app['validator']);
+        };
+
         $app->mount('/silo/inventory/location', new \Silo\Inventory\LocationController());
         $app->mount('/silo/inventory/operation', new \Silo\Inventory\OperationController());
 
         // Deal with exceptions
         $app->error(function (\Exception $e, $request) use ($app){
+            if ($e instanceof NotFoundHttpException) {
+                return new JsonResponse($e->getMessage(), JsonResponse::HTTP_NOT_FOUND);
+            }
+            if ($e instanceof ValidationException) {
+                return new JsonResponse(['errors' => array_map(function ($violation) {
+                    return (string) $violation;
+                }, iterator_to_array($e->getViolations()->getIterator()))], JsonResponse::HTTP_BAD_REQUEST);
+            }
+
             if ($app['logger']) {
                 $app['logger']->error($e);
             }
@@ -79,7 +96,7 @@ class Silo extends \Silex\Application
                 'message' => $e->getMessage(),
                 'trace' => $e->getTrace(),
                 'file' => $e->getFile().':'.$e->getLine()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            ], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         });
     }
 }
