@@ -138,7 +138,7 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
      */
     public function oneMoveCToB($code, $parentCode)
     {
-        $this->getClient()->request('PATCH', "/silo/inventory/location/$parentCode/child", ['codes' => [$code]]);
+        $this->getClient()->request('PATCH', "/silo/inventory/location/$parentCode/child", [$code]);
         $response = $this->getClient()->getResponse();
         $this->assertTrue($response->isSuccessful());
     }
@@ -180,7 +180,6 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
         );
         $response = $this->getClient()->getResponse();
         $this->assertSuccessful($response);
-
     }
 
     private function assertTrue($flag)

@@ -84,12 +84,15 @@ module.exports = React.createClass({
     },
     
     execute: function(){
-        $.post(
-            this.props.siloBasePath+"/inventory/operation",
-            {
-                children: this.state.children.slice(),
-                parent: this.state.parent
-            })
+        $.ajax({
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            url: this.props.siloBasePath + "/inventory/location/" + this.state.parent + "/child",
+            type: 'PATCH',
+            data: JSON.stringify(this.state.children.slice())
+        })
         .done(function(data, textStatus, jqXHR){
             // @todo if jqXHR.status != 201 then do something
             this.setState({

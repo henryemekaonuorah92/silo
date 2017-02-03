@@ -4,6 +4,7 @@ namespace Silo\Inventory;
 
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
+use Silo\Base\JsonRequest;
 use Silo\Inventory\Model\Batch;
 use Silo\Inventory\Model\BatchCollection;
 use Silo\Inventory\Model\Context;
@@ -56,7 +57,54 @@ class LocationController implements ControllerProviderInterface
         });
 
         /*
-         * Create an empty child
+         * Delete a Location
+         */
+        $controllers->delete('/{code}', function ($code, Application $app, Request $request) {
+            $em = $app['em'];
+            $location = $app['re']('Inventory:Location')->forceFindOneByCode($code);
+            $operations = $app['re']('Inventory:Operation');
+
+            /*
+            if ($location->isDeleted()) {
+            throw new \LogicException("$location is already deleted");
+            }
+
+            if ($location->getChildren()->count() > 0) {
+                throw new \LogicException("Cannot delete $location because it has children");
+            }
+            */
+
+            // Cancel all pending operations
+            $query = $em->createQueryBuilder();
+            $query
+                ->select('o')
+                ->from('Inventory:Operation', 'o')
+                ->andWhere($query->expr()->orX(
+                    'o.source = :location',
+                    'o.target = :location',
+                    'o.location = :location'
+                ))
+                ->andWhere($query->expr()->isNull('o.doneAt'))
+                ->andWhere($query->expr()->isNull('o.cancelledAt'))
+                ->setParameter('location', $location)
+            ;
+            foreach ($query->getQuery()->getResult() as $operation) {
+                $operation->cancel($app['current_user']);
+            }
+            $em->flush();
+
+            // Empty and remove location
+            // @todo do not empty empty location
+            $operations->executeOperation($app['current_user'], $location, null, 'empty location', $location->getBatches());
+            $operations->executeOperation($app['current_user'], $location->getParent(), null, 'remove location', $location);
+
+            $em->flush();
+
+            return new JsonResponse([], Response::HTTP_ACCEPTED);
+        });
+
+        /*
+         * Create an empty child Location
          */
         $controllers->post('/{code}/child', function ($code, Application $app, Request $request) {
             $locations = $app['em']->getRepository('Inventory:Location');
@@ -76,18 +124,16 @@ class LocationController implements ControllerProviderInterface
         });
 
         /*
-         * Move locations to a new parent
+         * Move Locations to a new parent
          */
-        $controllers->patch('/{code}/child', function ($code, Request $request) use ($app) {
+        $controllers->patch('/{location}/child', function (Location $location, Request $request) use ($app) {
             $locations = $app['em']->getRepository('Inventory:Location');
-            /** @var Location $location */
-            $parent = $locations->forceFindOneByCode($code);
 
             $operations = [];
-            foreach ($request->get('codes') as $childCode) {
+            foreach ($request->request->all() as $childCode) {
                 $child = $locations->forceFindOneByCode($childCode);
 
-                $op = new Operation($app['current_user'], $child->getParent(), $parent, $child);
+                $op = new Operation($app['current_user'], $child->getParent(), $location, $child);
                 array_push($operations, $op);
 
                 $app['em']->persist($op);
@@ -100,7 +146,9 @@ class LocationController implements ControllerProviderInterface
             $app['em']->flush();
 
             return new JsonResponse([]);
-        });
+        })
+            ->convert('location', $locationProvider)
+            ->before(new JsonRequest());
 
         /*
          * Inspect content of a Location
@@ -283,21 +331,17 @@ class LocationController implements ControllerProviderInterface
             );
         });
 
-        // does not follow REST
-        $controllers->post('/{code}/modifiers', function ($code, Application $app, Request $request) {
-            $locations = $app['re']('Inventory:Location');
-
-            $name = $request->get('name');
-
-            /** @var Location $location */
-            $location = $locations->forceFindOneByCode($code);
+        /*
+         * Create a Modifier
+         */
+        $controllers->post('/{location}/modifiers', function (Location $location, Request $request) use ($app) {
             /** @var Modifier $modifiers */
             $modifiers = $app['re']('Inventory:Modifier');
-            $modifiers->add($location, $name);
+            $modifiers->add($location, $request->get('name'), $request->get('value'));
             $app['em']->flush();
 
             return new JsonResponse([], Response::HTTP_ACCEPTED);
-        });
+        })->convert('location', $locationProvider);;
 
         // does not follow REST
         $controllers->delete('/{code}/modifiers', function ($code, Application $app, Request $request) {
@@ -312,50 +356,6 @@ class LocationController implements ControllerProviderInterface
             $modifiers->remove($location, $name);
 
             $app['em']->flush();
-
-            return new JsonResponse([], Response::HTTP_ACCEPTED);
-        });
-
-        $controllers->delete('/{code}', function ($code, Application $app, Request $request) {
-            $em = $app['em'];
-            $location = $app['re']('Inventory:Location')->forceFindOneByCode($code);
-            $operations = $app['re']('Inventory:Operation');
-
-            /*
-            if ($location->isDeleted()) {
-            throw new \LogicException("$location is already deleted");
-            }
-
-            if ($location->getChildren()->count() > 0) {
-                throw new \LogicException("Cannot delete $location because it has children");
-            }
-            */
-
-            // Cancel all pending operations
-            $query = $em->createQueryBuilder();
-            $query
-                ->select('o')
-                ->from('Inventory:Operation', 'o')
-                ->andWhere($query->expr()->orX(
-                    'o.source = :location',
-                    'o.target = :location',
-                    'o.location = :location'
-                ))
-                ->andWhere($query->expr()->isNull('o.doneAt'))
-                ->andWhere($query->expr()->isNull('o.cancelledAt'))
-                ->setParameter('location', $location)
-            ;
-            foreach ($query->getQuery()->getResult() as $operation) {
-                $operation->cancel($app['current_user']);
-            }
-            $em->flush();
-
-            // Empty and remove location
-            // @todo do not empty empty location
-            $operations->executeOperation($app['current_user'], $location, null, 'empty location', $location->getBatches());
-            $operations->executeOperation($app['current_user'], $location->getParent(), null, 'remove location', $location);
-
-            $em->flush();
 
             return new JsonResponse([], Response::HTTP_ACCEPTED);
         });

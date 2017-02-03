@@ -22,6 +22,7 @@ class UserRepository extends EntityRepository
         if (!$user) {
             $user = new Model($name, "it+$name@frankandoak.com");
             $this->_em->persist($user);
+            $this->_em->flush();
         }
 
         return $user;
