@@ -78,7 +78,7 @@ class OperationEditor extends React.Component {
                             {this.state.dimensions.width != -1 && (
                                 <Table
                                     width={this.state.dimensions.width} // Bootstrap 15px padding on row
-                                    height={400}
+                                    height={Math.min(operations.getSize() + 1, 12) * 36}
                                     headerHeight={36}
                                     offsetHeight={150}
                                     rowsCount={operations.getSize()}

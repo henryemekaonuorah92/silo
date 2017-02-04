@@ -10,13 +10,14 @@ let CacheNode = function(value){
 }
 
 CacheNode.prototype = {
-    from: function(){
-        let from = arguments[0];
+    from: function(from, opts){
         if (typeof from === 'function') {
             throw "not implemented yet";
         } else if (typeof from === 'string') {
             this._refreshCb = function(resolve, reject){
-                $.ajax(from, {headers: {'Accept': 'application/json'}})
+                let opt = opts || {};
+                opt.url = from;
+                $.ajax(opt)
                     .done(function(data){resolve(data);})
                     .error(function(){console.log(arguments)});
             };

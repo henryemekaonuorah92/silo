@@ -170,7 +170,7 @@ class OperationController implements ControllerProviderInterface
         /*
          * Inspect Operations
          */
-        $controllers->get('/', function (Application $app) {
+        $controllers->get('/', function (Request $request) use ($app) {
             $query = $app['em']->createQueryBuilder();
             $query->select('operation, source, target, type, context, location, contextType')
                 ->from('Inventory:Operation', 'operation')
@@ -183,6 +183,15 @@ class OperationController implements ControllerProviderInterface
                 ->orderBy('operation.id', 'DESC')
                 ->setMaxResults(1000)
                 ;
+
+            if ($location = $request->get('location')) {
+                $query->andWhere($query->expr()->orX(
+                    'source.code = :location',
+                    'target.code = :location',
+                    'location.code = :location'
+                ));
+                $query->setParameter('location', $location);
+            }
 
             $result = $query->getQuery()->execute();
 

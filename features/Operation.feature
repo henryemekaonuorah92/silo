@@ -29,6 +29,9 @@ Feature: Basic and special Operation actions
     And Operation "one" contains:
       | X | 2 |
 
+  Scenario: Operation can be queried
+    Then B has 3 related Operations
+    # One for creating it, and one for filling it, one for A=>B
 
   Scenario: Operation can transfer Batches between two Locations
   Scenario: Operation can be rollbacked

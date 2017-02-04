@@ -297,4 +297,23 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
             throw new \Exception("Arrays are not identical. Expected ".var_export($expected, true)." but got ".var_export($actual, true));
         }
     }
+
+    /**
+     * @Then /^(\w+) has (\d+) related Operations$/
+     */
+    public function hasRelatedOperations($code, $expected)
+    {
+        $this->getClient()->request(
+            'GET',
+            "/silo/inventory/operation/",
+            ['location' => $code]
+        );
+        $response = $this->getClient()->getResponse();
+        $data = json_decode($response->getContent(), true);
+
+        $actual = count($data);
+        if ($actual != $expected) {
+            throw new \Exception("Found $actual Operations");
+        }
+    }
 }
