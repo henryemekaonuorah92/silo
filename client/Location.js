@@ -84,6 +84,7 @@ module.exports = React.createClass({
                                     siloBasePath={this.props.siloBasePath}
                                     endpoint={this.props.siloBasePath+"/inventory/location/"+this.props.code+'/modifiers'}
                                     modifierFactory={this.props.modifierFactory}
+                                    code={this.props.code}
                     />
                     <BatchEditor
                         exportFilename={'location-'+this.props.code+'-batches.csv'}

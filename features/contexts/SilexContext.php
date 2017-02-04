@@ -250,21 +250,21 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
         }
     }
 
-    private function assertEmpty($data)
+    public function assertEmpty($data)
     {
         if (!empty($data)) {
             throw new \Exception('should be empty');
         }
     }
 
-    private function assertSuccessful(\Symfony\Component\HttpFoundation\Response $response)
+    public function assertSuccessful(\Symfony\Component\HttpFoundation\Response $response)
     {
         if (!$response->isSuccessful()) {
             throw new \Exception($response);
         }
     }
 
-    private function assertClientError(\Symfony\Component\HttpFoundation\Response $response)
+    public function assertClientError(\Symfony\Component\HttpFoundation\Response $response)
     {
         if (!$response->isClientError()) {
             throw new \Exception($response);

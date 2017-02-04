@@ -65,7 +65,7 @@ module.exports = React.createClass({
                     {this.state.modifiers.map(function(modifier, key){
                         return (
                             <div key={key}>
-                                {this.props.modifierFactory.make(modifier.name, modifier.value)}
+                                {this.props.modifierFactory.make(modifier.name, modifier.value, this.props)}
                             </div>
                         );
                     }.bind(this))}
