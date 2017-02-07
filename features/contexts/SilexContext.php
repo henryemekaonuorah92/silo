@@ -41,7 +41,7 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
         );
         $response = $this->getClient()->getResponse();
 
-        $this->assertTrue($response->isSuccessful());
+        $this->assertSuccessful($response);
     }
 
     /**
@@ -60,7 +60,7 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
             ['name' => $name] + $value
         );
         $response = $this->getClient()->getResponse();
-        $this->assertTrue($response->isSuccessful());
+        $this->assertSuccessful($response);
     }
 
     /**
@@ -128,7 +128,7 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
     {
         $this->getClient()->request('POST', "/silo/inventory/location/$parentCode/child", ['name' => $code]);
         $response = $this->getClient()->getResponse();
-        $this->assertTrue($response->isSuccessful());
+        $this->assertSuccessful($response);
     }
 
     /**
@@ -138,7 +138,7 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
     {
         $this->getClient()->request('PATCH', "/silo/inventory/location/$parentCode/child", [$code]);
         $response = $this->getClient()->getResponse();
-        $this->assertTrue($response->isSuccessful());
+        $this->assertSuccessful($response);
     }
 
     /**

@@ -103,7 +103,7 @@ class BatchEditor extends React.Component {
                             {this.state.dimensions.width != -1 && (
                                 <Table
                                     width={this.state.dimensions.width} // Bootstrap 15px padding on row
-                                    height={Math.min(batches.getSize(), 12) * 36}
+                                    height={Math.min(batches.getSize() + 3, 12) * 36}
                                     headerHeight={0}
                                     offsetHeight={150}
                                     rowsCount={batches.getSize()}

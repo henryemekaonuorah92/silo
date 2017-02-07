@@ -38,8 +38,7 @@ module.exports = React.createClass({
 
     handleAction: function (action) {
         $.post(
-            this.props.siloBasePath+"/inventory/operation/"+this.props.id+"/"+action,
-            {headers: {'Accept': 'application/json'}}
+            this.props.siloBasePath+"/inventory/operation/"+this.props.id+"/"+action
         )
             .done(function(data, textStatus, jqXHR){
                 // @todo if jqXHR.status != 201 then do something
