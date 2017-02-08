@@ -83,7 +83,8 @@ class OperationStatus
             'isCancelled' => !!$this->cancelledAt,
             'isRollbacked' => $this->isRollbacked,
             'isRollbackable' => !$this->isRollbacked && $this->doneAt,
-            'isPending' => !$this->doneAt && !$this->cancelledAt
+            'isPending' => !$this->doneAt && !$this->cancelledAt,
+            'isDone' => !!$this->doneAt
         ];
     }
 }
