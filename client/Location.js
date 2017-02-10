@@ -16,8 +16,24 @@ module.exports = React.createClass({
     getDefaultProps: function() {
         return {
             siloBasePath: null,
-            code: 'root'
+            code: 'root',
+            writable: false
         };
+    },
+
+    propTypes: {
+        /**
+         * URL where to send the file
+         */
+        url: React.PropTypes.string,
+        /**
+         * Callback used when download has been succesfull
+         */
+        onSuccess: React.PropTypes.func,
+        /**
+         * @todo this is very bad ACL design, change that
+         */
+        writable: React.PropTypes.bool
     },
 
     componentDidMount: function () {
@@ -69,7 +85,7 @@ module.exports = React.createClass({
                         <b>Batches:</b>
                     <BatchEditor
                         exportFilename={'location-'+this.props.code+'-batches.csv'}
-                        batches={this.state.batches} uploadUrl={uploadUrl} onNeedRefresh={this.refresh} editable/>
+                        batches={this.state.batches} uploadUrl={uploadUrl} onNeedRefresh={this.refresh} writable={this.props.writable} />
                 </div>) : "Loading data"}
             </div>
         );

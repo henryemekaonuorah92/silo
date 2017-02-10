@@ -66,7 +66,7 @@ class BatchEditor extends React.Component {
                         <div>
                             <ul className="nav navbar-nav">
                                 <li><h4>BatchEditor</h4></li>
-                                { this.props.editable &&
+                                { this.props.writable &&
                                     <li className="dropdown"> <a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Edit <span className="caret"></span></a>
                                         <ul className="dropdown-menu">
                                             <li><UploadModalMenu url={this.props.uploadUrl} onSuccess={this.props.onNeedRefresh} /></li>
@@ -129,5 +129,9 @@ class BatchEditor extends React.Component {
 module.exports = BatchEditor;
 
 BatchEditor.propTypes = {
-    // batches: React.PropTypes.isRequired // new DataStore
+    writable: React.PropTypes.bool
+};
+
+BatchEditor.defaultProps = {
+    writable: false
 };
