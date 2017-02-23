@@ -2,64 +2,83 @@
  * Naive in memory cache implementation
  * @type {Cache}
  */
-var Cache = function(){
-    this._cached = [];
-    this._cb = [];
-};
 
-Cache.prototype = {
-    has: function(key){
-        return key in this._cached;
-    },
-    /**
-     * @param key
-     * @param cb If provided, will be used to set the data if its null
-     * @returns Promise
-     */
-    get: function(key, cb){
-        return new Promise(
-            function(resolve, reject) {
-                let value = this._cached[key];
-                if (typeof value === 'undefined' && typeof cb === 'function') {
-                    (new Promise(cb)).then(function(value){
-                        this.set(key, value);
-                        resolve(value);
-                    }.bind(this));
-                } else if (typeof value === 'undefined' && typeof this._cb[key] === 'function') {
-                    (new Promise(this._cb[key])).then(function(value){
-                        this.set(key, value);
-                        resolve(value);
-                    }.bind(this));
-                } else {
-                    resolve(value);
-                }
-            }.bind(this)
-        );
-    },
-    clear: function(key) {
-        delete this._cached[key];
-    },
-    set: function(key, value){
-        console.log('CACHE '+key);
-        this._cached[key] = value;
-    },
-    setCallback: function(key, callback){
-        this._cb[key] = callback;
+let CacheNode = function(value){
+    this._value = value;
+    this._refreshCb = null;
+    this._cb = null;
+}
+
+CacheNode.prototype = {
+    from: function(){
+        let from = arguments[0];
+        if (typeof from === 'function') {
+            throw "not implemented yet";
+        } else if (typeof from === 'string') {
+            this._refreshCb = function(resolve, reject){
+                $.ajax(from, {headers: {'Accept': 'application/json'}})
+                    .done(function(data){resolve(data);})
+                    .error(function(){console.log(arguments)});
+            };
+        } else {
+            throw "from should have one argument, either url or callback"
+        }
         return this;
     },
-    setCallbackWithUrl: function(key, url){
-        return this.setCallback(key, function(resolve, reject){
-            $.ajax(
-                url,
-                {
-                    success: function (data) {
-                        resolve(data);
-                    },
-                    headers: {'Accept': 'application/json'}
-                }
-            );
-        })
+    onUpdate: function(callback){
+        if (typeof callback !== 'function'){
+            throw 'callback should be a function';
+        }
+        this._cb = callback;
+        if (typeof this._value !== 'undefined') {
+            callback(this._value);
+        }
+        return this;
+    },
+    refresh: function() {
+        (new Promise(this._refreshCb)).then(function(value){
+            this._value = value;
+            if (typeof this._cb === 'function') {
+                this._cb(value);
+            }
+        }.bind(this));
+    },
+    /**
+     * Remove listeners
+     */
+    cleanup: function(){
+        this._cb = null;
     }
 };
 
-module.exports = Cache;
+let SmartCache = function(){
+    this._nodes = [];
+};
+
+SmartCache.prototype = {
+    /**
+     * @param key
+     */
+    get: function(key){
+        let node = this._nodes[key];
+        if (!node) {
+            this._nodes[key] = node = new CacheNode();
+        }
+
+        return node;
+    },
+    // Shortcut for SmartCache.get().from()
+    getFrom: function(url){
+        return this.get(url).from(url);
+    },
+    cleanup: function(key){
+        this._nodes[key].cleanup();
+        return this;
+    },
+    refresh: function(key){
+        this._nodes[key].refresh();
+        return this;
+    }
+};
+
+module.exports = SmartCache;
