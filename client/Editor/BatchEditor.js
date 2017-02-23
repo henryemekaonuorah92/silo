@@ -17,7 +17,8 @@ module.exports = React.createClass({
     },
 
     getDefaultProps: () => {return{
-        writable: false
+        writable: false,
+        batchColumns: function(){}
     }},
 
     getInitialState: () => {return {
