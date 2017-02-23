@@ -73,7 +73,11 @@ SmartCache.prototype = {
         return this.get(url).from(url);
     },
     cleanup: function(key){
-        this._nodes[key].cleanup();
+        if (key in this._nodes) {
+            this._nodes[key].cleanup();
+        } else {
+            console.log("Trying to clean "+key+" from Cache but doesn't exist");
+        }
         return this;
     },
     refresh: function(key){
