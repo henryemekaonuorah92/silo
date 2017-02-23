@@ -115,7 +115,10 @@ class OperationController implements ControllerProviderInterface
                     ]),
                     new Constraint\Callback(function($payload, ExecutionContextInterface $context)
                     {
-                        if ($payload['source'] === "VOID" && $payload['target'] === "VOID") {
+                        if (isset($payload['source']) &&
+                            isset($payload['target']) &&
+                            $payload['source'] === "VOID" &&
+                            $payload['target'] === "VOID") {
                             $context->buildViolation('Source and target cannot be both VOID')
                                 ->addViolation();
                         }

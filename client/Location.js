@@ -19,50 +19,67 @@ module.exports = React.createClass({
     getDefaultProps: function() {
         return {
             siloBasePath: null,
-            code: 'root'
+            code: 'root',
+            writable: false,
+            endpoint: '%siloBasePath%/inventory/location/%code%',
+            batchEndpoint: '%siloBasePath%/inventory/location/%code%/batches'
         };
     },
 
     propTypes: {
-        cache: React.PropTypes.object.isRequired
+        cache: React.PropTypes.object.isRequired,
+        /**
+         * URL where to send the file
+         */
+        url: React.PropTypes.string,
+        /**
+         * Callback used when download has been succesfull
+         */
+        onSuccess: React.PropTypes.func,
+        /**
+         * @todo this is very bad ACL design, change that
+         */
+        writable: React.PropTypes.bool,
+
+        batchEndpoint: React.PropTypes.string
     },
 
     componentDidMount: function () {
-        this.props.cache.get('location/'+this.props.code)
-            .from(this.props.siloBasePath+"/inventory/location/"+this.props.code)
-            .onUpdate(function(value){
-                this.setState({
-                    data: value
-                });
-            }.bind(this))
+        function replace(str) {
+            return str.replace('%siloBasePath%', this.props.siloBasePath).replace('%code%', this.props.code);
+        };
+        this.locationCache = this.props.cache
+            .getFrom(replace.apply(this, [this.props.endpoint]))
+            .onUpdate(value => {
+                this.setState({data: value});
+            })
             .refresh();
 
-        this.props.cache.get('locationBatch/'+this.props.code)
-            .from(this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches')
-            .onUpdate(function(value){
-                this.setState({
-                    batches: new DataStore(value)
-                });
-            }.bind(this))
+        this.batchCache = this.props.cache
+            .getFrom(replace.apply(this, [this.props.batchEndpoint]))
+            .onUpdate(value => {
+                this.setState({batches: new DataStore(value)});
+            })
             .refresh();
 
-        this.props.cache.get('locationOperation/'+this.props.code)
-            .from(this.props.siloBasePath+"/inventory/operation/", {data: {location: this.props.code}})
-            .onUpdate(function(value){
+        this.operationCache = this.props.cache
+            .getFrom('locationOperation/' + this.props.code)
+            .from(this.props.siloBasePath + "/inventory/operation/", {data: {location: this.props.code}})
+            .onUpdate(function (value) {
                 this.setState({
                     operations: new DataStore(value)
                 });
-            }.bind(this))
-            .refresh();
+            }.bind(this));
     },
 
     refresh: function(){
-        this.props.cache.refresh('locationBatch/'+this.props.code);
+        this.batchCache.refresh();
     },
 
     componentWillUnmount : function () {
-        this.props.cache.cleanup('locationBatch/'+this.props.code);
-        this.props.cache.cleanup('location/'+this.props.code);
+        this.locationCache.cleanup();
+        this.batchCache.cleanup();
+        this.operationCache.cleanup();
     },
 
     render: function(){
@@ -88,10 +105,10 @@ module.exports = React.createClass({
                     />
                     <BatchEditor
                         exportFilename={'location-'+this.props.code+'-batches.csv'}
-                        batches={this.state.batches} uploadUrl={uploadUrl} onNeedRefresh={this.refresh} editable/>
+                        batches={this.state.batches} uploadUrl={uploadUrl} onNeedRefresh={this.refresh} writable={this.props.writable}
+                        batchColumns={this.props.batchColumns}/>
 
                     <OperationEditor operations={this.state.operations} />
-
                 </div>) : "Loading data"}
             </div>
         );

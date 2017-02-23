@@ -86,7 +86,8 @@ module.exports = React.createClass({
                                 <b>Batches:</b>
                                 <BatchEditor
                                     exportFilename={'operation-'+this.props.id+'-batches.csv'}
-                                    batches={this.state.batches} />
+                                    batches={this.state.batches}
+                                    writable={false} />
                             </div>)
                         }
                 </div>}
