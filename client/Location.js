@@ -17,7 +17,9 @@ module.exports = React.createClass({
         return {
             siloBasePath: null,
             code: 'root',
-            writable: false
+            writable: false,
+            endpoint: '%siloBasePath%/inventory/location/%code%',
+            batchEndpoint: '%siloBasePath%/inventory/location/%code%/batches'
         };
     },
 
@@ -33,19 +35,24 @@ module.exports = React.createClass({
         /**
          * @todo this is very bad ACL design, change that
          */
-        writable: React.PropTypes.bool
+        writable: React.PropTypes.bool,
+
+        batchEndpoint: React.PropTypes.string
     },
 
     componentDidMount: function () {
-        this.props.cache
-            .getFrom(this.props.siloBasePath+"/inventory/location/"+this.props.code)
+        function replace(str){
+            return str.replace('%siloBasePath%', this.props.siloBasePath).replace('%code%', this.props.code);
+        };
+        this.locationCache = this.props.cache
+            .getFrom(replace.apply(this, [this.props.endpoint]))
             .onUpdate(value => {
                 this.setState({data: value});
             })
             .refresh();
 
-        this.props.cache
-            .getFrom(this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches')
+        this.batchCache = this.props.cache
+            .getFrom(replace.apply(this, [this.props.batchEndpoint]))
             .onUpdate(value => {
                 this.setState({batches: new DataStore(value)});
             })
@@ -53,13 +60,7 @@ module.exports = React.createClass({
     },
 
     refresh: function(){
-        let key = 'locationBatch/'+this.props.code;
-        this.props.cache.clear(key);
-        this.props.cache.get(key).then(function(value){
-            this.setState({
-                batches: new DataStore(value)
-            });
-        }.bind(this));
+        this.batchCache.refresh();
     },
 
     render: function(){

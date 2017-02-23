@@ -42,6 +42,7 @@ CacheNode.prototype = {
                 this._cb(value);
             }
         }.bind(this));
+        return this;
     },
     /**
      * Remove listeners

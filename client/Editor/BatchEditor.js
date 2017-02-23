@@ -107,7 +107,7 @@ module.exports = React.createClass({
                                 <Table
                                     width={this.state.dimensions.width} // Bootstrap 15px padding on row
                                     height={400}
-                                    headerHeight={0}
+                                    headerHeight={30}
                                     offsetHeight={150}
                                     rowsCount={batches.getSize()}
                                     rowHeight={36}>
@@ -115,11 +115,13 @@ module.exports = React.createClass({
                                         <Column
                                             key={1}
                                             width={200}
+                                            header="Product"
                                             cell={<TextCell data={batches} col="product" />}
                                         />,
                                         <Column
                                             key={2}
                                             width={200}
+                                            header="Quantity"
                                             cell={<TextCell data={batches} col="quantity" />}
                                         />
                                     ].concat(this.props.batchColumns(batches))}
