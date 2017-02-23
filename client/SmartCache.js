@@ -67,6 +67,10 @@ SmartCache.prototype = {
 
         return node;
     },
+    // Shortcut for SmartCache.get().from()
+    getFrom: function(url){
+        return this.get(url).from(url);
+    },
     cleanup: function(key){
         this._nodes[key].cleanup();
         return this;

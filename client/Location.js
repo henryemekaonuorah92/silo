@@ -37,26 +37,19 @@ module.exports = React.createClass({
     },
 
     componentDidMount: function () {
+        this.props.cache
+            .getFrom(this.props.siloBasePath+"/inventory/location/"+this.props.code)
+            .onUpdate(value => {
+                this.setState({data: value});
+            })
+            .refresh();
 
-        this.props.cache.setCallbackWithUrl(
-            'location/'+this.props.code,
-            this.props.siloBasePath+"/inventory/location/"+this.props.code
-        ).get('location/'+this.props.code).then(function(value){
-            this.setState({
-                data: value
-            });
-        }.bind(this));
-
-        this.props.cache.setCallbackWithUrl(
-            'locationBatch/'+this.props.code,
-            this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches'
-        );
-
-        this.props.cache.get('locationBatch/'+this.props.code).then(function(value){
-            this.setState({
-                batches: new DataStore(value)
-            });
-        }.bind(this));
+        this.props.cache
+            .getFrom(this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches')
+            .onUpdate(value => {
+                this.setState({batches: new DataStore(value)});
+            })
+            .refresh();
     },
 
     refresh: function(){
@@ -85,7 +78,8 @@ module.exports = React.createClass({
                         <b>Batches:</b>
                     <BatchEditor
                         exportFilename={'location-'+this.props.code+'-batches.csv'}
-                        batches={this.state.batches} uploadUrl={uploadUrl} onNeedRefresh={this.refresh} writable={this.props.writable} />
+                        batches={this.state.batches} uploadUrl={uploadUrl} onNeedRefresh={this.refresh} writable={this.props.writable}
+                        batchColumns={this.props.batchColumns}/>
                 </div>) : "Loading data"}
             </div>
         );

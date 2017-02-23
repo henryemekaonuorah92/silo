@@ -11,22 +11,25 @@ const TextCell = require('./TextCell');
  * Edit a set of Batches
  * @type {*}
  */
-class BatchEditor extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            dimensions: {
-                width: -1,
-                height: -1,
-            },
-            data: {},
-            filteredDataList: null
-        };
+module.exports = React.createClass({
+    propTypes: {
+        writable: React.PropTypes.bool
+    },
 
-        this._onFilterChange = this._onFilterChange.bind(this);
-    }
+    getDefaultProps: () => {return{
+        writable: false
+    }},
 
-    _onFilterChange(e) {
+    getInitialState: () => {return {
+        dimensions: {
+            width: -1,
+            height: -1,
+        },
+        data: {},
+        filteredDataList: null
+    }},
+
+    _onFilterChange: function(e) {
         if (!e.target.value) {
             this.setState({
                 filteredDataList: null,
@@ -46,18 +49,18 @@ class BatchEditor extends React.Component {
         this.setState({
             filteredDataList: new DataStoreWrapper(filteredIndexes, this.props.batches),
         });
-    }
+    },
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps: function(nextProps) {
         // Reapply filtering after a change in the props
         if (this.state.filteredDataList && this.state.filteredDataList._indexMap) {
             this.setState({
                 filteredDataList: new DataStoreWrapper(this.state.filteredDataList._indexMap, nextProps.batches),
             });
         }
-    }
+    },
 
-    render(){
+    render: function(){
         let batches = this.state.filteredDataList || this.props.batches;
         return (
             <div className="panel panel-default">
@@ -108,14 +111,18 @@ class BatchEditor extends React.Component {
                                     offsetHeight={150}
                                     rowsCount={batches.getSize()}
                                     rowHeight={36}>
-                                    <Column
-                                        width={200}
-                                        cell={<TextCell data={batches} col="product" />}
-                                    />
-                                    <Column
-                                        width={200}
-                                        cell={<TextCell data={batches} col="quantity" />}
-                                    />
+                                    {[
+                                        <Column
+                                            key={1}
+                                            width={200}
+                                            cell={<TextCell data={batches} col="product" />}
+                                        />,
+                                        <Column
+                                            key={2}
+                                            width={200}
+                                            cell={<TextCell data={batches} col="quantity" />}
+                                        />
+                                    ].concat(this.props.batchColumns(batches))}
                                 </Table>
                             )}
                         </div>
@@ -124,14 +131,4 @@ class BatchEditor extends React.Component {
             </div>
         );
     }
-}
-
-module.exports = BatchEditor;
-
-BatchEditor.propTypes = {
-    writable: React.PropTypes.bool
-};
-
-BatchEditor.defaultProps = {
-    writable: false
-};
+});
