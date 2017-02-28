@@ -5,7 +5,6 @@ namespace Silo\Inventory\Repository;
 use Doctrine\ORM\EntityRepository;
 use Silo\Inventory\LocationWalker;
 use Silo\Inventory\Model\BatchCollection;
-use Silo\Inventory\Model\Location as Model;
 use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation as OperationModel;
 use Silo\Inventory\Model\User as UserModel;
@@ -13,40 +12,20 @@ use Silo\Inventory\Model\User as UserModel;
 class LocationRepository extends EntityRepository
 {
     /**
-     * Retrieve System location by code. If does not exist, create it.
-     *
-     * @return Model
+     * The root Location is the only Location that always exists. It is at the root (sic)
+     * of the inventory Location tree.
+     * @return Location
      */
-    public function getSystemLocation($code)
+    public function getRoot()
     {
-        if (!in_array($code, [Model::CODE_ROOT])) {
-            throw new \InvalidArgumentException("$code is not a known Location");
-        }
-
-        $location = $this->findOneBy(['code' => $code]);
+        $location = $this->findOneBy(['code' => Location::CODE_ROOT]);
         if (!$location) {
-            $location = new Model($code);
-            $this->_em->persist($location);
-            $this->_em->flush();
-        }
-
-        return $location;
-    }
-
-    public function findOneByCode($code)
-    {
-        $location = parent::findOneByCode($code);
-
-        if (!$location && $code == Location::CODE_ROOT) {
             $location = new Location(Location::CODE_ROOT);
             $this->_em->persist($location);
             $this->_em->flush();
         }
-
         return $location;
     }
-
-
 
     /**
      * @param $location
@@ -80,6 +59,9 @@ class LocationRepository extends EntityRepository
         return $location;
     }
 
+    /**
+     * @todo move elsewhere
+     */
     public function spawnLocation($code, $parentCode, UserModel $user, $operationTypeName)
     {
         $location = $this->findOneByCode($code);
@@ -112,6 +94,7 @@ class LocationRepository extends EntityRepository
      * @param $poolName
      * @return Model|null
      * @throws \Exception
+     * @todo move elsewhere
      */
     public function findSpawnPool($poolName)
     {

@@ -67,9 +67,9 @@ class Location
      */
     public function __construct($code)
     {
-        $regex = '/^[\w\d-]+$/';
+        $regex = '/^[\w\d-_]+$/';
         if (!preg_match($regex, $code)) {
-            throw new \LogicException("Location name should follow $regex");
+            throw new \LogicException("Location name should follow $regex, got $code");
         }
 
         $this->code = $code;
