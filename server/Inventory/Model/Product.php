@@ -6,7 +6,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\ProductRepository")
- * @ORM\Table(name="product")
+ * @ORM\Table(name="product", uniqueConstraints={
+ *     @ORM\UniqueConstraint(name="product_idx", columns={"sku"})
+ * })
  */
 class Product
 {
