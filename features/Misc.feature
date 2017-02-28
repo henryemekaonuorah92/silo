@@ -1,5 +1,6 @@
 Feature: I don't have a place for these yet
 
+  @todo
   Scenario: Inspector can walk a hierarchy of Location
     Given a Product "X"
     And a Product "Y"

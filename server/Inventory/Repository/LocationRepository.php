@@ -50,6 +50,10 @@ class LocationRepository extends EntityRepository
 
     public function forceFindOneByCode($code)
     {
+        if ($code == Location::CODE_ROOT) {
+            return $this->getRoot();
+        }
+
         $location = $this->findOneByCode($code);
 
         if (!$location) {

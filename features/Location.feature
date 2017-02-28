@@ -9,6 +9,7 @@ Feature: Basic and special Location actions
     # as the name suggests, it is the root of the Location tree
     # Henceforth, you cannot move it or change it
     # It can only contain children Locations and no batches
+  @todo
   Scenario: Location root exists at all time
     Then Location root exists
 
