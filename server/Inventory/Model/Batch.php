@@ -191,4 +191,12 @@ class Batch
     {
         return $this->location;
     }
+
+    /**
+     * @return bool True if quantity is 0
+     */
+    public function isEmpty()
+    {
+        return $this->quantity == 0;
+    }
 }

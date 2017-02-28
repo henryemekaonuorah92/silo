@@ -105,9 +105,9 @@ class Operation
     private $rollbackOperation;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Context", mappedBy="operations")
+     * @ORM\ManyToMany(targetEntity="OperationSet", mappedBy="operations")
      */
-    private $contexts;
+    private $operationSet;
 
     /**
      * @param User $requestedBy
@@ -156,7 +156,7 @@ class Operation
             });
         }
 
-        $this->contexts = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->operationSet = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
@@ -322,11 +322,8 @@ class Operation
         return $this->rollbackOperation;
     }
 
-    /**
-     * @return ArrayCollection
-     */
-    public function getContexts()
+    public function addOperationSet(OperationSet $set)
     {
-        return $this->contexts;
+        return $this->operationSet->add($set);
     }
 }
