@@ -243,10 +243,10 @@ class OperationController implements ControllerProviderInterface
                 'rollback' => $op->getRollbackOperation() ? $op->getRollbackOperation()->getId() : null,
                 'contexts' => array_map(function(Context $context){
                     return [
-                        'name' => $context->getName(),
-                        'value' => $context->getValue()
+                        'name' => $context->getId(),
+                        'value' => "???"
                     ];
-                }, $op->getContexts()->toArray())
+                }, $op->getOperationSet())
             ]);
         });
 

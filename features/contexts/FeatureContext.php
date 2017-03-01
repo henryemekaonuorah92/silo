@@ -42,7 +42,7 @@ class FeatureContext extends BehatContext
         if (isset($this->refs[$name])) {
             throw new \Exception("Ref $name is already set");
         }
-        $this->printDebug("Set Ref $name as $object");
+        // $this->printDebug("Set Ref $name as $object");
         $this->refs[$name] = $object;
     }
 

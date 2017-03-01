@@ -38,7 +38,7 @@ class LocationRepository extends EntityRepository
 
         return $walker->mapReduce(
             $location,
-            function (Model $l) {
+            function (Location $l) {
                 return $l->getBatches();
             },
             function ($a, $b) {
@@ -46,6 +46,15 @@ class LocationRepository extends EntityRepository
             },
             new BatchCollection()
         );
+    }
+
+    public function findOneByCode($code)
+    {
+        if ($code == Location::CODE_ROOT) {
+            return $this->getRoot();
+        }
+
+        return parent::findOneBy(['code' => $code]);
     }
 
     public function forceFindOneByCode($code)

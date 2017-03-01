@@ -19,7 +19,6 @@ Feature: Basic and special Operation actions
     And B contains:
       | X | 6 |
 
-  @todo
   Scenario: Operation's Batches can be changed on execution
     When one execute Operation "one" with:
       | X | 2 |
@@ -32,7 +31,7 @@ Feature: Basic and special Operation actions
 
   @todo
   Scenario: Operation can be queried
-    Then B has 3 related Operations
+    # Then B has 3 related Operations
     # One for creating it, and one for filling it, one for A=>B
 
   Scenario: Operation can transfer Batches between two Locations

@@ -326,4 +326,12 @@ class Operation
     {
         return $this->operationSet->add($set);
     }
+
+    /**
+     * @return OperationSet[]
+     */
+    public function getOperationSet()
+    {
+        return $this->operationSet->toArray();
+    }
 }
