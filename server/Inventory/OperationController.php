@@ -10,6 +10,7 @@ use Silo\Inventory\Model\BatchCollection;
 use Silo\Inventory\Model\Context;
 use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation;
+use Silo\Inventory\Model\OperationSet;
 use Silo\Inventory\Repository\Modifier;
 use Silo\Inventory\Validator\Constraints\LocationExists;
 use Silo\Inventory\Validator\Constraints\SkuExists;
@@ -173,16 +174,16 @@ class OperationController implements ControllerProviderInterface
         /*
          * Inspect Operations
          */
+        // @todo test This
         $controllers->get('/', function (Request $request) use ($app) {
             $query = $app['em']->createQueryBuilder();
-            $query->select('operation, source, target, type, context, location, contextType')
+            $query->select('operation, source, target, type, context, location')
                 ->from('Inventory:Operation', 'operation')
                 ->leftJoin('operation.source', 'source')
                 ->leftJoin('operation.target', 'target')
                 ->leftJoin('operation.location', 'location')
                 ->leftJoin('operation.operationType', 'type')
-                ->leftJoin('operation.contexts', 'context')
-                ->leftJoin('context.type', 'contextType')
+                ->leftJoin('operation.operationSet', 'context')
                 ->orderBy('operation.id', 'DESC')
                 ->setMaxResults(1000)
                 ;
@@ -207,12 +208,12 @@ class OperationController implements ControllerProviderInterface
                         'type' => $op->getType(),
                         'status' => $op->getStatus()->toArray(),
                         'location' => $op->getLocation() ? $op->getLocation()->getCode() : null,
-                        'contexts' => array_map(function(Context $context){
+                        'contexts' => array_map(function(OperationSet $context){
                             return [
-                                'name' => $context->getName(),
-                                'value' => $context->getValue()
+                                'name' => $context->getId(),
+                                'value' => '??'
                             ];
-                        }, $op->getContexts()->toArray())
+                        }, $op->getOperationSet())
                     ];
                 }, $result)
             );
