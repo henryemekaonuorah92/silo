@@ -117,4 +117,26 @@ class BatchCollection extends ArrayCollection
     {
         return $this->copy()->merge($from->opposite());
     }
+
+    public function isSameAs(self $a)
+    {
+        return $this->opposite()->merge($a)->isEmpty();
+    }
+
+    public function isEmpty()
+    {
+        // Trivial case but...
+        if (parent::isEmpty()) {
+            return true;
+        }
+
+        // ... we can also have Batch with quantity = 0
+        foreach($this->getValues() as $batch) { /** @var Batch $batch */
+            if (!$batch->isEmpty()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

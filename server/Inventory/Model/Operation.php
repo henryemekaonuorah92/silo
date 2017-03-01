@@ -327,6 +327,11 @@ class Operation
         return $this->operationSet->add($set);
     }
 
+    public function removeOperationSet(OperationSet $set)
+    {
+        return $this->operationSet->removeElement($set);
+    }
+
     /**
      * @return OperationSet[]
      */

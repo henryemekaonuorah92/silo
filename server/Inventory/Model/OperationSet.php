@@ -27,7 +27,7 @@ class OperationSet
     private $user;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Silo\Inventory\Model\Operation")
+     * @ORM\ManyToMany(targetEntity="Silo\Inventory\Model\Operation", cascade={"persist"})
      * @ORM\JoinTable(name="operation_set_operations",
      *      joinColumns={@ORM\JoinColumn(name="operation_set_id", referencedColumnName="operation_set_id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="operation_id", referencedColumnName="operation_id")}
@@ -46,7 +46,7 @@ class OperationSet
      */
     public function __toString()
     {
-        return 'Context';
+        return 'OperationSet:'.$this->id;
     }
 
     /**
@@ -64,13 +64,19 @@ class OperationSet
      */
     public function getOperations()
     {
-        return $this->operations;
+        return $this->operations->toArray();
     }
 
     public function add(Operation $operation)
     {
         $operation->addOperationSet($this);
         $this->operations->add($operation);
+    }
+
+    public function remove(Operation $operation)
+    {
+        $operation->removeOperationSet($this);
+        $this->operations->removeElement($operation);
     }
 
     public function isEmpty()
@@ -86,6 +92,7 @@ class OperationSet
     public function addSet(self $set)
     {
         foreach($set->getOperations() as $operation) {
+            $set->remove($operation);
             $this->add($operation);
         }
     }
