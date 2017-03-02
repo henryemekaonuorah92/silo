@@ -51,7 +51,7 @@ class ModifierRepository extends EntityRepository
 
     public function getType($name)
     {
-        if (!isset($this->typeCache[$name])) {
+        if (!isset($this->typeCache[$name]) || !$this->_em->contains($this->typeCache[$name])) {
             $type = $this->_em->getRepository('Inventory:ModifierType')
                 ->findOneBy(['name' => $name]);
             if (!$type) {
