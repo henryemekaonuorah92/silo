@@ -9,7 +9,7 @@ use Silo\Inventory\Model\BatchCollection;
 use Silo\Inventory\Model\Context;
 use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation;
-use Silo\Inventory\Repository\Modifier;
+use Silo\Inventory\Repository\ModifierRepository;
 use Silo\Inventory\Validator\Constraints\LocationExists;
 use Silo\Inventory\Validator\Constraints\SkuExists;
 use Symfony\Component\HttpFoundation\JsonResponse;

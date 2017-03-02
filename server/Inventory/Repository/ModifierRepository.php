@@ -3,12 +3,12 @@
 namespace Silo\Inventory\Repository;
 
 use Doctrine\ORM\EntityRepository;
-use Silo\Inventory\Model\Location as LocationModel;
-use Silo\Inventory\Model\Modifier as Model;
+use Silo\Inventory\Model\Location;
+use Silo\Inventory\Model\Modifier;
 use Silo\Inventory\Model\ModifierType;
 use Doctrine\ORM\Mapping;
 
-class Modifier extends EntityRepository
+class ModifierRepository extends EntityRepository
 {
     private $createModifierType;
 
@@ -34,29 +34,42 @@ class Modifier extends EntityRepository
     /**
      * @todo be defensive about name and value
      */
-    public function add(LocationModel $location, $name, $value = null)
+    public function add(Location $location, $name, $value = null)
     {
-        $type = $this->_em->getRepository('Inventory:ModifierType')
-            ->findOneBy(['name' => $name]);
-        if (!$type) {
-            $type = call_user_func($this->createModifierType, $name);
-            $this->_em->persist($type);
-            $this->_em->flush($type);
-        }
+        $type = $this->getType($name);
 
         $instance = $this->findOneBy(['type' => $type, 'location' => $location]);
         if (!$instance) {
-            $instance = new Model($type, $location, $value);
+            $instance = new Modifier($type, $location, $value);
             $this->_em->persist($instance);
         } else {
             $instance->setValue($value);
         }
     }
 
+    private $typeCache = [];
+
+    public function getType($name)
+    {
+        if (!isset($this->typeCache[$name])) {
+            $type = $this->_em->getRepository('Inventory:ModifierType')
+                ->findOneBy(['name' => $name]);
+            if (!$type) {
+                $type = call_user_func($this->createModifierType, $name);
+                $this->_em->persist($type);
+                $this->_em->flush($type);
+            }
+
+            $this->typeCache[$name] = $type;
+        }
+
+        return $this->typeCache[$name];
+    }
+
     /**
      * @todo be defensive about name and value
      */
-    public function remove(LocationModel $location, $name)
+    public function remove(Location $location, $name)
     {
         $type = $this->_em->getRepository('Inventory:ModifierType')
             ->findOneBy(['name' => $name]);

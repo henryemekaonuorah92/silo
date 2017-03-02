@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 use Doctrine\ORM\Mapping\Index;
 
 /**
- * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\Modifier")
+ * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\ModifierRepository")
  * @ORM\Table(
  *     name="modifier",
  *     uniqueConstraints={

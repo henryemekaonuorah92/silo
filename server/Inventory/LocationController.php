@@ -9,7 +9,7 @@ use Silo\Inventory\Model\Batch;
 use Silo\Inventory\Model\BatchCollection;
 use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation;
-use Silo\Inventory\Repository\Modifier;
+use Silo\Inventory\Repository\ModifierRepository;
 use Silo\Inventory\Validator\Constraints\SkuExists;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -290,7 +290,7 @@ class LocationController implements ControllerProviderInterface
          * Create a Modifier
          */
         $controllers->post('/{location}/modifiers', function (Location $location, Request $request) use ($app) {
-            /** @var Modifier $modifiers */
+            /** @var ModifierRepository $modifiers */
             $modifiers = $app['re']('Inventory:Modifier');
             $modifiers->add($location, $request->get('name'), $request->get('value'));
             $app['em']->flush();
@@ -306,7 +306,7 @@ class LocationController implements ControllerProviderInterface
 
             /** @var Location $location */
             $location = $locations->forceFindOneByCode($code);
-            /** @var Modifier $modifiers */
+            /** @var ModifierRepository $modifiers */
             $modifiers = $app['re']('Inventory:Modifier');
             $modifiers->remove($location, $name);
 
