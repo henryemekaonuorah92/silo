@@ -242,10 +242,10 @@ class OperationController implements ControllerProviderInterface
                 'type' => $op->getType(),
                 'status' => $op->getStatus()->toArray(),
                 'rollback' => $op->getRollbackOperation() ? $op->getRollbackOperation()->getId() : null,
-                'contexts' => array_map(function(Context $context){
+                'contexts' => array_map(function(OperationSet $context){
                     return [
                         'name' => $context->getId(),
-                        'value' => "???"
+                        'value' => '??'
                     ];
                 }, $op->getOperationSet())
             ]);
