@@ -95,7 +95,7 @@ class OperationSet
         $this->operations->clear();
     }
 
-    public function addSet(self $set)
+    public function merge(self $set)
     {
         foreach($set->getOperations() as $operation) {
             $set->remove($operation);
