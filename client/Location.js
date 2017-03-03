@@ -92,7 +92,7 @@ module.exports = React.createClass({
                 {data ? (<div>
                     <b>Parent:</b>&nbsp;{data.parent ? <Link route="location" code={data.parent} /> : "No parent"}<br />
                     <b>Childs:</b>&nbsp;
-                    {data.childs ? <ul>{data.childs.map(function(child, key){return <li key={key}>
+                    {data.childs ? <ul>{data.childs.sort().map(function(child, key){return <li key={key}>
                             <Link route="location" code={child} />
                         </li>;})}</ul> : "No child"
                     }<br />

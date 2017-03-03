@@ -6,7 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\ContextRepository")
+ * @ORM\Entity
  * @ORM\Table(name="operation_set")
  */
 class OperationSet
@@ -35,9 +35,15 @@ class OperationSet
      */
     private $operations;
 
-    public function __construct(User $user = null)
+    /**
+     * @ORM\Column(name="value", type="json_array", nullable=true)
+     */
+    private $value;
+
+    public function __construct(User $user = null, $value = null)
     {
         $this->user = $user;
+        $this->value = $value;
         $this->operations = new ArrayCollection();
     }
 
@@ -60,7 +66,7 @@ class OperationSet
     }
 
     /**
-     * @return ArrayCollection
+     * @return Operation[]
      */
     public function getOperations()
     {
@@ -124,5 +130,21 @@ class OperationSet
         }
 
         return $batches;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    public function setValue($value)
+    {
+        $this->value = $value;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getValue()
+    {
+        return $this->value;
     }
 }
