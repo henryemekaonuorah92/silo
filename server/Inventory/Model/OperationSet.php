@@ -57,12 +57,17 @@ class OperationSet
 
     /**
      * @return mixed
-     * @todo Context Type is given by included Operation type...
      */
-    public function getName()
+    public function getTypes()
     {
-        throw new \Exception("What that sound ?");
-        // return $this->type->getName();
+        $typeMap = [];
+        foreach ($this->operations as $operation) {
+            $t = $operation->getType();
+            /** @var Operation $operation */
+            $typeMap[$t] = isset($typeMap[$t]) ? $typeMap[$t] + 1 : 0;
+        }
+
+        return array_keys($typeMap);
     }
 
     /**

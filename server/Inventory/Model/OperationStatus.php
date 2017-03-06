@@ -87,4 +87,14 @@ class OperationStatus
             'isDone' => !!$this->doneAt
         ];
     }
+
+    public function isDone()
+    {
+        return !!$this->doneAt;
+    }
+
+    public function isCancelled()
+    {
+        return !!$this->cancelledAt;
+    }
 }
