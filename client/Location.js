@@ -51,7 +51,10 @@ module.exports = React.createClass({
         this.locationCache = this.props.cache
             .getFrom(replace.apply(this, [this.props.endpoint]))
             .onUpdate(value => {
-                this.setState({data: value});
+                this.setState({
+                    data: value,
+                    operations: new DataStore(value.operations)
+                });
             })
             .refresh();
 
@@ -61,15 +64,6 @@ module.exports = React.createClass({
                 this.setState({batches: new DataStore(value)});
             })
             .refresh();
-
-        this.operationCache = this.props.cache
-            .getFrom('locationOperation/' + this.props.code)
-            .from(this.props.siloBasePath + "/inventory/operation/", {data: {location: this.props.code}})
-            .onUpdate(function (value) {
-                this.setState({
-                    operations: new DataStore(value)
-                });
-            }.bind(this));
     },
 
     refresh: function(){
@@ -79,7 +73,6 @@ module.exports = React.createClass({
     componentWillUnmount : function () {
         this.locationCache.cleanup();
         this.batchCache.cleanup();
-        this.operationCache.cleanup();
     },
 
     render: function(){

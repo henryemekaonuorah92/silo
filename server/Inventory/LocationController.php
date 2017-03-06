@@ -2,6 +2,7 @@
 
 namespace Silo\Inventory;
 
+use Doctrine\ORM\QueryBuilder;
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Silo\Base\JsonRequest;
@@ -45,12 +46,41 @@ class LocationController implements ControllerProviderInterface
         $controllers->get('/{location}', function (Location $location, Application $app) {
             $parent = $location->getParent();
 
+            /** @var QueryBuilder $query */
+            $query = $app['em']->createQueryBuilder();
+            $query->select('op, target, source, location')
+                ->from('Inventory:Operation', 'op')
+                ->leftJoin('op.target', 'target')
+                ->leftJoin('op.source', 'source')
+                ->leftJoin('op.location', 'location')
+                ->andWhere($query->expr()->orX(
+                    'op.target = :location',
+                    'op.source = :location',
+                    'op.location = :location'
+                ))
+                ->setParameter('location', $location)
+                ->setMaxResults(15)
+                ;
+
+            $operations = $query->getQuery()->getResult();
+
             return new JsonResponse([
                 'code' => $location->getCode(),
                 'parent' => $parent ? $parent->getCode() : null,
                 'childs' => array_map(function (Location $l) {
                     return $l->getCode();
                 }, $location->getChildren()),
+                'operations' => array_map(function (Operation $op) {
+                    return [
+                        'id' => $op->getId(),
+                        'source' => $op->getSource() ? $op->getSource()->getCode() : null,
+                        'target' => $op->getTarget() ? $op->getTarget()->getCode() : null,
+                        'type' => $op->getType(),
+                        'status' => $op->getStatus()->toArray(),
+                        'location' => $op->getLocation() ? $op->getLocation()->getCode() : null,
+                        'contexts' => []
+                    ];
+                }, $operations)
             ]);
         })->convert('location', $locationProvider);
 
