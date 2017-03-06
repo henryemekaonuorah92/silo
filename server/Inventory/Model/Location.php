@@ -199,7 +199,7 @@ class Location
      */
     public function getModifiers()
     {
-        return $this->modifiers;
+        return $this->modifiers->toArray();
     }
 
     /**

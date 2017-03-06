@@ -6,6 +6,7 @@ const DataStoreWrapper = require('./DataStoreWrapper');
 const DownloadDataLink = require('../Common/DownloadDataLink');
 const UploadModalMenu = require('./UploadModal');
 const TextCell = require('./TextCell');
+const Link = require('../Common/Link');
 
 /**
  * Edit a set of Batches
@@ -81,7 +82,7 @@ module.exports = React.createClass({
                                     <DownloadDataLink
                                         filename={this.props.exportFilename}
                                         exportFile={function(){
-                                        let header = "sku,quantity\n";
+                                        let header = "product,quantity\n";
                                         return header + batches.getAll().map(function(data){
                                             return data.product+','+data.quantity
                                         }).join("\n")
@@ -117,7 +118,11 @@ module.exports = React.createClass({
                                             key={1}
                                             width={200}
                                             header="Product"
-                                            cell={<TextCell data={batches} col="product" />}
+                                            cell={props => (
+                                                <Cell {...props}>
+                                                    <Link route="product" code={batches.getObjectAt(props.rowIndex)["product"]} />
+                                                </Cell>
+                                            )}
                                         />,
                                         <Column
                                             key={2}

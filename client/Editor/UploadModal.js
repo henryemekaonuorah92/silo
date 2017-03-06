@@ -64,7 +64,7 @@ module.exports = React.createClass({
                         <p>Please note this will create a single Operation performing the requested action.</p>
                         <p>Expected format is:</p>
                         <pre>{startWith}{`
-sku,quantity
+product,quantity
 31-232-25,15
 14-231-21,-2`}</pre>
                         <UploadField url={this.props.url+'?merge='+(this.state.merge ? 'true' : 'false')} onSuccess={this.handleSuccess} />
