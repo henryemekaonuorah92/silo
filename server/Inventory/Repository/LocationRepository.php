@@ -82,10 +82,15 @@ class LocationRepository extends EntityRepository
             return $location;
         }
 
-        $parentLocation = $this->findOneByCode($parentCode);
-        if (!$parentLocation) {
-            throw new \Exception("Parent Location:$parentCode does not exist");
+        if (!$parentCode instanceof Location) {
+            $parentLocation = $this->findOneByCode($parentCode);
+            if (!$parentLocation) {
+                throw new \Exception("Parent Location:$parentCode does not exist");
+            }
+        } else {
+            $parentLocation = $parentCode;
         }
+
 
         $location = new \Silo\Inventory\Model\Location($code);
         $this->_em->persist($location); $this->_em->flush();

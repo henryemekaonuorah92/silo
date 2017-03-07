@@ -205,6 +205,7 @@ class Location
     /**
      * @return bool True if the location contain exclusively Product. Does not count children
      * and children's Products.
+     * @todo rename to HasNoBatches
      */
     public function isEmpty()
     {
