@@ -53,7 +53,7 @@ module.exports = React.createClass({
             .onUpdate(value => {
                 this.setState({
                     data: value,
-                    operations: new DataStore(value.operations)
+                    operations: new DataStore(value.operations.sort((a,b)=>(b.id-a.id)))
                 });
             })
             .refresh();

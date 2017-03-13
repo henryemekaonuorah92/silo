@@ -33,6 +33,18 @@ class BatchCollection extends ArrayCollection
     }
 
     /**
+     * Return a BatchCollection with a copy of each Batch in $this.
+     *
+     * @return static
+     */
+    public function extract(Product $product)
+    {
+        return new static(array_filter($this->toArray(), function (Batch $batch) use ($product) {
+            return $batch->getProduct()->getSku() === $product->getSku();
+        }));
+    }
+
+    /**
      * Return a BatchCollection with a opposite copy of each Batch in $this.
      *
      * @return static
@@ -121,6 +133,22 @@ class BatchCollection extends ArrayCollection
     public function isSameAs(self $a)
     {
         return $this->opposite()->merge($a)->isEmpty();
+    }
+
+    public function isSingleBatch()
+    {
+        return count($this->getValues()) === 1;
+    }
+
+    public function hasNegative()
+    {
+        foreach($this->getValues() as $batch) { /** @var Batch $batch */
+            if ($batch->getQuantity() < 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function isEmpty()
