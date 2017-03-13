@@ -235,6 +235,11 @@ class LocationController implements ControllerProviderInterface
 
             $app['em']->persist($operation);
             $app['em']->flush();
+
+            // @todo not atomical enough yet, but better
+            $app['em']->refresh($operation->getSource());
+            $app['em']->refresh($operation->getTarget());
+
             $operation->execute($app['current_user']);
             $app['em']->flush();
 
