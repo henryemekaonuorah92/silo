@@ -6,7 +6,7 @@ Simple yet powerful Warehouse Managment System. Daily used by Frank + Oak.
 Proudly built in Montréal with:
 - React
 - PHP
-- Doctrine2
+- MySQL + Doctrine2
 
 ## Installation
     
