@@ -7,7 +7,7 @@ use Silo\Base\ValidationException;
 use Symfony\Component\Validator\Constraints as Constraint;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Silo\Inventory\Model\BatchCollection;
+use Silo\Inventory\Collection\BatchCollection;
 use Silo\Inventory\Validator\Constraints\LocationExists;
 use Silo\Inventory\Validator\Constraints\SkuExists;
 use Silo\Inventory\Model\Batch;

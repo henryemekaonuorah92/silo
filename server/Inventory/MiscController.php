@@ -5,7 +5,7 @@ namespace Silo\Inventory;
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Silo\Inventory\Model\Batch;
-use Silo\Inventory\Model\BatchCollection;
+use Silo\Inventory\Collection\BatchCollection;
 use Silo\Inventory\Model\Context;
 use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation;

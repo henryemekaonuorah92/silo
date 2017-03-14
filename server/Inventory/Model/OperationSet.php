@@ -4,6 +4,7 @@ namespace Silo\Inventory\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Silo\Inventory\Collection\OperationCollection;
 
 /**
  * @ORM\Entity
@@ -27,6 +28,7 @@ class OperationSet
     private $user;
 
     /**
+     * @var OperationCollection
      * @ORM\ManyToMany(targetEntity="Silo\Inventory\Model\Operation", cascade={"persist"})
      * @ORM\JoinTable(name="operation_set_operations",
      *      joinColumns={@ORM\JoinColumn(name="operation_set_id", referencedColumnName="operation_set_id")},
@@ -44,38 +46,33 @@ class OperationSet
     {
         $this->user = $user;
         $this->value = $value;
-        $this->operations = new ArrayCollection();
+        $this->operations = new OperationCollection();
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** @return int */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /** {@inheritdoc} */
     public function __toString()
     {
         return 'OperationSet:'.$this->id;
     }
 
-    /**
-     * @return mixed
-     */
     public function getTypes()
     {
-        $typeMap = [];
-        foreach ($this->operations as $operation) {
-            $t = $operation->getType();
-            /** @var Operation $operation */
-            $typeMap[$t] = isset($typeMap[$t]) ? $typeMap[$t] + 1 : 0;
-        }
-
-        return array_keys($typeMap);
+        return $this->operations->getTypes();
     }
 
     /**
-     * @return Operation[]
+     * @return OperationCollection Copy of the contained Operations. You can manipulate this copy as you wish,
+     * it won't affect the relationships.
      */
     public function getOperations()
     {
-        return $this->operations->toArray();
+        return OperationCollection::fromCollection($this->operations);
     }
 
     public function add(Operation $operation)
@@ -92,7 +89,7 @@ class OperationSet
 
     public function isEmpty()
     {
-        return $this->operations->count() == 0;
+        return $this->operations->isEmpty();
     }
 
     public function clear()
@@ -100,41 +97,15 @@ class OperationSet
         $this->operations->clear();
     }
 
+    /**
+     * @param OperationSet $set to be merged into $this
+     */
     public function merge(self $set)
     {
         foreach($set->getOperations() as $operation) {
             $set->remove($operation);
             $this->add($operation);
         }
-    }
-
-    /**
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function getItemCount()
-    {
-        $sum = function($a, $b){return $a+$b;};
-        return array_reduce(array_map(function(Operation $operation)use($sum){
-            array_reduce(array_map(function(Batch $batch){
-                    return $batch->getQuantity();
-            }, $operation->getBatches()->toArray()), $sum);
-        }, $this->operations->toArray()), $sum);
-    }
-
-    public function getBatches()
-    {
-        $batches = new BatchCollection();
-
-        foreach ($this->operations->toArray() as $operation) {
-            $batches->merge($operation->getBatches());
-        }
-
-        return $batches;
     }
 
     /**
@@ -146,7 +117,7 @@ class OperationSet
     }
 
     /**
-     * @return mixed
+     * @return mixed Value that will be attached to this OperationSet. It has to be json-ifiable.
      */
     public function getValue()
     {

@@ -121,7 +121,7 @@ class FeatureContext extends BehatContext
      */
     private function tableNodeToProductQuantities(TableNode $table)
     {
-        $result = new Inventory\BatchCollection();
+        $result = new \Silo\Inventory\Collection\BatchCollection();
 
         foreach ($table->getRows() as $row) {
             $product = $this->em->getRepository('Inventory:Product')

@@ -7,7 +7,7 @@ use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Silo\Base\JsonRequest;
 use Silo\Inventory\Model\Batch;
-use Silo\Inventory\Model\BatchCollection;
+use Silo\Inventory\Collection\BatchCollection;
 use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation;
 use Silo\Inventory\Repository\ModifierRepository;

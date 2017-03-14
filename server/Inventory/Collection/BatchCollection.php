@@ -1,9 +1,11 @@
 <?php
 
-namespace Silo\Inventory\Model;
+namespace Silo\Inventory\Collection;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Silo\Inventory\Model\Batch;
+use Silo\Inventory\Model\Product;
 
 /**
  * Advanced operations on Batches ArrayCollection.
@@ -166,5 +168,13 @@ class BatchCollection extends ArrayCollection
         }
 
         return true;
+    }
+
+    public function getQuantity()
+    {
+        $sum = function($a, $b){return $a+$b;};
+        return array_reduce(array_map(function(Batch $batch){
+            return $batch->getQuantity();
+        }, $this->toArray()), $sum);
     }
 }

@@ -4,7 +4,7 @@ namespace Silo\Inventory\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Silo\Inventory\LocationWalker;
-use Silo\Inventory\Model\BatchCollection;
+use Silo\Inventory\Collection\BatchCollection;
 use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation as OperationModel;
 use Silo\Inventory\Model\User as UserModel;

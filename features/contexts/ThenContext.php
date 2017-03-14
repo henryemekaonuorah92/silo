@@ -97,7 +97,7 @@ class ThenContext extends BehatContext implements AppAwareContextInterface
      */
     private function tableNodeToProductQuantities(TableNode $table)
     {
-        $result = new Inventory\BatchCollection();
+        $result = new \Silo\Inventory\Collection\BatchCollection();
 
         foreach ($table->getRows() as $row) {
             $product = $this->app['em']->getRepository('Inventory:Product')

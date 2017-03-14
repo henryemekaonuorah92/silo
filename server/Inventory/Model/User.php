@@ -6,7 +6,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\UserRepository")
- * @ORM\Table(name="user")
+ * @ORM\Table(name="user", uniqueConstraints={
+ *     @ORM\UniqueConstraint(name="email_idx", columns={"email"})
+ * })
  */
 class User
 {

@@ -4,6 +4,7 @@ namespace Silo\Inventory\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Silo\Inventory\Collection\BatchCollection;
 
 /**
  * Represent a movement of something from a Location to another Location.

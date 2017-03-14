@@ -4,6 +4,7 @@ namespace Silo\Inventory\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Silo\Inventory\Collection\BatchCollection;
 
 /**
  * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\LocationRepository")
@@ -79,7 +80,7 @@ class Location
     }
 
     /**
-     * @return BatchCollection Copy of the contained Batches
+     * @return BatchCollection Deep copy of the contained Batches
      */
     public function getBatches()
     {

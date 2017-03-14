@@ -80,11 +80,11 @@ class OperationStatus
             'doneAt' => $this->doneAt ? $this->doneAt->format('Y-m-d H:i:s') : null,
             'cancelledBy' => $this->cancelledBy ? $this->cancelledBy->getName() : null,
             'cancelledAt' => $this->cancelledAt ? $this->cancelledAt->format('Y-m-d H:i:s') : null,
-            'isCancelled' => !!$this->cancelledAt,
+            'isCancelled' => $this->isCancelled(),
             'isRollbacked' => $this->isRollbacked,
             'isRollbackable' => !$this->isRollbacked && $this->doneAt,
-            'isPending' => !$this->doneAt && !$this->cancelledAt,
-            'isDone' => !!$this->doneAt
+            'isPending' => $this->isPending(),
+            'isDone' => $this->isDone()
         ];
     }
 
@@ -96,5 +96,10 @@ class OperationStatus
     public function isCancelled()
     {
         return !!$this->cancelledAt;
+    }
+
+    public function isPending()
+    {
+        return !$this->doneAt && !$this->cancelledAt;
     }
 }

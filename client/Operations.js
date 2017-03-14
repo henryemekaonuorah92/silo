@@ -37,7 +37,7 @@ module.exports = React.createClass({
             operations: new DataStore([])
         });
         $.ajax(
-            this.props.siloBasePath+"/inventory/operation",
+            this.props.siloBasePath+"/inventory/operation/",
             {
                 success: function (data) {
                     this.setState({

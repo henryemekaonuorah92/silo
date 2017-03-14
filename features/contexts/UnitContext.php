@@ -23,10 +23,10 @@ class UnitContext extends BehatContext
         $a = new Inventory\Product('a');
         $b = new Inventory\Product('b');
 
-        $collection = new Inventory\BatchCollection();
+        $collection = new \Silo\Inventory\Collection\BatchCollection();
         $collection->addProduct($a, 5);
 
-        $operand = new Inventory\BatchCollection();
+        $operand = new \Silo\Inventory\Collection\BatchCollection();
         $operand->addProduct($b, 5);
         $operand->addProduct($a, 3);
 
