@@ -2,7 +2,6 @@
 
 namespace Silo\Inventory\Collection;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Silo\Inventory\Model\Batch;
 use Silo\Inventory\Model\Product;
@@ -10,7 +9,7 @@ use Silo\Inventory\Model\Product;
 /**
  * Advanced operations on Batches ArrayCollection.
  */
-class BatchCollection extends ArrayCollection
+class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
 {
     /**
      * Create a new BatchCollection out of a Collection.
