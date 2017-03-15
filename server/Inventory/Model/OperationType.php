@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="operation_type")
- * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\OperationType")
+ * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\OperationTypeRepository")
  */
 class OperationType
 {

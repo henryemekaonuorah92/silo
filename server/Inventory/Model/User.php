@@ -53,6 +53,6 @@ class User
 
     public function __toString()
     {
-        return $this->name;
+        return 'User:'.$this->name;
     }
 }

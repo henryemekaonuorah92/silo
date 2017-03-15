@@ -6,7 +6,7 @@ use Doctrine\ORM\EntityRepository;
 use Silo\Inventory\Model\OperationType as Model;
 use Doctrine\ORM\Mapping;
 
-class OperationType extends EntityRepository
+class OperationTypeRepository extends EntityRepository
 {
     private $createOperationType;
 
