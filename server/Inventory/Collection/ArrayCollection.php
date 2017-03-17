@@ -52,4 +52,12 @@ class ArrayCollection extends \Doctrine\Common\Collections\ArrayCollection
 
         return $this;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function toArray()
+    {
+        return array_values(parent::toArray());
+    }
 }

@@ -21,15 +21,17 @@ class OperationCollection extends ArrayCollection
         return array_keys($typeMap);
     }
 
+    /**
+     * @return ArrayCollection
+     */
     public function getTargets()
     {
-        $typeMap = [];
+        $targets = new ArrayCollection();
         foreach ($this as $operation) { /** @var Operation $operation */
-            $t = $operation->getTarget()->getCode();
-            $typeMap[$t] = isset($typeMap[$t]) ? $typeMap[$t] + 1 : 0;
+            $targets->addUnique($operation->getTarget());
         }
 
-        return array_keys($typeMap);
+        return $targets;
     }
 
     /**

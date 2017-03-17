@@ -3,6 +3,7 @@
 namespace Silo\Inventory\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Silo\Inventory\Collection\BatchCollection;
 
 class ProductRepository extends EntityRepository
 {
@@ -20,5 +21,19 @@ class ProductRepository extends EntityRepository
         }
 
         return $this->cacheFindOneBySku[$sku];
+    }
+
+    public function batchFromMap ($map)
+    {
+        $batches = new BatchCollection();
+        foreach ($map as $sku => $qty) {
+            $product = $this->cachedFindOneBySku($sku);
+            if (!$product) {
+                throw new Exception("No such Product:$sku");
+            }
+            $batches->addProduct($product, $qty);
+        }
+
+        return $batches;
     }
 }

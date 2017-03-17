@@ -106,15 +106,22 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
      */
     public function addProduct(Product $product, $quantity)
     {
-        $found = $this->filter(function (Batch $batch) use ($product) {
+        $founds = $this->filter(function (Batch $batch) use ($product) {
             return $product->getSku() == $batch->getProduct()->getSku();
         });
-        if ($found->count() == 1) {
-            $foundValues = $found->getValues();
-            $foundValues[0]->add($quantity);
-        } elseif ($found->count() > 1) {
+        if ($founds->count() == 1) {
+            $found = $founds->first();
+            if ($found->getQuantity() + $quantity === 0) {
+                $this->removeElement($found);
+            } else {
+                $found->add($quantity);
+            }
+        } elseif ($founds->count() > 1) {
             throw new \LogicException('You cannot have many Batch with the same Product');
         } else {
+            if ($quantity === 0) {
+                return;
+            }
             $this->add(new Batch($product, $quantity));
         }
     }
@@ -175,5 +182,13 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
         return array_reduce(array_map(function(Batch $batch){
             return $batch->getQuantity();
         }, $this->toArray()), $sum);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function toArray()
+    {
+        return array_values(parent::toArray());
     }
 }
