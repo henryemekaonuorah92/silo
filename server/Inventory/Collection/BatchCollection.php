@@ -191,4 +191,17 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
     {
         return array_values(parent::toArray());
     }
+
+    public function toRawArray()
+    {
+        return array_map(
+            function(Batch $batch){
+                return [
+                    'product' => $batch->getProduct()->getSku(),
+                    'quantity' => $batch->getQuantity()
+                ];
+            },
+            $this->toArray()
+        );
+    }
 }
