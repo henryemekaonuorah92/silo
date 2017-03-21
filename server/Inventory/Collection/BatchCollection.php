@@ -111,11 +111,12 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
         });
         if ($founds->count() == 1) {
             $found = $founds->first();
-            if ($found->getQuantity() + $quantity === 0) {
-                $this->removeElement($found);
-            } else {
+            // @todo what to do ?
+            //if ($found->getQuantity() + $quantity === 0) {
+            //    $this->removeElement($found);
+            //} else {
                 $found->add($quantity);
-            }
+            //}
         } elseif ($founds->count() > 1) {
             throw new \LogicException('You cannot have many Batch with the same Product');
         } else {

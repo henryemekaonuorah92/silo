@@ -59,6 +59,7 @@ class LocationController implements ControllerProviderInterface
                     'op.location = :location'
                 ))
                 ->setParameter('location', $location)
+                ->orderBy('op.requestedAt', 'DESC')
                 ->setMaxResults(15)
                 ;
 
