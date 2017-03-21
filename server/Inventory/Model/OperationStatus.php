@@ -102,4 +102,9 @@ class OperationStatus
     {
         return !$this->doneAt && !$this->cancelledAt;
     }
+
+    public function getRequestedAt()
+    {
+        return $this->requestedAt;
+    }
 }
