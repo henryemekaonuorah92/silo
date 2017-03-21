@@ -81,12 +81,15 @@ class Batch
     }
 
     /**
-     * @param int $quantity Positive or negative quantity of product to add
+     * @param int|self $quantity Positive or negative quantity of product to add
      *
      * @return int
      */
     public function add($quantity)
     {
+        if ($quantity instanceof self) {
+            $quantity = $quantity->quantity;
+        }
         $this->quantity += $quantity;
 
         return $this->quantity;
