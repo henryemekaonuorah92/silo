@@ -38,7 +38,7 @@ class Modifier
     private $value;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Location")
+     * @ORM\ManyToOne(targetEntity="Location", inversedBy="modifiers")
      * @ORM\JoinColumn(name="location", referencedColumnName="location_id")
      */
     private $location;

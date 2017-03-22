@@ -108,7 +108,7 @@ class Operation
     /**
      * @ORM\ManyToMany(targetEntity="OperationSet", mappedBy="operations")
      */
-    private $operationSet;
+    private $operationSets;
 
     /**
      * @param User $requestedBy
@@ -157,7 +157,7 @@ class Operation
             });
         }
 
-        $this->operationSet = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->operationSets = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
@@ -329,19 +329,19 @@ class Operation
 
     public function addOperationSet(OperationSet $set)
     {
-        return $this->operationSet->add($set);
+        return $this->operationSets->add($set);
     }
 
     public function removeOperationSet(OperationSet $set)
     {
-        return $this->operationSet->removeElement($set);
+        return $this->operationSets->removeElement($set);
     }
 
     /**
      * @return OperationSet[]
      */
-    public function getOperationSet()
+    public function getOperationSets()
     {
-        return $this->operationSet->toArray();
+        return $this->operationSets->toArray();
     }
 }

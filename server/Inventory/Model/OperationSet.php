@@ -30,7 +30,7 @@ class OperationSet
 
     /**
      * @var OperationCollection
-     * @ORM\ManyToMany(targetEntity="Silo\Inventory\Model\Operation", cascade={"persist"})
+     * @ORM\ManyToMany(targetEntity="Silo\Inventory\Model\Operation", inversedBy="operationSets", cascade={"persist"})
      * @ORM\JoinTable(name="operation_set_operations",
      *      joinColumns={@ORM\JoinColumn(name="operation_set_id", referencedColumnName="operation_set_id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="operation_id", referencedColumnName="operation_id")}
@@ -42,6 +42,8 @@ class OperationSet
      * @ORM\Column(name="value", type="json_array", nullable=true)
      */
     private $value;
+
+    private $merged = false;
 
     public function __construct(User $user = null, $value = null)
     {
@@ -82,6 +84,13 @@ class OperationSet
         $this->operations->add($operation);
     }
 
+    public function addSet(self $set)
+    {
+        foreach ($set->getOperations()->toArray() as $operation) {
+            $this->add($operation);
+        }
+    }
+
     public function remove(Operation $operation)
     {
         $operation->removeOperationSet($this);
@@ -95,7 +104,9 @@ class OperationSet
 
     public function clear()
     {
-        $this->operations->clear();
+        foreach ($this->operations as $op) {
+            $this->remove($op);
+        }
     }
 
     /**
@@ -103,10 +114,16 @@ class OperationSet
      */
     public function merge(self $set)
     {
+        if ($this->merged) {
+            throw new \LogicException("You cannot remerge an OperationSet");
+        }
+
         foreach($set->getOperations() as $operation) {
             $set->remove($operation);
             $this->add($operation);
         }
+
+        $this->merged = true;
     }
 
     /**

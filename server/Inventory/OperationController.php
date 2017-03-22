@@ -213,7 +213,7 @@ class OperationController implements ControllerProviderInterface
                                 'name' => $context->getId(),
                                 'value' => '??'
                             ];
-                        }, $op->getOperationSet())
+                        }, $op->getOperationSets())
                     ];
                 }, $result)
             );

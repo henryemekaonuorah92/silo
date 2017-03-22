@@ -33,7 +33,7 @@ class Location
     private $code;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Location")
+     * @ORM\ManyToOne(targetEntity="Location", inversedBy="children")
      * @ORM\JoinColumn(name="parent", referencedColumnName="location_id")
      */
     private $parent;
