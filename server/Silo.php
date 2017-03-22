@@ -8,6 +8,7 @@ use Silo\Base\Provider\DoctrineProvider\SQLLogger;
 use Silo\Base\ValidationException;
 use Silo\Inventory\BatchCollectionFactory;
 use Silo\Inventory\Model\User;
+use Silo\Inventory\OperationValidator;
 use Silo\Inventory\ProductProviderInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -72,7 +73,9 @@ class Silo extends \Silex\Application
         };
 
         if (!$app->offsetExists('OperationValidator')) {
-            $app['OperationValidator'] = function () use ($app) {};
+            $app['OperationValidator'] = function () use ($app) {
+                return new OperationValidator();
+            };
         }
 
         $app['BatchCollectionFactory'] = function () use ($app) {
