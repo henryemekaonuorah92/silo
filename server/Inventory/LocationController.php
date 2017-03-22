@@ -162,7 +162,13 @@ class LocationController implements ControllerProviderInterface
             foreach ($request->request->all() as $childCode) {
                 $child = $locations->forceFindOneByCode($childCode);
 
+                // No need to move a child that is already at the right location
+                if ($child->getParent() == $location) {
+                    continue;
+                }
+
                 $op = new Operation($app['current_user'], $child->getParent(), $location, $child);
+                $app['OperationValidator']->assertValid($op);
                 array_push($operations, $op);
 
                 $app['em']->persist($op);

@@ -1,26 +1,25 @@
 ;
 const React = require('react');
 const HandheldScanner = require('../Common/HandheldScanner');
+const AjaxButton = require('../Common/AjaxButton');
 const Success = require('./Success');
 const Error = require('./Error');
 const Pending = require('./Pending');
+const CloseButton = require('../Common/CloseButton');
+const {Row, Col, Well} = require('react-bootstrap');
 
 module.exports = React.createClass({
 
-    getInitialState: function () {
-        return {
-            confirmation: false,
-            error: false,
-            parent: null,
-            children: [],
-        };
-    },
+    getInitialState: () => ({
+        confirmation: false,
+        error: false,
+        parent: null,
+        children: [],
+    }),
 
-    getDefaultProps: function() {
-        return {
-            siloBasePath: null,
-            id: null
-        };
+    propTypes: {
+        // Base API Path
+        siloBasePath: React.PropTypes.string.isRequired
     },
 
     handleScan: function(value){
@@ -42,7 +41,7 @@ module.exports = React.createClass({
                 break;
             case 2:
                 if (this.state.parent === value) {
-                    this.execute();
+                    this.button.click();
                 } else {
                     this.state.children.push(value);
                     this.setState({
@@ -52,12 +51,6 @@ module.exports = React.createClass({
                 break;
         }
     },
-
-    stepHelp: [
-        "Scan Parent",
-        "Scan a Child",
-        "Rescan Parent to execute"
-    ],
 
     getStep: function(){
         if (!this.state.parent) {
@@ -82,36 +75,6 @@ module.exports = React.createClass({
             children: this.state.children.slice()
         });
     },
-    
-    execute: function(){
-        $.ajax({
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            url: this.props.siloBasePath + "/inventory/location/" + this.state.parent + "/child",
-            type: 'PATCH',
-            data: JSON.stringify(this.state.children.slice())
-        })
-        .done(function(data, textStatus, jqXHR){
-            // @todo if jqXHR.status != 201 then do something
-            this.setState({
-                confirmation: true
-            });
-        }.bind(this))
-        .fail(function(data, textStatus, jqXHR){
-            // @todo if jqXHR.status != 201 then do something
-            const error = JSON.parse(data.responseText);
-            this.setState({
-                error: error ? error.message : 'No message'
-            });
-        }.bind(this));
-
-        this.setState({
-            parent: null,
-            children: []
-        });
-    },
 
     clearConfirmation: function(){
         this.setState({
@@ -121,31 +84,77 @@ module.exports = React.createClass({
     },
 
     render: function(){
-        const that = this;
         return (
             <div>
                 {this.state.confirmation &&
                     <Success title="Parent assigned" onAck={this.clearConfirmation} />
                 }
                 {this.state.error &&
-                    <Error title="Failure" onAck={this.clearConfirmation} />
+                    <Error title="Failure" description={this.state.error} onAck={this.clearConfirmation} />
                 }
                 {!this.state.confirmation && !this.state.error &&
                     <div>
-                        <div className="panel panel-default">
-                            <div className="panel-body text-center">{this.stepHelp[this.getStep()]} <HandheldScanner onScan={this.handleScan} /></div>
-                        </div>
-                        <div className="btn btn-block btn-primary" onClick={this.clearParent}>{this.state.parent ? "TO " + this.state.parent : "NO TARGET"}</div>
+                        <div className="text-center"><HandheldScanner onScan={this.handleScan} /></div>
 
-                        <ul>
-                            {this.state.children.map(function(child, key){
-                                return <div className="btn btn-block btn-default" key={key} onClick={that.clearChild.bind(that, key)}>{child}</div>;
-                            })}
-                        </ul>
+                        <Row><Col xs={6}>
+                            <Well bsSize="sm">
+                                <b>SOURCE:</b>
+                                <p>ANY</p>
+                            </Well>
+                        </Col><Col xs={6}>
+                            <Well bsSize="sm">
+                                <b>TARGET:</b>
+                                { this.state.parent ?
+                                    <p>
+                                        <CloseButton onClick={this.clearParent} />
+                                        {this.state.parent}
+                                    </p>
+                                    :
+                                    <p>Scan a parent</p>
+                                }
+                            </Well>
+                        </Col></Row>
 
-                        {this.state.children.length > 0 &&
-                            <div className="btn btn-block btn-primary" onClick={this.execute}>EXECUTE</div>
+                        { this.state.children.length === 0 ?
+                            <p>Scan a child</p>
+                            :
+                            <div>
+
+                                {this.state.children.map((child, key)=>{
+                                    return <div className="well well-sm" key={key}>
+                                        <CloseButton onClick={this.clearChild.bind(this, key)} />
+                                        {child}
+                                    </div>;
+                                })}
+
+                                <p>Scan more children</p>
+                                <AjaxButton
+                                    url={this.props.siloBasePath + "/inventory/location/" + this.state.parent + "/child"}
+                                    type="PATCH"
+                                    ref={ref => this.button = ref}
+                                    contentType="application/json"
+                                    data={JSON.stringify(this.state.children.slice())}
+                                    onSuccess={() => {
+                                        this.setState({
+                                            confirmation: true,
+                                            parent: null,
+                                            children: []
+                                        });
+                                    }}
+                                    onError={(msg) => {
+                                        this.setState({
+                                            error: msg,
+                                            parent: null,
+                                            children: []
+                                        });
+                                    }}
+                                    className="btn btn-block btn-primary">
+                                    Assign
+                                </AjaxButton>
+                            </div>
+
                         }
+                        {this.props.children}
                     </div>
                 }
             </div>

@@ -71,6 +71,10 @@ class Silo extends \Silex\Application
                 ->getValidator();
         };
 
+        if (!$app->offsetExists('OperationValidator')) {
+            $app['OperationValidator'] = function () use ($app) {};
+        }
+
         $app['BatchCollectionFactory'] = function () use ($app) {
             return new BatchCollectionFactory($app['em'], $app['validator']);
         };

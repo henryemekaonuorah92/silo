@@ -62,7 +62,7 @@ class ProductController implements ControllerProviderInterface
                         'quantity' => $batch->getQuantity(),
                         'modifiers' => array_map(function(Modifier $mod){
                             return $mod->getName();
-                        }, $batch->getLocation()->getModifiers())
+                        }, $batch->getLocation()->getModifiers()->toArray())
                     ];
                 }, $batches)
             ]);

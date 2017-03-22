@@ -5,6 +5,7 @@ namespace Silo\Inventory\Model;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Silo\Inventory\Collection\BatchCollection;
+use Silo\Inventory\Collection\ModifierCollection;
 
 /**
  * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\LocationRepository")
@@ -75,7 +76,7 @@ class Location
 
         $this->code = $code;
         $this->batches = new ArrayCollection();
-        $this->modifiers = new ArrayCollection();
+        $this->modifiers = new ModifierCollection();
         $this->children = new ArrayCollection();
     }
 
@@ -196,11 +197,11 @@ class Location
     }
 
     /**
-     * @return Modifier[]
+     * @return ModifierCollection
      */
     public function getModifiers()
     {
-        return $this->modifiers->toArray();
+        return new ModifierCollection($this->modifiers->toArray());
     }
 
     /**

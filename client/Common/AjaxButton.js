@@ -1,0 +1,71 @@
+;
+const React = require('react');
+
+/**
+ * Perfect for buttons that trigger actions on the backend via ajax call
+ */
+module.exports = React.createClass({
+
+    propTypes: {
+        data: React.PropTypes.any,
+        contentType: React.PropTypes.string,
+        onSuccess: React.PropTypes.func,
+        onError: React.PropTypes.func,
+        type: React.PropTypes.string,
+        url: React.PropTypes.string.isRequired,
+        disabled: React.PropTypes.bool
+    },
+
+    getDefaultProps: ()=>({
+        onSuccess: ()=>{},
+        onError: (message)=>{
+            console.log(message)
+        },
+        type: "GET",
+        data: null,
+        contentType: null
+    }),
+
+    getInitialState: () => ({
+            wip: false
+    }),
+
+    send: function(){
+        this.setState({wip: true});
+        $.ajax({
+            url: this.props.url,
+            headers: {'Accept': 'application/json'},
+            type: this.props.type,
+            data: this.props.data,
+            contentType: this.props.contentType
+        })
+            .done((data) => {
+                this.setState({wip: false});
+                this.props.onSuccess(data);
+            })
+            .fail((jqXHR) => {
+                let message = "Error while communicating";
+                if (jqXHR.status === 500 && jqXHR.readyState === 4 && jqXHR.responseText) {
+                    let data = JSON.parse(jqXHR.responseText);
+                    if (data.hasOwnProperty("message")) {
+                        message = data.message;
+                    }
+                }
+
+                this.setState({wip: false});
+                this.props.onError(message);
+            });
+
+
+    },
+
+    render: function() {
+        let rest = Object.assign({}, this.props);
+        delete rest.url; delete rest.onSuccess; delete rest.onError; delete rest.type; delete rest.data; delete rest.disabled; delete rest.contentType;
+        return (
+            <button onClick={this.send} {...rest} disabled={this.state.wip || this.props.disabled}>
+                {this.state.wip && <span className="glyphicon glyphicon-refresh spinning" />}{this.props.children}
+            </button>
+        );
+    }
+});

@@ -24,6 +24,7 @@ class OperationSet
     /**
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="user_id")
+     * @todo User is not needed here !
      */
     private $user;
 
