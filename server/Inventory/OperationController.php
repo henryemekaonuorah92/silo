@@ -183,7 +183,7 @@ class OperationController implements ControllerProviderInterface
                 ->leftJoin('operation.target', 'target')
                 ->leftJoin('operation.location', 'location')
                 ->leftJoin('operation.operationType', 'type')
-                ->leftJoin('operation.operationSet', 'context')
+                ->leftJoin('operation.operationSets', 'context')
                 ->orderBy('operation.id', 'DESC')
                 ->setMaxResults(1000)
                 ;
@@ -247,7 +247,7 @@ class OperationController implements ControllerProviderInterface
                         'name' => $context->getId(),
                         'value' => '??'
                     ];
-                }, $op->getOperationSet())
+                }, $op->getOperationSets())
             ]);
         });
 

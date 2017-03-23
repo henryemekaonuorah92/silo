@@ -47,4 +47,11 @@ class OperationCollection extends ArrayCollection
 
         return $batches;
     }
+
+    public function filterType($type)
+    {
+        return $this->filter(function(Operation $operation)use($type){
+            return $operation->getType() === $type;
+        });
+    }
 }

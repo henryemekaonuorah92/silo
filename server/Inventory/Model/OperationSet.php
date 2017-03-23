@@ -61,7 +61,11 @@ class OperationSet
     /** {@inheritdoc} */
     public function __toString()
     {
-        return 'OperationSet:'.$this->id;
+        $str = 'OperationSet:'.$this->id.'(';
+        foreach($this->operations as $op){
+            $str.="+$op";
+        }
+        return $str.')['.$this->value.']';
     }
 
     public function getTypes()
