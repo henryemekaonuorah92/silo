@@ -209,10 +209,7 @@ class OperationController implements ControllerProviderInterface
                         'status' => $op->getStatus()->toArray(),
                         'location' => $op->getLocation() ? $op->getLocation()->getCode() : null,
                         'contexts' => array_map(function(OperationSet $context){
-                            return [
-                                'name' => $context->getId(),
-                                'value' => '??'
-                            ];
+                            return $context->getId();
                         }, $op->getOperationSets())
                     ];
                 }, $result)
@@ -243,10 +240,7 @@ class OperationController implements ControllerProviderInterface
                 'status' => $op->getStatus()->toArray(),
                 'rollback' => $op->getRollbackOperation() ? $op->getRollbackOperation()->getId() : null,
                 'contexts' => array_map(function(OperationSet $context){
-                    return [
-                        'name' => $context->getId(),
-                        'value' => '??'
-                    ];
+                    return $context->getId();
                 }, $op->getOperationSets())
             ]);
         });

@@ -10,6 +10,7 @@ use Silo\Inventory\Model\Batch;
 use Silo\Inventory\Collection\BatchCollection;
 use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation;
+use Silo\Inventory\Model\OperationSet;
 use Silo\Inventory\Repository\ModifierRepository;
 use Silo\Inventory\Validator\Constraints\SkuExists;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -79,7 +80,9 @@ class LocationController implements ControllerProviderInterface
                         'type' => $op->getType(),
                         'status' => $op->getStatus()->toArray(),
                         'location' => $op->getLocation() ? $op->getLocation()->getCode() : null,
-                        'contexts' => []
+                        'contexts' => array_map(function(OperationSet $context){
+                            return $context->getId();
+                        }, $op->getOperationSets())
                     ];
                 }, $operations)
             ]);

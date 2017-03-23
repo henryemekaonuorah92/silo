@@ -84,7 +84,7 @@ class OperationEditor extends React.Component {
                                     rowsCount={operations.getSize()}
                                     rowHeight={36}>
                                     <Column
-                                        width={40}
+                                        width={80}
                                         header="#"
                                         cell={({rowIndex}) => (
                                             <Cell>
@@ -116,40 +116,32 @@ class OperationEditor extends React.Component {
                                         cell={({rowIndex}) => (
                                             <Cell>
                                                 {operations.getObjectAt(rowIndex).contexts.map(function(context, key){
-                                                    return <span key={key}>{context.name + ' ' +context.value}</span>;
+                                                    return <span key={key}>
+                                                        <Link  route="operationSet" code={context} />&nbsp;
+                                                    </span>
+                                                    ;
                                                 })}
                                             </Cell>
                                         )}
                                     />
                                     <Column
-                                        width={250}
-                                        header="Request"
-                                        cell={({rowIndex}) => (
+                                        width={320}
+                                        header="Status"
+                                        cell={({rowIndex}) => {
+                                            let status = operations.getObjectAt(rowIndex)['status'];
+                                            return (
                                             <Cell>
-                                                <Datetime>{operations.getObjectAt(rowIndex)['status']['requestedAt']}</Datetime>&nbsp;
-                                                {operations.getObjectAt(rowIndex)['status']['requestedBy']}
+                                                {status.isDone && <span className="text-success">
+                                                    <span className="glyphicon glyphicon-ok" /> Done <Datetime>{status.doneAt}</Datetime>&nbsp;{status.doneBy}
+                                                </span>}
+                                                {status.isCancelled && <span className="text-danger">
+                                                    <span className="glyphicon glyphicon-remove" /> Cancelled <Datetime>{status.cancelledAt}</Datetime>&nbsp;{status.cancelledBy}
+                                                </span>}
+                                                {status.isPending && <span>
+                                                    <span className="glyphicon glyphicon-time" /> Pending <Datetime>{status.requestedAt}</Datetime>&nbsp;{status.requestedBy}
+                                                </span>}
                                             </Cell>
-                                        )}
-                                    />
-                                    <Column
-                                        width={250}
-                                        header="Done"
-                                        cell={({rowIndex}) => (
-                                            <Cell>
-                                                <Datetime>{operations.getObjectAt(rowIndex)['status']['doneAt']}</Datetime>&nbsp;
-                                                {operations.getObjectAt(rowIndex)['status']['doneBy']}
-                                            </Cell>
-                                        )}
-                                    />
-                                    <Column
-                                        width={250}
-                                        header="Cancelled"
-                                        cell={({rowIndex}) => (
-                                            <Cell>
-                                                <Datetime>{operations.getObjectAt(rowIndex)['status']['cancelledAt']}</Datetime>&nbsp;
-                                                {operations.getObjectAt(rowIndex)['status']['cancelledBy']}
-                                            </Cell>
-                                        )}
+                                        )}}
                                     />
                                 </Table>
                             )}
