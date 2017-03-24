@@ -4,7 +4,7 @@ const {Table, Column, Cell} = require('fixed-data-table');
 const Measure = require('react-measure');
 const DataStoreWrapper = require('./DataStoreWrapper');
 const DownloadDataLink = require('../Common/DownloadDataLink');
-const UploadModalMenu = require('./UploadModal');
+const UploadModal = require('./UploadModal');
 const TextCell = require('./TextCell');
 const Link = require('../Common/Link');
 
@@ -28,7 +28,8 @@ module.exports = React.createClass({
             height: -1,
         },
         data: {},
-        filteredDataList: null
+        filteredDataList: null,
+        showModal: false
     }},
 
     _onFilterChange: function(e) {
@@ -74,7 +75,17 @@ module.exports = React.createClass({
                                 { this.props.writable &&
                                     <li className="dropdown"> <a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Edit <span className="caret"></span></a>
                                         <ul className="dropdown-menu">
-                                            <li><UploadModalMenu url={this.props.uploadUrl} onSuccess={this.props.onNeedRefresh} /></li>
+                                            <li>
+                                                <a onClick={()=>this.setState({showModal: true})}>CSV Upload</a>
+                                                <UploadModal
+                                                    show={this.state.showModal}
+                                                    onHide={()=>this.setState({showModal:false})}
+                                                    url={this.props.uploadUrl}
+                                                    onSuccess={()=>{
+                                                        this.setState({ showModal: false });
+                                                        this.props.onNeedRefresh();
+                                                    }} />
+                                            </li>
                                         </ul>
                                     </li>
                                 }
