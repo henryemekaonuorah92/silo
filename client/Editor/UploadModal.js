@@ -1,6 +1,7 @@
 ;
 const React = require('react');
-const {Button, Modal} = require('react-bootstrap');
+const {Button} = require('react-bootstrap');
+const Modal = require('../Common/Modal');
 const UploadField = require('./UploadField');
 
 module.exports = React.createClass({
@@ -16,13 +17,6 @@ module.exports = React.createClass({
     getDefaultProps: function(){return {
         onSuccess: function(){}
     }},
-    close() {
-        this.setState({ showModal: false });
-    },
-
-    open() {
-        this.setState({ showModal: true });
-    },
 
     handleSuccess() {
         this.setState({ showModal: false });
@@ -36,42 +30,34 @@ module.exports = React.createClass({
     render() {
         let startWith = this.state.merge ? "merge" : "replace";
         return (
-            <a onClick={this.open}>
+            <a onClick={()=>this.setState({showModal: true})}>
                 CSV Upload
 
-                <Modal show={this.state.showModal} onHide={this.close}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>CSV Upload</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <p>Mass edit those batches by uploading a CSV. You can either:</p>
-                        <div className="radio">
-                            <label>
-                                <input type="radio" name="optionsRadios"
-                                       onChange={this.handleChange.bind(this, true)}
-                                       checked={this.state.merge} />
-                                <b>Merge</b> the uploaded batches with the current set
-                            </label>
-                        </div>
-                        <div className="radio">
-                            <label>
-                                <input type="radio" name="optionsRadios"
-                                       onChange={this.handleChange.bind(this, false)}
-                                       checked={!this.state.merge} />
-                                <b>Replace</b> the current set by the uploaded batches
-                            </label>
-                        </div>
-                        <p>Please note this will create a single Operation performing the requested action.</p>
-                        <p>Expected format is:</p>
-                        <pre>{startWith}{`
+                <Modal show={this.state.showModal} onHide={()=>this.setState({showModal:false})} title="CSV Upload">
+                    <p>Mass edit those batches by uploading a CSV. You can either:</p>
+                    <div className="radio">
+                        <label>
+                            <input type="radio" name="optionsRadios"
+                                   onChange={this.handleChange.bind(this, true)}
+                                   checked={this.state.merge} />
+                            <b>Merge</b> the uploaded batches with the current set
+                        </label>
+                    </div>
+                    <div className="radio">
+                        <label>
+                            <input type="radio" name="optionsRadios"
+                                   onChange={this.handleChange.bind(this, false)}
+                                   checked={!this.state.merge} />
+                            <b>Replace</b> the current set by the uploaded batches
+                        </label>
+                    </div>
+                    <p>Please note this will create a single Operation performing the requested action.</p>
+                    <p>Expected format is:</p>
+                    <pre>{startWith}{`
 product,quantity
 31-232-25,15
 14-231-21,-2`}</pre>
-                        <UploadField url={this.props.url+'?merge='+(this.state.merge ? 'true' : 'false')} onSuccess={this.handleSuccess} />
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button onClick={this.close}>Close</Button>
-                    </Modal.Footer>
+                    <UploadField url={this.props.url+'?merge='+(this.state.merge ? 'true' : 'false')} onSuccess={this.handleSuccess} />
                 </Modal>
             </a>
         );
