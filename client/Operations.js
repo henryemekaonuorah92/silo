@@ -1,6 +1,6 @@
 ;
 const React = require('react');
-const {Alert, Row, Col} = require('react-bootstrap');
+const {Row, Col} = require('react-bootstrap');
 const OperationEditor = require('./Editor/OperationEditor');
 const DataStore = require('./Editor/DataStore');
 const PopoverUploadButton = require('./Common/PopoverUploadButton');

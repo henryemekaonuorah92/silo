@@ -1,6 +1,5 @@
 ;
 const React = require('react');
-const {Button} = require('react-bootstrap');
 const Modal = require('../Common/Modal');
 const UploadField = require('./UploadField');
 
