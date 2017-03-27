@@ -67,7 +67,7 @@ module.exports = React.createClass({
 
                     <Alerts alerts={this.state.errors} />
 
-                    {this.props.children}
+
                 </div></div>
             </Popover>
         );

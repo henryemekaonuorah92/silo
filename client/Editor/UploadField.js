@@ -1,82 +1,89 @@
 ;
 const React = require('react');
-const {Alert} = require('react-bootstrap');
 
 /**
  * Upload popover to be used on all screens needing an import
  */
 module.exports = React.createClass({
-    getInitialState: function(){return {
-        errors: [],
-        wip: false
-    }},
+
     propTypes: {
-        /**
-         * URL where to send the file
-         */
-        url: React.PropTypes.string.isRequired,
-        /**
-         * Callback used when download has been successful
-         */
+        data: React.PropTypes.any,
+        contentType: React.PropTypes.string,
         onSuccess: React.PropTypes.func,
-        type: React.PropTypes.string
+        onError: React.PropTypes.func,
+        url: React.PropTypes.string.isRequired,
+        disabled: React.PropTypes.bool
     },
-    getDefaultProps: function(){return {
-        type: 'POST'
-    }},
-    handleClick: function(){
-        this.setState({wip:true});
+
+    getDefaultProps: ()=>({
+        onSuccess: ()=>{},
+        onError: (message)=>{
+            console.log(message)
+        },
+        data: null,
+        contentType: null
+    }),
+
+    getInitialState: () => ({
+        wip: false
+    }),
+
+    send: function(){
         let fileInput = this.refs.file;
         if (!fileInput.files[0]) {
-            this.setState({errors: ["Please select a file."]});
+            this.props.onError("Please select a file.");
             return;
         }
 
         let formData = new FormData();
         formData.append('file', fileInput.files[0]);
 
+        this.setState({wip: true});
         $.ajax({
             url: this.props.url,
-            type: this.props.type,
+            headers: {'Accept': 'application/json'},
+            type: "POST",
             data: formData,
             dataType: 'json',
             processData: false,
-            contentType: false,
-            success: function (res) {
+            contentType: false
+        })
+            .done((data) => {
+                this.setState({wip: false});
                 if (res && res.errors) {
                     this.setState({errors: res.errors, wip:false});
                 } else {
                     this.setState({errors: [], wip:false});
                     this.props.onSuccess(res);
                 }
-            }.bind(this),
-            error: function () {
-                this.setState({errors: ["Error while uploading."], wip:false});
-            }.bind(this)
-        });
+
+                this.props.onSuccess(data);
+            })
+            .fail((jqXHR) => {
+                let message = "Error while communicating";
+                if (jqXHR.status === 500 && jqXHR.readyState === 4 && jqXHR.responseText) {
+                    let data = JSON.parse(jqXHR.responseText);
+                    if (data.hasOwnProperty("message")) {
+                        message = data.message;
+                    }
+                }
+
+                this.setState({wip: false});
+                this.props.onError(message);
+            });
     },
+
     render: function(){
         const rem = Object.assign({}, this.props);
         delete rem.url;
         delete rem.onSuccess;
 
         return (
-            <div {...rem}>
-                <div className="input-group">
-                    <input className="form-control" type="file" ref="file" />
-                    <span className="input-group-btn">
-                        <button onClick={this.handleClick} className="btn btn-primary" disabled={this.state.wip}>Upload</button>
-                    </span>
-                </div>
-
-                {this.state.errors.length > 0 && (
-                    <Alert bsStyle="warning" style={{margin:"10px 0"}}>
-                        <strong>Holy guacamole!</strong>
-                        <ul>{this.state.errors.map((error, idx)=>(<li key={idx}>{error}</li>))}</ul>
-                    </Alert>
-                )}
-
-                {this.props.children}
+            <div className="input-group">
+                <input className="form-control" type="file" ref="file" />
+                <span className="input-group-btn">
+                    <button onClick={this.send} className="btn btn-primary" disabled={this.state.wip || this.props.disabled}>Upload</button>
+                </span>
             </div>
         );
     }

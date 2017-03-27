@@ -4,7 +4,7 @@ const {Table, Column, Cell} = require('fixed-data-table');
 const Measure = require('react-measure');
 const DataStoreWrapper = require('./DataStoreWrapper');
 const DownloadDataLink = require('../Common/DownloadDataLink');
-const UploadModal = require('./UploadModal');
+const Modal = require('../Modal/BatchUploadModal');
 const TextCell = require('./TextCell');
 const Link = require('../Common/Link');
 
@@ -77,7 +77,7 @@ module.exports = React.createClass({
                                         <ul className="dropdown-menu">
                                             <li>
                                                 <a onClick={()=>this.setState({showModal: true})}>CSV Upload</a>
-                                                <UploadModal
+                                                <Modal
                                                     show={this.state.showModal}
                                                     onHide={()=>this.setState({showModal:false})}
                                                     url={this.props.uploadUrl}

@@ -8,12 +8,13 @@ module.exports = React.createClass({
 
     propTypes: {
         data: React.PropTypes.any,
-        contentType: React.PropTypes.string,
+        contentType: React.PropTypes.any,
         onSuccess: React.PropTypes.func,
         onError: React.PropTypes.func,
         type: React.PropTypes.string,
         url: React.PropTypes.string.isRequired,
-        disabled: React.PropTypes.bool
+        disabled: React.PropTypes.bool,
+        processData: React.PropTypes.bool
     },
 
     getDefaultProps: ()=>({
@@ -23,7 +24,8 @@ module.exports = React.createClass({
         },
         type: "GET",
         data: null,
-        contentType: null
+        contentType: false,
+        processData: false
     }),
 
     getInitialState: () => ({
@@ -37,7 +39,8 @@ module.exports = React.createClass({
             headers: {'Accept': 'application/json'},
             type: this.props.type,
             data: this.props.data,
-            contentType: this.props.contentType
+            contentType: this.props.contentType,
+            processData: this.props.processData
         })
             .done((data) => {
                 this.setState({wip: false});
@@ -55,16 +58,15 @@ module.exports = React.createClass({
                 this.setState({wip: false});
                 this.props.onError(message);
             });
-
-
     },
 
     render: function() {
         let rest = Object.assign({}, this.props);
-        delete rest.url; delete rest.onSuccess; delete rest.onError; delete rest.type; delete rest.data; delete rest.disabled; delete rest.contentType;
+        delete rest.url; delete rest.onSuccess; delete rest.onError; delete rest.type; delete rest.data;
+        delete rest.disabled; delete rest.contentType; delete rest.processData;
         return (
             <button onClick={this.send} {...rest} disabled={this.state.wip || this.props.disabled}>
-                {this.state.wip && <span className="glyphicon glyphicon-refresh spinning" />}{this.props.children}
+                {this.state.wip && <span className="glyphicon glyphicon-refresh spinning" />} {this.props.children}
             </button>
         );
     }

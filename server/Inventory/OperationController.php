@@ -101,8 +101,10 @@ class OperationController implements ControllerProviderInterface
         /*
          * Create operations massively by uploading a CSV file
          */
-        $controllers->post('/import', function () use ($app) {
-            $csv = new \parseCSV($_FILES['file']['tmp_name']);
+        $controllers->post('/import', function (Request $request) use ($app) {
+            /** @var \Symfony\Component\HttpFoundation\File\UploadedFile $file */
+            $file = $request->files->get('file');
+            $csv = new \parseCSV($file->getPathname()); // ['tmp_name']
             $operationMap = [];
             foreach ($csv->data as $line) {
                 ++$line;
@@ -143,12 +145,16 @@ class OperationController implements ControllerProviderInterface
                 $operationMap[$key]->addBatch($batch);
             }
 
+            // New operation set
+            $set = new OperationSet(null, ['description' => $request->request->get('description')]);
+
             // Build now the corresponding operations
+            $type = $app['em']->getRepository('Inventory:OperationType')->getByName('mass upload');
+
             foreach ($operationMap as $operation => $batches) {
                 list($sourceCode, $targetCode) = explode(',', $operation);
                 if ($sourceCode == 'VOID') {$sourceCode = null;}
                 if ($targetCode == 'VOID') {$targetCode = null;}
-
 
                 $source = !empty($sourceCode) ?
                     $app['em']->getRepository('Inventory:Location')->findOneBy(['code' => $sourceCode]) :
@@ -158,13 +164,14 @@ class OperationController implements ControllerProviderInterface
                     null;
 
                 $operation = new Operation($app['current_user'], $source, $target, $batches);
-
-                $type = $app['em']->getRepository('Inventory:OperationType')->getByName('mass upload');
                 $operation->setType($type);
-
-                $app['em']->persist($operation);
-                $app['em']->flush();
                 $operation->execute($app['current_user']);
+                $app['em']->persist($operation);
+                $set->add($operation);
+            }
+
+            if (!$set->isEmpty()) {
+                $app['em']->persist($set);
                 $app['em']->flush();
             }
 
@@ -209,7 +216,10 @@ class OperationController implements ControllerProviderInterface
                         'status' => $op->getStatus()->toArray(),
                         'location' => $op->getLocation() ? $op->getLocation()->getCode() : null,
                         'contexts' => array_map(function(OperationSet $context){
-                            return $context->getId();
+                            return [
+                                'id' => $context->getId(),
+                                'value' => $context->getValue()
+                            ];
                         }, $op->getOperationSets())
                     ];
                 }, $result)
@@ -240,7 +250,10 @@ class OperationController implements ControllerProviderInterface
                 'status' => $op->getStatus()->toArray(),
                 'rollback' => $op->getRollbackOperation() ? $op->getRollbackOperation()->getId() : null,
                 'contexts' => array_map(function(OperationSet $context){
-                    return $context->getId();
+                    return [
+                        'id' => $context->getId(),
+                        'value' => $context->getValue()
+                    ];
                 }, $op->getOperationSets())
             ]);
         });

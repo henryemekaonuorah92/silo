@@ -6,7 +6,7 @@ const DataStoreWrapper = require('./DataStoreWrapper');
 const TextCell = require('./TextCell');
 const Datetime = require('../Common/Datetime');
 const Link = require('./../Common/Link');
-
+const Emoji = require('react-emoji');
 /**
  * Edit a set of Operations
  * @type {*}
@@ -108,21 +108,7 @@ class OperationEditor extends React.Component {
                                         }}
                                     />
                                     <Column
-                                        width={175}
-                                        header="Context"
-                                        cell={({rowIndex}) => (
-                                            <Cell>
-                                                {operations.getObjectAt(rowIndex).contexts.map(function(context, key){
-                                                    return <span key={key}>
-                                                        <Link  route="operationSet" code={context} />&nbsp;
-                                                    </span>
-                                                    ;
-                                                })}
-                                            </Cell>
-                                        )}
-                                    />
-                                    <Column
-                                        width={320}
+                                        width={300}
                                         header="Status"
                                         cell={({rowIndex}) => {
                                             let status = operations.getObjectAt(rowIndex)['status'];
@@ -139,6 +125,25 @@ class OperationEditor extends React.Component {
                                                 </span>}
                                             </Cell>
                                         )}}
+                                    />
+                                    <Column
+                                        width={300}
+                                        header="Context"
+                                        cell={({rowIndex}) => (
+                                            <Cell>
+                                                {operations.getObjectAt(rowIndex).contexts.map(function(context, key){
+                                                    return <span key={key}>
+                                                        <Link route="operationSet" code={context.id} />
+                                                        {typeof(context.value) === "object" && "description" in context.value &&
+                                                            <span>
+                                                                &nbsp;({Emoji.emojify(context.value.description)})
+                                                            </span>
+                                                        }&nbsp;
+                                                    </span>
+                                                        ;
+                                                })}
+                                            </Cell>
+                                        )}
                                     />
                                 </Table>
                             )}

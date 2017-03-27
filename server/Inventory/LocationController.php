@@ -81,7 +81,10 @@ class LocationController implements ControllerProviderInterface
                         'status' => $op->getStatus()->toArray(),
                         'location' => $op->getLocation() ? $op->getLocation()->getCode() : null,
                         'contexts' => array_map(function(OperationSet $context){
-                            return $context->getId();
+                            return [
+                                'id' => $context->getId(),
+                                'value' => $context->getValue()
+                            ];
                         }, $op->getOperationSets())
                     ];
                 }, $operations)
