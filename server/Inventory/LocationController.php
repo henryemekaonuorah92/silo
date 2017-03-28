@@ -219,6 +219,53 @@ class LocationController implements ControllerProviderInterface
             );
         });
 
+        // @todo this stuff is only used for testing... remove this
+        $controllers->match('/{location}/batches', function (Location $location, Request $request) use ($app) {
+            /** @var BatchCollection $batches */
+            $batches = $app['BatchCollectionFactory']
+                ->makeFromArray($request->request);
+
+            switch ($request->getMethod()) {
+                // Merge the uploaded batch into the location
+                case 'PATCH':
+                    $typeName = 'batch merge';
+                    $operation = new Operation($app['current_user'], null, $location, $batches);
+                    break;
+                // the Location batches are replaced by the uploaded ones
+                // We achieve this by computing the difference and applying it with an operation
+                // SOURCE + OP = TARGET
+                // hence OP = TARGET - SOURCE
+                case 'PUT':
+                    $typeName = 'batch replace';
+                    $diffBatches = $batches->diff($location->getBatches());
+                    $operation = new Operation($app['current_user'], null, $location, $diffBatches);
+                    break;
+                default:
+                    throw new \Exception('Method is not allowed');
+            }
+
+            $type = $app['em']->getRepository('Inventory:OperationType')->getByName($typeName);
+            $operation->setType($type);
+
+            $app['em']->persist($operation);
+            $app['em']->flush();
+
+            // @todo not atomical enough yet, but better
+            if ($source = $operation->getSource()) {
+                $app['em']->refresh($source);
+            }
+            if ($target = $operation->getTarget()) {
+                $app['em']->refresh($target);
+            }
+
+            $operation->execute($app['current_user']);
+            $app['em']->flush();
+
+            // Is it merge or adjust ?
+            return new JsonResponse(null, JsonResponse::HTTP_ACCEPTED);
+        })->method('PATCH|PUT')->convert('location', $locationProvider);
+        
+        
         /*
          * Edit Batches in a given Location
          */
