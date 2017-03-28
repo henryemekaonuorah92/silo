@@ -205,4 +205,30 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
             $this->toArray()
         );
     }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getProducts()
+    {
+        $products = new ArrayCollection();
+        $this->map(function(Batch $batch)use($products){
+            $products->addUnique($batch->getProduct());
+        });
+
+        return $products;
+    }
+
+    /**
+     * Return a subset of $this containing only the products present in $batches
+     * @param BatchCollection $batches
+     * @return self
+     */
+    public function intersectWith(self $batches)
+    {
+        $products = $batches->getProducts();
+        return $this->filter(function(Batch $batch)use($products){
+            return $products->contains($batch->getProduct());
+        });
+    }
 }

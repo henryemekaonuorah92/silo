@@ -78,7 +78,7 @@ OTTST,MTLST,sku2,4`}</pre>
                 <AjaxButton
                     className="btn btn-success"
                     data={data}
-                    disabled={this.state.file === ""}
+                    disabled={this.state.file === null}
                     onSuccess={this.props.onSuccess}
                     onError={(err)=>{this.setState({errors:[err]});}}
                     processData={false}

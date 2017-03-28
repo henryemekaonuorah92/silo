@@ -8,13 +8,19 @@ const {Alert} = require('react-bootstrap');
 module.exports = React.createClass({
 
     propTypes: {
-        alerts: React.PropTypes.array.isRequired
+        alerts: React.PropTypes.any.isRequired
     },
 
     render: function() {
         //let rest = Object.assign({}, this.props);
         //delete rest.url; delete rest.onDataReceived;
-        const alerts = this.props.alerts;
+        let alerts;
+        if (!this.props.alerts instanceof Array) {
+            alerts = [this.props.alerts];
+        } else {
+            alerts = this.props.alerts;
+        }
+
         if (alerts.length === 0) {
             return null;
         } else {

@@ -90,7 +90,7 @@ class OperationEditor extends React.Component {
                                         )}
                                     />
                                     <Column
-                                        width={100}
+                                        width={120}
                                         header="Type"
                                         cell={<TextCell data={operations} col="type" />}
                                     />

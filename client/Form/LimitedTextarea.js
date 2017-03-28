@@ -2,6 +2,10 @@
 const React = require('react');
 const FieldGroup = require('./FieldGroup');
 
+/**
+ * Description field that limit entered text to maxLength
+ * @todo Emoji support and preview
+ */
 module.exports = React.createClass({
 
     getDefaultProps: ()=>({

@@ -85,6 +85,7 @@ class Silo extends \Silex\Application
         $app->mount('/silo/inventory/location', new \Silo\Inventory\LocationController());
         $app->mount('/silo/inventory/operation', new \Silo\Inventory\OperationController());
         $app->mount('/silo/inventory/product', new \Silo\Inventory\ProductController());
+        $app->mount('/silo/inventory/batch', new \Silo\Inventory\BatchController());
 
         // Deal with exceptions
         $app->error(function (\Exception $e, $request) use ($app){

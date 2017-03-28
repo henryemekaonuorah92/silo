@@ -219,65 +219,19 @@ class LocationController implements ControllerProviderInterface
             );
         });
 
-        $controllers->match('/{location}/batches', function (Location $location, Request $request) use ($app) {
-            /** @var BatchCollection $batches */
-            $batches = $app['BatchCollectionFactory']
-                ->makeFromArray($request->request);
-
-            switch ($request->getMethod()) {
-                // Merge the uploaded batch into the location
-                case 'PATCH':
-                    $typeName = 'batch merge';
-                    $operation = new Operation($app['current_user'], null, $location, $batches);
-                    break;
-                // the Location batches are replaced by the uploaded ones
-                // We achieve this by computing the difference and applying it with an operation
-                // SOURCE + OP = TARGET
-                // hence OP = TARGET - SOURCE
-                case 'PUT':
-                    $typeName = 'batch replace';
-                    $diffBatches = $batches->diff($location->getBatches());
-                    $operation = new Operation($app['current_user'], null, $location, $diffBatches);
-                    break;
-                default:
-                    throw new \Exception('Method is not allowed');
-            }
-
-            $type = $app['em']->getRepository('Inventory:OperationType')->getByName($typeName);
-            $operation->setType($type);
-
-            $app['em']->persist($operation);
-            $app['em']->flush();
-
-            // @todo not atomical enough yet, but better
-            if ($source = $operation->getSource()) {
-                $app['em']->refresh($source);
-            }
-            if ($target = $operation->getTarget()) {
-                $app['em']->refresh($target);
-            }
-
-            $operation->execute($app['current_user']);
-            $app['em']->flush();
-
-            // Is it merge or adjust ?
-            return new JsonResponse(null, JsonResponse::HTTP_ACCEPTED);
-        })->method('PATCH|PUT')->convert('location', $locationProvider);
-
         /*
          * Edit Batches in a given Location
          */
-        $controllers->post('/{code}/batches', function ($code, Application $app, Request $request) {
-            $locations = $app['em']->getRepository('Inventory:Location');
-            /** @var Location $location */
-            $location = $locations->forceFindOneByCode($code);
+        $controllers->post('/{location}/batches', function (Location $location, Request $request)use($app) {
+            /** @var \Symfony\Component\HttpFoundation\File\UploadedFile $file */
+            $file = $request->files->get('file');
             $csv = new \parseCSV();
             $csv->offset = 1;
             $csv->keep_file_data = true;
-            $csv->parse($_FILES['file']['tmp_name']);
+            $csv->parse($file->getPathname());
 
             // Check first line of file
-            $shouldStartWith = $request->get('merge') === 'true' ? 'merge' : 'replace';
+            $shouldStartWith = $request->get('type');
             if (substr($csv->file_data, 0, strlen($shouldStartWith)) !== $shouldStartWith) {
                 return new JsonResponse(['errors' => ["File should start with \"$shouldStartWith\""]]);
             }
@@ -285,36 +239,45 @@ class LocationController implements ControllerProviderInterface
             // Create a BatchCollection out of a CSV file
             $batches = $app['BatchCollectionFactory']->makeFromArray($csv->data);
 
-            switch ($request->get('merge')) {
-                // Merge the uploaded batch into the location
-                case 'true':
+            // New operation set
+            $set = null;
+            if ($description = $request->request->get('description')) {
+                $set = new OperationSet(null, ['description' => $request->request->get('description')]);
+            }
+
+            // Find type
+            switch ($request->request->get('type')) {
+                case 'merge':
                     $typeName = 'batch merge';
                     $operation = new Operation($app['current_user'], null, $location, $batches);
                     break;
-                // the Location batches are replaced by the uploaded ones
-                // We achieve this by computing the difference and applying it with an operation
-                // SOURCE + OP = TARGET
-                // hence OP = TARGET - SOURCE
-                case 'false':
+                case 'replace':
                     $typeName = 'batch replace';
                     $diffBatches = $batches->diff($location->getBatches());
                     $operation = new Operation($app['current_user'], null, $location, $diffBatches);
                     break;
+                case 'superReplace':
+                    $typeName = 'batch superreplace';
+                    $diffBatches = $batches->diff($location->getBatches()->intersectWith($batches));
+                    $operation = new Operation($app['current_user'], null, $location, $diffBatches);
+                    break;
                 default:
-                    throw new \Exception('merge parameter should be present and be either true or false');
+                    throw new \Exception('Type is unknown');
             }
 
             $type = $app['em']->getRepository('Inventory:OperationType')->getByName($typeName);
             $operation->setType($type);
 
             $app['em']->persist($operation);
-            $app['em']->flush();
             $operation->execute($app['current_user']);
+            if ($set) {
+                $set->add($operation);
+                $app['em']->persist($set);
+            }
             $app['em']->flush();
 
-            // Is it merge or adjust ?
             return new Response('', Response::HTTP_ACCEPTED);
-        });
+        })->convert('location', $locationProvider);
 
         $controllers->get('/{code}/modifiers', function ($code, Application $app, Request $request) {
             $query = $app['em']->createQueryBuilder();

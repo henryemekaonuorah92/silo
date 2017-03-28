@@ -44,7 +44,11 @@ module.exports = React.createClass({
         })
             .done((data) => {
                 this.setState({wip: false});
-                this.props.onSuccess(data);
+                if (typeof(data) === "object" && "errors" in data) {
+                    this.props.onError(data.errors);
+                } else {
+                    this.props.onSuccess(data);
+                }
             })
             .fail((jqXHR) => {
                 let message = "Error while communicating";
