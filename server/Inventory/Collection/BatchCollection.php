@@ -182,7 +182,7 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
         $sum = function($a, $b){return $a+$b;};
         return array_reduce(array_map(function(Batch $batch){
             return $batch->getQuantity();
-        }, $this->toArray()), $sum);
+        }, $this->toArray()), $sum, 0);
     }
 
     /**
