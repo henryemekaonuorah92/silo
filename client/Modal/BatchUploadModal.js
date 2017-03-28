@@ -70,7 +70,7 @@ A-04-A,14-231-21,-2`
                                    onChange={this.handleChange}
                                    checked={this.state.type === "replace"}
                                    value="replace" />
-                            <b>Replace</b> uploaded Batches in the Location after wiping it
+                            <b>Replace</b> uploaded Batches in the Location
                         </label>
                     </div>
                     <div className="radio">
@@ -80,7 +80,7 @@ A-04-A,14-231-21,-2`
                                    onChange={this.handleChange}
                                    checked={this.state.type === "superReplace"}
                                    value="superReplace" />
-                            <b>Super Replace</b>, like Replace but ignores Products in Location that haven't been uploaded
+                            <b>Super Replace</b>, like Replace but wipe the Location entirely before
                         </label>
                     </div>
 

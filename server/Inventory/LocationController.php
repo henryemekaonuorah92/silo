@@ -298,13 +298,13 @@ class LocationController implements ControllerProviderInterface
                     $typeName = 'batch merge';
                     $operation = new Operation($app['current_user'], null, $location, $batches);
                     break;
-                case 'replace':
-                    $typeName = 'batch replace';
+                case 'superReplace':
+                    $typeName = 'batch superreplace';
                     $diffBatches = $batches->diff($location->getBatches());
                     $operation = new Operation($app['current_user'], null, $location, $diffBatches);
                     break;
-                case 'superReplace':
-                    $typeName = 'batch superreplace';
+                case 'replace':
+                    $typeName = 'batch replace';
                     $diffBatches = $batches->diff($location->getBatches()->intersectWith($batches));
                     $operation = new Operation($app['current_user'], null, $location, $diffBatches);
                     break;

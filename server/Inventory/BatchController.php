@@ -119,12 +119,13 @@ class BatchController implements ControllerProviderInterface
                     // We achieve this by computing the difference and applying it with an operation
                     // SOURCE + OP = TARGET
                     // hence OP = TARGET - SOURCE
-                    case 'replace':
+                    case 'superReplace':
                         $diffBatches = $batches->diff($location->getBatches());
                         $operation = new Operation($app['current_user'], null, $location, $diffBatches);
                         break;
-                    case 'superReplace':
-                        throw new \Exception('superReplace is unknown');
+                    case 'replace':
+                        $diffBatches = $batches->diff($location->getBatches()->intersectWith($batches));
+                        $operation = new Operation($app['current_user'], null, $location, $diffBatches);
                         break;
                     default:
                         throw new \Exception('Type is unknown');
