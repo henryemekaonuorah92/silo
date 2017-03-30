@@ -52,10 +52,13 @@ module.exports = React.createClass({
             })
             .fail((jqXHR) => {
                 let message = "Error while communicating";
-                if (jqXHR.status === 500 && jqXHR.readyState === 4 && jqXHR.responseText) {
+                if ((jqXHR.status == 500 || jqXHR.status == 400) && jqXHR.readyState === 4 && jqXHR.responseText) {
                     let data = JSON.parse(jqXHR.responseText);
                     if (data.hasOwnProperty("message")) {
                         message = data.message;
+                    }
+                    if (data.hasOwnProperty("errors")) {
+                        message = data.errors;
                     }
                 }
 

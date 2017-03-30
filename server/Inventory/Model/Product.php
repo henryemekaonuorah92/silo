@@ -26,10 +26,17 @@ class Product
      *
      * @ORM\Column(name="sku", type="string", length=255)
      */
-    private $sku = '';
+    private $sku;
 
     public function __construct($sku)
     {
+        if (!is_string($sku)) {
+            throw new \Exception("sku has to be a string");
+        }
+        $len = strlen($sku);
+        if ($len == 0 || $len > 254) {
+            throw new \Exception("sku has to be shorter than 255 characters, but not empty");
+        }
         $this->sku = $sku;
     }
 
