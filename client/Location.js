@@ -22,7 +22,8 @@ module.exports = React.createClass({
             code: 'root',
             writable: false,
             endpoint: '%siloBasePath%/inventory/location/%code%',
-            batchEndpoint: '%siloBasePath%/inventory/location/%code%/batches'
+            batchEndpoint: '%siloBasePath%/inventory/location/%code%/batches',
+            batchEditorAdditionalMenu: ()=>null
         };
     },
 
@@ -41,7 +42,9 @@ module.exports = React.createClass({
          */
         writable: React.PropTypes.bool,
 
-        batchEndpoint: React.PropTypes.string
+        batchEndpoint: React.PropTypes.string,
+
+        batchEditorAdditionalMenu: React.PropTypes.func,
     },
 
     componentDidMount: function () {
@@ -99,7 +102,8 @@ module.exports = React.createClass({
                     <BatchEditor
                         exportFilename={'location-'+this.props.code+'-batches.csv'}
                         batches={this.state.batches} uploadUrl={uploadUrl} onNeedRefresh={this.refresh} writable={this.props.writable}
-                        batchColumns={this.props.batchColumns}/>
+                        batchColumns={this.props.batchColumns}
+                        additionalMenu={this.props.batchEditorAdditionalMenu} />
 
                     <OperationEditor operations={this.state.operations} />
                 </div>) : "Loading data"}

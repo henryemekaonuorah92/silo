@@ -14,12 +14,14 @@ const Link = require('../Common/Link');
  */
 module.exports = React.createClass({
     propTypes: {
-        writable: React.PropTypes.bool
+        writable: React.PropTypes.bool,
+        additionalMenu: React.PropTypes.func
     },
 
     getDefaultProps: () => {return{
         writable: false,
-        batchColumns: function(){}
+        batchColumns: ()=>null,
+        additionalMenu: ()=>null
     }},
 
     getInitialState: () => {return {
@@ -72,11 +74,11 @@ module.exports = React.createClass({
                         <div>
                             <ul className="nav navbar-nav">
                                 <li><h4>BatchEditor</h4></li>
-                                { this.props.writable &&
-                                    <li className="dropdown"> <a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Edit <span className="caret"></span></a>
-                                        <ul className="dropdown-menu">
+                                <li className="dropdown"><a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">File <span className="caret" /></a>
+                                    <ul className="dropdown-menu">
+                                        { this.props.writable &&
                                             <li>
-                                                <a onClick={()=>this.setState({showModal: true})}>CSV Upload</a>
+                                                <a onClick={()=>this.setState({showModal: true})}>Open CSV...</a>
                                                 <Modal
                                                     show={this.state.showModal}
                                                     onHide={()=>this.setState({showModal:false})}
@@ -86,20 +88,21 @@ module.exports = React.createClass({
                                                         this.props.onNeedRefresh();
                                                     }} />
                                             </li>
-                                        </ul>
-                                    </li>
-                                }
-                                <li>
-                                    <DownloadDataLink
-                                        filename={this.props.exportFilename}
-                                        exportFile={function(){
-                                        let header = "product,quantity\n";
-                                        return header + batches.getAll().map(function(data){
-                                            return data.product+','+data.quantity
-                                        }).join("\n")
-                                    }}>
-                                        Export
-                                    </DownloadDataLink>
+                                        }
+                                        <li>
+                                            <DownloadDataLink
+                                                filename={this.props.exportFilename}
+                                                exportFile={function(){
+                                                    let header = "product,quantity\n";
+                                                    return header + batches.getAll().map(function(data){
+                                                            return data.product+','+data.quantity
+                                                        }).join("\n")
+                                                }}>
+                                                Save CSV
+                                            </DownloadDataLink>
+                                        </li>
+                                        {this.props.additionalMenu}
+                                    </ul>
                                 </li>
 
                                 <li><input
