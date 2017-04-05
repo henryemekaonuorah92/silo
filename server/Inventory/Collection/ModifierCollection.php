@@ -19,4 +19,19 @@ class ModifierCollection extends ArrayCollection
 
         return false;
     }
+
+    /**
+     * @param $name
+     * @return null|Modifier
+     */
+    public function getByName($name)
+    {
+        foreach ($this->toArray() as $modifier) {/** @var Modifier $modifier */
+            if($modifier->getName() === $name) {
+                return $modifier;
+            }
+        }
+
+        return null;
+    }
 }

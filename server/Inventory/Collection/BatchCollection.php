@@ -34,6 +34,25 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
     }
 
     /**
+     * @return static
+     */
+    public function deduplicateProducts()
+    {
+        /** @var Batch[] $productMap */
+        $productMap = [];
+        foreach ($this->copy()->toArray() as $batch) {
+            $id = $batch->getProduct()->getId();
+            if (isset($productMap[$id])) {
+                $productMap[$id]->add($batch->getQuantity());
+            } else {
+                $productMap[$id] = $batch;
+            }
+        }
+
+        return new static(array_values($productMap));
+    }
+
+    /**
      * Return a BatchCollection with a copy of each Batch in $this.
      *
      * @return static
