@@ -21,7 +21,7 @@ module.exports = React.createClass({
         return (
             <a onClick={this.handleClick} style={{cursor: 'pointer'}}
                href={'/#!/silo/'+this.props.route+'/'+this.props.code}>
-                {this.props.code}
+                {this.props.children || this.props.code}
             </a>
         );
     }

@@ -209,14 +209,7 @@ class LocationController implements ControllerProviderInterface
                 return new JsonResponse([]);
             }
 
-            return new JsonResponse(
-                array_map(function (Batch $b) {
-                    return [
-                        'product' => $b->getProduct()->getSku(),
-                        'quantity' => $b->getQuantity(),
-                    ];
-                }, $result[0]->getBatches()->toArray())
-            );
+            return new JsonResponse($result[0]->getBatches()->toRawArray());
         });
 
         // @todo this stuff is only used for testing... remove this

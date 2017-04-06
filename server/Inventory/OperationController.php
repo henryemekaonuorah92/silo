@@ -87,12 +87,7 @@ class OperationController implements ControllerProviderInterface
                 'locations' => array_map(function (Location $l) {
                     return [
                         'code' => $l->getCode(),
-                        'batches' => array_map(function (Batch $b) {
-                            return [
-                                'product' => $b->getProduct()->getSku(),
-                                'quantity' => $b->getQuantity()
-                            ];
-                        }, $l->getBatches()->toArray())
+                        'batches' => $l->getBatches()->toRawArray()
                     ];
                 }, $result)
             ]);

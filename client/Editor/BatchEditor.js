@@ -93,9 +93,9 @@ module.exports = React.createClass({
                                             <DownloadDataLink
                                                 filename={this.props.exportFilename}
                                                 exportFile={function(){
-                                                    let header = "product,quantity\n";
+                                                    let header = "product,sku,quantity\n";
                                                     return header + batches.getAll().map(function(data){
-                                                            return data.product+','+data.quantity
+                                                            return data.product+','+data.name+','+data.quantity
                                                         }).join("\n")
                                                 }}>
                                                 Save CSV
@@ -132,11 +132,18 @@ module.exports = React.createClass({
                                             key={1}
                                             width={200}
                                             header="Product"
-                                            cell={props => (
+                                            cell={props => {
+                                                let obj = batches.getObjectAt(props.rowIndex);
+                                                let code = obj.product;
+                                                let anchor = code;
+                                                if("name" in obj) {
+                                                    anchor = "("+obj.name.replace(code, '')+") "+code;
+                                                }
+                                                return (
                                                 <Cell {...props}>
-                                                    <Link route="product" code={batches.getObjectAt(props.rowIndex)["product"]} />
+                                                    <Link route="product" code={code}>{anchor}</Link>
                                                 </Cell>
-                                            )}
+                                            )}}
                                         />,
                                         <Column
                                             key={2}

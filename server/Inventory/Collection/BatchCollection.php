@@ -218,6 +218,7 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
             function(Batch $batch){
                 return [
                     'product' => $batch->getProduct()->getSku(),
+                    'name' => $batch->getProduct()->getName(),
                     'quantity' => $batch->getQuantity()
                 ];
             },
