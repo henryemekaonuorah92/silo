@@ -24,6 +24,13 @@ class Product
     /**
      * @var string
      *
+     * @ORM\Column(name="name", type="string", length=255)
+     */
+    private $name;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="sku", type="string", length=255)
      */
     private $sku;
@@ -46,6 +53,22 @@ class Product
     public function getSku()
     {
         return $this->sku;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
     }
 
     public function __toString()
