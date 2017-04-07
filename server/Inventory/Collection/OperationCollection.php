@@ -54,4 +54,11 @@ class OperationCollection extends ArrayCollection
             return $operation->getType() === $type;
         });
     }
+
+    public function filterDone()
+    {
+        return $this->filter(function(Operation $operation){
+            return $operation->getStatus()->isDone();
+        });
+    }
 }

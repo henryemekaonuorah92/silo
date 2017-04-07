@@ -92,7 +92,7 @@ module.exports = React.createClass({
                             <Link route="location" code={child} />
                         </li>;})}</ul> : "No child"
                     }<br />
-
+                    {this.props.children}
                     <ModifierEditor cache={this.props.cache}
                                     siloBasePath={this.props.siloBasePath}
                                     endpoint={this.props.siloBasePath+"/inventory/location/"+this.props.code+'/modifiers'}
