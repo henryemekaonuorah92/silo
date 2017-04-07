@@ -232,12 +232,7 @@ class OperationController implements ControllerProviderInterface
 
             return new JsonResponse([
                 'id' => (int) $id,
-                'batches' => array_map(function (Batch $b) {
-                    return [
-                        'product' => $b->getProduct()->getSku(),
-                        'quantity' => $b->getQuantity(),
-                    ];
-                }, $op->getBatches()->toArray()),
+                'batches' => $op->getBatches()->toRawArray(),
                 'location' => $op->getLocation() ? $op->getLocation()->getCode() : null,
                 'source' => $op->getSource() ? $op->getSource()->getCode() : null,
                 'target' => $op->getTarget() ? $op->getTarget()->getCode() : null,
