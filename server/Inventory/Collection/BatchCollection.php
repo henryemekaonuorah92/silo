@@ -147,6 +147,16 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
     }
 
     /**
+     * @return Collection|static
+     */
+    public function filterZero()
+    {
+        return $this->filter(function (Batch $batch){
+            return $batch->getQuantity() !== 0;
+        });
+    }
+
+    /**
      * Compute difference between two BatchCollections by comparing Batches one to one.
      *
      * @param self $from

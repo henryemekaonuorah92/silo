@@ -10,6 +10,7 @@ use Silo\Inventory\BatchCollectionFactory;
 use Silo\Inventory\Model\User;
 use Silo\Inventory\OperationValidator;
 use Silo\Inventory\ProductProviderInterface;
+use Symfony\Component\Debug\ErrorHandler;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -88,6 +89,7 @@ class Silo extends \Silex\Application
         $app->mount('/silo/inventory/batch', new \Silo\Inventory\BatchController());
 
         // Deal with exceptions
+        ErrorHandler::register();
         $app->error(function (\Exception $e, $request) use ($app){
             if ($e instanceof NotFoundHttpException) {
                 return new JsonResponse($e->getMessage(), JsonResponse::HTTP_NOT_FOUND);

@@ -187,7 +187,7 @@ class OperationController implements ControllerProviderInterface
                 ->leftJoin('operation.operationType', 'type')
                 ->leftJoin('operation.operationSets', 'context')
                 ->orderBy('operation.id', 'DESC')
-                ->setMaxResults(1000)
+                ->setMaxResults(100)
                 ;
 
             if ($location = $request->get('location')) {
