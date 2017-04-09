@@ -1,10 +1,10 @@
 ;
 const React = require('react');
 const FieldGroup = require('./FieldGroup');
+const Emoji = require('react-emoji');
 
 /**
  * Description field that limit entered text to maxLength
- * @todo Emoji support and preview
  */
 module.exports = React.createClass({
 
@@ -34,7 +34,15 @@ module.exports = React.createClass({
                 <FieldGroup
                     onChange={this.handleChange}
                     componentClass="textarea"
-                    help={this.props.value.length + "/"+this.props.maxLength+" chars"}
+                    help={
+                        <div>
+                            <div className="pull-right"><a href="https://www.webpagefx.com/tools/emoji-cheat-sheet/" target="_blank"><span className="glyphicon glyphicon-info-sign"/> emoji</a></div>
+                            {this.props.value.length + "/"+this.props.maxLength+" chars"}
+                            { this.props.value &&
+                                <div>Preview: {Emoji.emojify(this.props.value)}</div>
+                            }
+                        </div>
+                    }
                     {...rest}
                 />
         );
