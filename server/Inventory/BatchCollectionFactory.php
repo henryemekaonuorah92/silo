@@ -22,10 +22,17 @@ class BatchCollectionFactory
 
     private $validator;
 
-    public function __construct(EntityManager $em, ValidatorInterface $validator)
-    {
+    // @todo implement an interface for this
+    private $skuTransformer;
+
+    public function __construct(
+        EntityManager $em,
+        ValidatorInterface $validator,
+        $transformer = null
+    ){
         $this->em = $em;
         $this->validator = $validator;
+        $this->skuTransformer = $transformer;
     }
 
     public function makeFromArray($array)
@@ -34,6 +41,9 @@ class BatchCollectionFactory
 
         foreach ($array as $line) {
             ++$line;
+            if ($this->skuTransformer && isset($line['product'])) {
+                $line['product'] = $this->skuTransformer->transform($line['product']);
+            }
             /** @var ConstraintViolationList $violations */
             $violations = $this->validator->validate($line, [
                 new Constraint\Collection([

@@ -80,7 +80,11 @@ class Silo extends \Silex\Application
         }
 
         $app['BatchCollectionFactory'] = function () use ($app) {
-            return new BatchCollectionFactory($app['em'], $app['validator']);
+            return new BatchCollectionFactory(
+                $app['em'],
+                $app['validator'],
+                isset($app['skuTransformer']) ? $app['skuTransformer'] : null
+            );
         };
 
         $app->mount('/silo/inventory/location', new \Silo\Inventory\LocationController());

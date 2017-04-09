@@ -27,10 +27,10 @@ module.exports = React.createClass({
 
         if (this.props.alerts) {
             if (!this.props.alerts instanceof Array) {
-                alerts.push({level: warning, message: this.props.alerts});
+                alerts.push({level: "warning", message: this.props.alerts});
             } else {
                 this.props.alerts.map((alert) => {
-                    alerts.push({level: warning, message: alert});
+                    alerts.push({level: "warning", message: alert});
                 });
             }
         }
