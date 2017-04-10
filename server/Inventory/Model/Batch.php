@@ -202,4 +202,12 @@ class Batch
     {
         return $this->quantity == 0;
     }
+
+    public function toArray()
+    {
+        return [
+            'product' => $this->getProduct()->getSku(),
+            'quantity' => $this->getQuantity()
+        ];
+    }
 }
