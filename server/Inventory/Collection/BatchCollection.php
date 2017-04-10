@@ -236,6 +236,16 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
         );
     }
 
+    public function __toString()
+    {
+        $batches = array_map(function(Batch $b){return (string)$b;}, $this->toArray());
+
+        return sprintf(
+            "BatchCollection[%s]",
+                implode(',',$batches)
+            );
+    }
+
     /**
      * @return ArrayCollection
      */
