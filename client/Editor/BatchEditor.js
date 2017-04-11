@@ -15,7 +15,7 @@ const Link = require('../Common/Link');
 module.exports = React.createClass({
     propTypes: {
         writable: React.PropTypes.bool,
-        additionalMenu: React.PropTypes.func
+        additionalMenu: React.PropTypes.any
     },
 
     getDefaultProps: () => {return{
@@ -136,7 +136,7 @@ module.exports = React.createClass({
                                                 let obj = batches.getObjectAt(props.rowIndex);
                                                 let code = obj.product;
                                                 let anchor = code;
-                                                if("name" in obj) {
+                                                if(("name" in obj) && obj.name) {
                                                     anchor = "("+obj.name.replace(code, '')+") "+code;
                                                 }
                                                 return (

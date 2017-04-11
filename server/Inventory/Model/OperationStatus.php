@@ -107,4 +107,9 @@ class OperationStatus
     {
         return $this->requestedAt;
     }
+
+    public function getDoneAt()
+    {
+        return $this->doneAt;
+    }
 }

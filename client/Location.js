@@ -44,7 +44,7 @@ module.exports = React.createClass({
 
         batchEndpoint: React.PropTypes.string,
 
-        batchEditorAdditionalMenu: React.PropTypes.func,
+        batchEditorAdditionalMenu: React.PropTypes.any,
     },
 
     componentDidMount: function () {

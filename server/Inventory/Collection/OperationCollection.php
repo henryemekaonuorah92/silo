@@ -48,6 +48,10 @@ class OperationCollection extends ArrayCollection
         return $batches;
     }
 
+    /**
+     * @param $type
+     * @return static
+     */
     public function filterType($type)
     {
         return $this->filter(function(Operation $operation)use($type){
@@ -55,6 +59,9 @@ class OperationCollection extends ArrayCollection
         });
     }
 
+    /**
+     * @return static
+     */
     public function filterDone()
     {
         return $this->filter(function(Operation $operation){
