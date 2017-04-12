@@ -36,8 +36,8 @@ module.exports = React.createClass({
         let data = this.state.data;
         return (
             <div>
-                <h3><span className="glyphicon glyphicon-apple" /> Product {this.props.id}
-                </h3>
+                <h3><span className="glyphicon glyphicon-apple" /> Product {this.props.id}</h3>
+                {this.props.children}
                 {!data && (<span>Loading</span>)}
                 {data && <div>
                     <table className="">
