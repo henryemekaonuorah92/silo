@@ -244,7 +244,7 @@ EOQ;
 
             // Extract all batches from the inventory
             $sql = <<<EOQ
-            select location.code as code, product.sku as s, SUM(batch.quantity) as q
+            select location.code as code, product.sku as s, product.name as n, SUM(batch.quantity) as q
             from silo_location location
             inner join silo_batch batch on location.location_id = batch.location_id
             inner join silo_product product on batch.product_id = product.product_id
@@ -256,9 +256,11 @@ EOQ;
             $stmt->execute();
             /** @var array $productMap [code => [[sku, quantity], ]] */
             $productMap = [];
+            $nameMap = [];
             while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
                 $code = $row['code'];
                 unset($row['code']);
+                $nameMap[$row['s']] = $row['n'];
                 isset($productMap[$code]) ? $productMap[$code][] = $row: $productMap[$code] = [$row];
             }
 
@@ -292,7 +294,11 @@ EOQ;
             // Flatten the response
             $response = [];
             foreach($batches as $sku => $quantity) {
-                $response[] = ['sku' => $sku, 'quantity' => $quantity];
+                $response[] = [
+                    'sku' => $sku,
+                    'name' => $nameMap[$sku],
+                    'quantity' => $quantity
+                ];
             }
 
             return new JsonResponse($response);
