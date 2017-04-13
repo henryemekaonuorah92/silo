@@ -38,6 +38,7 @@ class LocationWalker
             ->findBy(['parent' => $location]);
         foreach ($childs as $child) {
             $reminder = $this->mapReduce($child, $map, $reduce, $reminder);
+            $this->em->detach($child);
         }
 
         return call_user_func($reduce, $reminder, $reduceInit);

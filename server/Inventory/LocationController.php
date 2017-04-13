@@ -2,6 +2,7 @@
 
 namespace Silo\Inventory;
 
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\QueryBuilder;
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
@@ -194,7 +195,7 @@ class LocationController implements ControllerProviderInterface
         /*
          * Inspect content of a Location
          */
-        $controllers->get('/{code}/batches', function ($code, Application $app) {
+        $controllers->get('/{code}/batches', function ($code)use($app) {
             $query = $app['em']->createQueryBuilder();
             $query->select('location, batch, product')
                 ->from('Inventory:Location', 'location')
@@ -210,6 +211,91 @@ class LocationController implements ControllerProviderInterface
             }
 
             return new JsonResponse($result[0]->getBatches()->toRawArray());
+        });
+
+        /**
+         * Get inclusive content from a Location
+         * This method doesn't rely on Doctrine's object to speed up things
+         * It could be speed up even more with some sort of partitionning strategy
+         */
+        $controllers->get('/{startCode}/inclusiveBatches', function ($startCode)use($app) {
+            /** @var EntityManager $em */
+            $em = $app['em'];
+
+            // Build the adjacency tree first
+            // We need all locations taht are not deleted
+            $sql = <<<EOQ
+            select location.code as code, parent.code as parentCode
+            from silo_location location
+            inner join silo_location parent on parent.location_id = location.parent
+            where location.isDeleted = 0
+            and parent.isDeleted = 0
+            group by location.code
+EOQ;
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
+            /** @var array $adjacencyMap [parent => childs */
+            $adjacencyMap = [];
+            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $code = $row['code'];
+                $parentCode = $row['parentCode'];
+                isset($adjacencyMap[$parentCode]) ? $adjacencyMap[$parentCode][] = $code: $adjacencyMap[$parentCode] = [$code];
+            }
+
+            // Extract all batches from the inventory
+            $sql = <<<EOQ
+            select location.code as code, product.sku as s, SUM(batch.quantity) as q
+            from silo_location location
+            inner join silo_batch batch on location.location_id = batch.location_id
+            inner join silo_product product on batch.product_id = product.product_id
+            where batch.quantity != 0
+            and location.isDeleted = 0
+            group by location.code, product.sku
+EOQ;
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
+            /** @var array $productMap [code => [[sku, quantity], ]] */
+            $productMap = [];
+            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $code = $row['code'];
+                unset($row['code']);
+                isset($productMap[$code]) ? $productMap[$code][] = $row: $productMap[$code] = [$row];
+            }
+
+
+            // Accumulate all products from recursively walked locations, top to bottom
+            // We'll use the accumulator later to build the final response
+            $accumulator = [];
+            $recursiveWalk = function($code, $self)use($adjacencyMap,$productMap,&$accumulator){
+                // Explore children first
+                if (isset($adjacencyMap[$code])) {
+                    foreach($adjacencyMap[$code] as $child) {
+                        call_user_func($self, $child, $self);
+                    }
+                }
+                if (isset($productMap[$code])) {
+                    array_push($accumulator, $productMap[$code]);
+                }
+            };
+            $recursiveWalk($startCode, $recursiveWalk);
+
+            // Lets' build the response
+            $batches = [];
+            foreach ($accumulator as $skuGroups) {
+                foreach($skuGroups as $skuGroup) {
+                    $sku = $skuGroup['s'];
+                    $quantity = $skuGroup['q'];
+                    isset($batches[$sku]) ? $batches[$sku]+=$quantity: $batches[$sku] = (int)$quantity;
+                }
+            }
+
+            // Flatten the response
+            $response = [];
+            foreach($batches as $sku => $quantity) {
+                $response[] = ['sku' => $sku, 'quantity' => $quantity];
+            }
+
+            return new JsonResponse($response);
         });
 
         // @todo this stuff is only used for testing... remove this
