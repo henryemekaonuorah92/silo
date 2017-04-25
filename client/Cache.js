@@ -52,11 +52,11 @@ CacheNode.prototype = {
     }
 };
 
-let SmartCache = function(){
+let Cache = function(){
     this._nodes = [];
 };
 
-SmartCache.prototype = {
+Cache.prototype = {
     /**
      * @param key
      */
@@ -86,4 +86,4 @@ SmartCache.prototype = {
     }
 };
 
-module.exports = SmartCache;
+module.exports = Cache;
