@@ -2,11 +2,12 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 
 const AmpersandRouter = require('ampersand-router');
-
+const Cache = require('./Cache');
 
 const App = React.createClass({
     getInitialState: () => ({
-        currentRoute: 'home'
+        currentRoute: 'home',
+        cache: new Cache()
     }),
 
     routes: {
@@ -21,18 +22,21 @@ const App = React.createClass({
     },
 
     componentDidMount: function(){
-        this.router = new AmpersandRouter.extend(this.routes3 );
+        this.router = new (AmpersandRouter.extend({
+            routes: this.routes
+        }));
+        this.router.on('route', (name, params) => {
+            this.setState({currentRoute: name});
+            console.log("Routed");
+        });
+
         this.router.history.start({pushState: true});
     },
 
-    render: function() {
-        const Handler = Router.getHandler(this.props.route.name);
-        return <Handler route={this.props.route} />
+    render: function(){
+        const Handler = this.handlers[this.state.currentRoute];
+        return <Handler route={this.state.currentRoute} cache={this.state.cache}/>
     }
 });
 
-Router.on('route', function(name, params) {
-    const route = { name: name, params: params };
-    ReactDOM.render(<App route={route} />, document.getElementById('ReactMount'))
-});
-
+ReactDOM.render(<App />, document.getElementById('ReactMount'));

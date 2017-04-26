@@ -1,24 +1,20 @@
 var gulp = require('gulp');
 var source = require('vinyl-source-stream');
 var browserify = require('browserify');
+var less = require('gulp-less');
 
 var debug = false;
 var vendors = [
     "ampersand-router",
     "bootstrap",
     "fixed-data-table",
-    "graphlib-dot",
-    "marked",
     "moment",
     "react",
     "react-addons-shallow-compare",
     "react-bootstrap",
-    "react-dates",
     "react-dom",
     "react-measure",
-    "react-string-replace",
-    "springy"
-    //'superagent'
+    "superagent"
 ];
 
 /**
@@ -75,6 +71,6 @@ gulp.task('js-watch', function () {
     gulp.watch(['./client/**.js'], ['js'])
 });
 
-gulp.task('watched', ['less', 'js', 'less-watch' ,'js-watch'], function(){});
+gulp.task('watch', ['less', 'js', 'less-watch' ,'js-watch'], function(){});
 
 gulp.task('build', ['js', 'js-vendor'], function(){});
