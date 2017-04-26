@@ -75,7 +75,7 @@ module.exports = React.createClass({
 
                         this.props.onScan(this._inputString.trim());
                         this._inputString = '';
-                    }.bind(this), 100)
+                    }.bind(this), 500)
                 }.bind(this)
             }
         );
