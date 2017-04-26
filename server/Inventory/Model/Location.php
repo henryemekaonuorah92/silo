@@ -127,11 +127,11 @@ class Location
         } else if (self::compare($operation->getSource(), $this)) {
             // $this is the source Location, we substract the Operation Batches
             $this->batches = BatchCollection::fromCollection($this->batches);
-            $this->batches->merge($operation->getBatches()->deduplicateProducts()->opposite());
+            $this->batches->merge($operation->getBatches()->opposite());
         } else if (self::compare($operation->getTarget(), $this)) {
             // $this is the target Location, we add the Operation Batches
             $this->batches = BatchCollection::fromCollection($this->batches);
-            $this->batches->merge($operation->getBatches()->deduplicateProducts()->copy());
+            $this->batches->merge($operation->getBatches()->copy());
         } else {
             throw new \LogicException("$operation cannot be applied on unrelated $this");
         }
