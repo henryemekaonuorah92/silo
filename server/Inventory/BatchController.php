@@ -36,6 +36,8 @@ class BatchController implements ControllerProviderInterface
          * and decrements as negatives...
          */
         $controllers->post('/import', function (Request $request) use ($app) {
+            $skuTransformer = $app['skuTransformer'];
+
             /** @var \Symfony\Component\HttpFoundation\File\UploadedFile $file */
             $file = $request->files->get('file');
             $csv = new \parseCSV();
@@ -80,7 +82,11 @@ class BatchController implements ControllerProviderInterface
                     }, iterator_to_array($violations->getIterator()))]);
                 }
 
+                if ($skuTransformer && isset($line['product'])) {
+                    $line['product'] = $skuTransformer->transform($line['product']);
+                }
                 $product = $app['em']->getRepository('Inventory:Product')->findOneBy(['sku' => $line['product']]);
+
                 $batch = new Batch($product, $line['quantity']);
                 $key = $line['location'];
                 if (!isset($batchMap[$key])) {
