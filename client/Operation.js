@@ -73,6 +73,11 @@ module.exports = React.createClass({
                         <button className="btn btn-danger" onClick={this.handleAction.bind(this, 'cancel')}>Cancel</button>
                     </div>}
 
+                    {data.status.isRollbackable &&<div>
+                        <button className="btn btn-warning" onClick={this.handleAction.bind(this, 'rollback')}>Rollback</button>
+                    </div>
+                    }
+
                         <b>Source:</b>&nbsp;{data.source ? <Link route="location" code={data.source} /> : "No source"}<br />
                         <b>Target:</b>&nbsp;{data.target ? <Link route="location" code={data.target} /> : "No target"}<br />
                         <b>Rollback:</b>&nbsp;{data.rollback ? <Link route="operation" code={data.rollback} /> : "Not rollbacked"}<br />

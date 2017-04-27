@@ -230,7 +230,6 @@ class Operation
         if (!$this->doneAt) {
             throw new \Exception("Cannot rollback $this, it is still pending");
         }
-        $this->cancel($rollbackUser);
 
         // @todo evaluate rollbacking with the same Batch instead of copying it
         $rollbackingOperation = new Operation(
