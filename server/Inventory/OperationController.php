@@ -130,6 +130,9 @@ class OperationController implements ControllerProviderInterface
                 }
 
                 $product = $app['em']->getRepository('Inventory:Product')->findOneBy(['sku' => $line['sku']]);
+                if (!$product && $app['productProvider']) {
+                    $product = $app['productProvider']->getProduct($line['sku']);
+                }
                 $batch = new Batch($product, $line['quantity']);
 
                 $key = $line['source'].','.$line['target'];
