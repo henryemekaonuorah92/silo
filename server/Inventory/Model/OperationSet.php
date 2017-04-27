@@ -88,6 +88,15 @@ class OperationSet
         $this->operations->add($operation);
     }
 
+    /**
+     * @param Operation $operation
+     * @todo clear the owning problem here
+     */
+    public function addOwningOnly(Operation $operation)
+    {
+        $this->operations->add($operation);
+    }
+
     public function addSet(self $set)
     {
         foreach ($set->getOperations()->toArray() as $operation) {
