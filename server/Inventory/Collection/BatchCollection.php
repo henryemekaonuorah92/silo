@@ -123,7 +123,7 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
      * @param Product $product
      * @param $quantity
      */
-    public function addProduct(Product $product, $quantity)
+    public function addProduct(Product $product, $quantity, $allowZero = false)
     {
         $founds = $this->filter(function (Batch $batch) use ($product) {
             return $product->getSku() == $batch->getProduct()->getSku();
@@ -139,7 +139,7 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
         } elseif ($founds->count() > 1) {
             throw new \LogicException('You cannot have many Batch with the same Product');
         } else {
-            if ($quantity === 0) {
+            if ($quantity === 0 && !$allowZero) {
                 return;
             }
             $this->add(new Batch($product, $quantity));
