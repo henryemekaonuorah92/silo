@@ -122,6 +122,7 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
      *
      * @param Product $product
      * @param $quantity
+     * @todo allowZero should be a constructing option of BatchCollection
      */
     public function addProduct(Product $product, $quantity, $allowZero = false)
     {
