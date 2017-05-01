@@ -15,6 +15,7 @@ require_once __DIR__.'/CoverageContext.php';
 require_once __DIR__.'/ThenContext.php';
 require_once __DIR__.'/UnitContext.php';
 require_once __DIR__.'/SilexContext.php';
+require_once __DIR__.'/PrintDebugLogger.php';
 
 /**
  * Features context.
@@ -48,6 +49,8 @@ class FeatureContext extends BehatContext
 
     protected $dsn;
 
+    protected $parameters;
+
     /**
      * {@inheritdoc}
      */
@@ -59,6 +62,7 @@ class FeatureContext extends BehatContext
         if (isset($parameters['dsn']) && $parameters['dsn']) {
             $this->dsn = $parameters['dsn'];
         }
+        $this->parameters = $parameters;
 
         // $this->useContext('ranking', $ranking);
         $this->useContext('then', new ThenContext());
@@ -102,6 +106,14 @@ class FeatureContext extends BehatContext
             if ($context instanceof AppAwareContextInterface) {
                 $context->setApp($app);
             }
+        }
+
+        // Register a logger if needed
+        if (isset($this->parameters['debugDoctrine']) && $this->parameters['debugDoctrine']) {
+            $em->getConnection()
+                ->getConfiguration()
+                ->setSQLLogger(new \PrintDebugLogger($this))
+            ;
         }
     }
 
