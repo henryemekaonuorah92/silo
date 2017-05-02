@@ -4,7 +4,9 @@ let AlertStore = {
     },
 
     getState: function() {
-        return this._state;
+        return {
+            alerts: this._state.alerts.slice()
+        }
     },
 
     clear: function(){
