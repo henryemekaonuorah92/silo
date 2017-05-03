@@ -101,12 +101,12 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
      *
      * @return $this
      */
-    public function merge(Collection $batches)
+    public function merge(Collection $batches, $allowZero = false)
     {
         $that = $this;
         $ref = $batches->toArray();
-        array_walk($ref, function (Batch $add) use ($that) {
-            $this->addProduct($add->getProduct(), $add->getQuantity());
+        array_walk($ref, function (Batch $add) use ($that,$allowZero) {
+            $this->addProduct($add->getProduct(), $add->getQuantity(), $allowZero);
         });
 
         return $this;
