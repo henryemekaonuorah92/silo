@@ -7,7 +7,10 @@ $app = new Silo\Silo([
 $app->get('/', function(){
     return <<<EOS
 <html>
-    <head><title>Silo</title></head>
+    <head>
+        <title>Silo</title>
+        <link href="base.css" rel="stylesheet" type="text/css" />
+    </head>
     <body>
     <div id="ReactMount"></div>
     <script src="vendor.js"></script>

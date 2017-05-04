@@ -58,7 +58,7 @@ gulp.task('js', function () {
 });
 
 gulp.task('less', function () {
-    gulp.src('./less/main.less')
+    gulp.src('./less/base.less')
         .pipe(less())
         .pipe(gulp.dest('./public'));
 });

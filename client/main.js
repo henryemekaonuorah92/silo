@@ -4,6 +4,8 @@ const ReactDOM = require('react-dom');
 const AmpersandRouter = require('ampersand-router');
 const Cache = require('./Cache');
 
+const Navbar = require('./Hud/Navbar');
+
 const App = React.createClass({
     getInitialState: () => ({
         currentRoute: 'home',
@@ -26,8 +28,8 @@ const App = React.createClass({
             routes: this.routes
         }));
         this.router.on('route', (name, params) => {
+            console.log("route", name);
             this.setState({currentRoute: name});
-            console.log("Routed");
         });
 
         this.router.history.start({pushState: true});
@@ -35,7 +37,10 @@ const App = React.createClass({
 
     render: function(){
         const Handler = this.handlers[this.state.currentRoute];
-        return <Handler route={this.state.currentRoute} cache={this.state.cache}/>
+        return <div>
+            <Navbar />
+            <Handler route={this.state.currentRoute} cache={this.state.cache}/>
+        </div>
     }
 });
 
