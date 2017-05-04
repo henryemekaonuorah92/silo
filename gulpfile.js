@@ -64,11 +64,11 @@ gulp.task('less', function () {
 });
 
 gulp.task('less-watch', function () {
-    gulp.watch(['./less/*.less'], ['less'])
+    gulp.watch(['./less/**/*.less'], ['less'])
 });
 
 gulp.task('js-watch', function () {
-    gulp.watch(['./client/**.js'], ['js'])
+    gulp.watch(['./client/**/*.js'], ['js'])
 });
 
 gulp.task('watch', ['less', 'js', 'less-watch' ,'js-watch'], function(){});

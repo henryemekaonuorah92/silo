@@ -5,6 +5,7 @@ const AmpersandRouter = require('ampersand-router');
 const Cache = require('./Cache');
 
 const Navbar = require('./Hud/Navbar');
+const Sidebar = require('./Hud/Sidebar');
 
 const App = React.createClass({
     getInitialState: () => ({
@@ -14,13 +15,15 @@ const App = React.createClass({
 
     routes: {
         '': 'home',
+        'operations': 'operations',
         'products(/:page)': 'products',
         'product/:slug': 'product',
         '*404': '404'
     },
 
     handlers: {
-        home: require('./Operation')
+        home: require('./View/Home'),
+        operations: require('./Operations')
     },
 
     componentDidMount: function(){
@@ -35,11 +38,23 @@ const App = React.createClass({
         this.router.history.start({pushState: true});
     },
 
+    onNavigate: function(route){
+        this.router.navigate(route, {trigger: true});
+    },
+
     render: function(){
         const Handler = this.handlers[this.state.currentRoute];
         return <div>
             <Navbar />
-            <Handler route={this.state.currentRoute} cache={this.state.cache}/>
+            <div className="container-fluid">
+                <div className="row">
+                    <Sidebar onNavigate={this.onNavigate} route={this.state.currentRoute} />
+                    <div className="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+                        <Handler route={this.state.currentRoute}
+                                 cache={this.state.cache} />
+                    </div>
+                </div>
+            </div>
         </div>
     }
 });
