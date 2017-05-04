@@ -52,7 +52,8 @@ class Product
      */
     public function getSku()
     {
-        return $this->sku;
+        // @todo very annoying fix to remove
+        return strtoupper($this->sku);
     }
 
     /**
