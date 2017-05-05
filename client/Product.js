@@ -49,12 +49,12 @@ module.exports = React.createClass({
                         </tr>
                         </thead>
                         <tbody>
-                        {this.state.data.locations.map((loc, key) => (
+                        {this.state.data.locations.map((loc, key) => (loc.quantity !== 0 ?
                             <tr key={key}>
                                 <td><Link route="location" code={loc.location} /></td>
                                 <td>{loc.quantity}</td>
                                 <td>{loc.modifiers.map((mod, key) => (<span key={key}>{mod}&nbsp;</span>))}</td>
-                            </tr>
+                            </tr> : null
                         ))}
                         </tbody>
                     </table>
