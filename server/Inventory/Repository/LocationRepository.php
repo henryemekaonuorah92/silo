@@ -3,6 +3,7 @@
 namespace Silo\Inventory\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Silo\Inventory\LocationWalker;
 use Silo\Inventory\Collection\BatchCollection;
 use Silo\Inventory\Model\Location;
@@ -34,7 +35,11 @@ class LocationRepository extends EntityRepository
      */
     public function getInclusiveContent($location)
     {
-        $walker = new LocationWalker($this->_em);
+        $walker = new LocationWalker($this->_em, function(QueryBuilder $query){
+            $query->addSelect('Batches, Product')
+                ->join('Location.batches', 'Batches')
+                ->join('Batches.product', 'Product');
+        });
 
         return $walker->mapReduce(
             $location,

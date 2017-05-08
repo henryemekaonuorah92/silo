@@ -13,9 +13,12 @@ class LocationWalker
     /** @var EntityManager */
     private $em;
 
-    public function __construct(EntityManager $em)
+    private $queryExtender;
+
+    public function __construct(EntityManager $em, \Closure $queryExtender = null)
     {
         $this->em = $em;
+        $this->queryExtender = $queryExtender;
     }
 
     /**
@@ -34,8 +37,18 @@ class LocationWalker
     {
         $reminder = call_user_func($map, $location);
 
-        $childs = $this->em->getRepository('Inventory:Location')
-            ->findBy(['parent' => $location]);
+        $query = $this->em->createQueryBuilder();
+        $query->addSelect('Location')
+            ->from('Inventory:Location', 'Location')
+            ->andWhere('Location.parent = :parent')
+            ->setParameter('parent', $location);
+
+        if (is_callable($this->queryExtender)) {
+            call_user_func($this->queryExtender, $query);
+        }
+
+        $childs = $query->getQuery()->getResult();
+
         foreach ($childs as $child) {
             $reminder = $this->mapReduce($child, $map, $reduce, $reminder);
             $this->em->detach($child);
