@@ -2,6 +2,7 @@
  * Naive in memory cache implementation
  * @type {Cache}
  */
+const request = require('superagent');
 
 let CacheNode = function(value){
     this._value = value;
@@ -16,9 +17,15 @@ CacheNode.prototype = {
             throw "not implemented yet";
         } else if (typeof from === 'string') {
             this._refreshCb = function(resolve, reject){
-                $.ajax(from, {headers: {'Accept': 'application/json'}})
-                    .done(function(data){resolve(data);})
-                    .error(function(){console.log(arguments)});
+                request.get(from)
+                    .set('Accept', 'application/json')
+                    .end(function(err, res){
+                        if (res.ok) {
+                            resolve(res.body);
+                        } else {
+                            reject();
+                        }
+                    });
             };
         } else {
             throw "from should have one argument, either url or callback"

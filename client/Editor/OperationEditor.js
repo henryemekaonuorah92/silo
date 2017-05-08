@@ -5,8 +5,8 @@ const Measure = require('react-measure');
 const DataStoreWrapper = require('./DataStoreWrapper');
 const TextCell = require('./TextCell');
 const Datetime = require('../Common/Datetime');
-const Link = require('./../Common/Link');
 const Emoji = require('react-emoji');
+
 /**
  * Edit a set of Operations
  * @type {*}
@@ -50,6 +50,7 @@ class OperationEditor extends React.Component {
     }
 
     render(){
+        let Link = this.props.linkFactory;
         let operations = this.state.filteredDataList || this.props.operations;
         /*
          <li><input

@@ -10,20 +10,23 @@ const Sidebar = require('./Hud/Sidebar');
 const App = React.createClass({
     getInitialState: () => ({
         currentRoute: 'home',
+        currentParams: null,
         cache: new Cache()
     }),
 
     routes: {
         '': 'home',
         'operations': 'operations',
-        'products(/:page)': 'products',
-        'product/:slug': 'product',
-        '*404': '404'
+        'operation/:id': 'operation',
+        'product(/:slug)': 'product',
+        '*404': 'notfound'
     },
 
     handlers: {
         home: require('./View/Home'),
-        operations: require('./Operations')
+        operations: require('./Operations'),
+        operation: require('./Operation'),
+        notfound: (props)=>(<div>Not found</div>)
     },
 
     componentDidMount: function(){
@@ -31,27 +34,47 @@ const App = React.createClass({
             routes: this.routes
         }));
         this.router.on('route', (name, params) => {
-            console.log("route", name);
-            this.setState({currentRoute: name});
+            console.log("route", name, params);
+            this.setState({
+                currentRoute: name,
+                currentParams: params
+            });
         });
 
-        this.router.history.start({pushState: true});
+        this.router.history.start({pushState: false});
     },
 
     onNavigate: function(route){
         this.router.navigate(route, {trigger: true});
     },
 
+    createLink: function(props){
+        let frag = '/'+props.route+'/'+props.code;
+        return (
+            <a onClick={(e)=>{
+                e.stopPropagation();
+                this.onNavigate(frag);
+            }} style={{cursor: 'pointer'}}
+               href={'/#'+frag}>
+                {props.children || props.code}
+            </a>
+        );
+    },
+
     render: function(){
         const Handler = this.handlers[this.state.currentRoute];
+        const id = this.state.currentParams ? this.state.currentParams[0] : null
         return <div>
             <Navbar />
             <div className="container-fluid">
                 <div className="row">
                     <Sidebar onNavigate={this.onNavigate} route={this.state.currentRoute} />
                     <div className="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-                        <Handler route={this.state.currentRoute}
-                                 cache={this.state.cache} />
+                        <Handler siloBasePath="/silo"
+                                 linkFactory={this.createLink}
+                                 route={this.state.currentRoute}
+                                 cache={this.state.cache}
+                                 id={id}/>
                     </div>
                 </div>
             </div>

@@ -6,7 +6,6 @@ const DataStoreWrapper = require('./DataStoreWrapper');
 const DownloadDataLink = require('../Common/DownloadDataLink');
 const Modal = require('../Modal/BatchUploadModal');
 const TextCell = require('./TextCell');
-const Link = require('../Common/Link');
 
 /**
  * Edit a set of Batches
@@ -66,6 +65,7 @@ module.exports = React.createClass({
     },
 
     render: function(){
+        let Link = this.props.linkFactory;
         let batches = this.state.filteredDataList || this.props.batches;
         return (
             <div className="panel panel-default">

@@ -2,7 +2,6 @@
 const React = require('react');
 const BatchEditor = require('./Editor/BatchEditor');
 const DataStore = require('./Editor/DataStore');
-const Link = require('./Common/Link');
 
 module.exports = React.createClass({
 
@@ -37,6 +36,8 @@ module.exports = React.createClass({
     },
 
     handleAction: function (action) {
+        /*
+        @todo superagentize
         $.post(
             this.props.siloBasePath+"/inventory/operation/"+this.props.id+"/"+action
         )
@@ -44,21 +45,12 @@ module.exports = React.createClass({
                 // @todo if jqXHR.status != 201 then do something
                 this.props.cache.refresh('operation/'+this.props.id);
             }.bind(this));
+        */
 
     },
 
     render: function(){
-        /*
-        // hide this temporarily
-         <div className="pull-right">
-         {data.status.isRollbackable &&
-         <a className="btn btn-danger" onClick={this.handleAction}>Rollback</a>
-         }
-         {data.rollback &&
-         <span>Rollbacked: <Link route="operation" code={data.rollback} /></span>
-         }
-         </div>
-         */
+        let Link = this.props.linkFactory;
         let data = this.state.data;
         return (
             <div>
@@ -92,7 +84,8 @@ module.exports = React.createClass({
                                 <BatchEditor
                                     exportFilename={'operation-'+this.props.id+'-batches.csv'}
                                     batches={this.state.batches}
-                                    writable={false} />
+                                    writable={false}
+                                    linkFactory={this.props.linkFactory} />
                             </div>)
                         }
                 </div>}

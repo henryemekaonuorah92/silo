@@ -11,16 +11,13 @@ module.exports = React.createClass({
         code: React.PropTypes.any.isRequired
     },
 
-    handleClick: function(e){
-        e.stopPropagation();
-        // Legacy F+O code for links :/
-        window.A.Page.Open('/silo/'+this.props.route+'/'+this.props.code);
-    },
-
-    render: function() {
+    render: function(route, code) {
         return (
-            <a onClick={this.handleClick} style={{cursor: 'pointer'}}
-               href={'/#!/silo/'+this.props.route+'/'+this.props.code}>
+            <a onClick={(e)=>{
+                e.stopPropagation();
+                window.A.Page.Open('/silo/'+route+'/'+code);
+            }} style={{cursor: 'pointer'}}
+               href={'/#!/silo/'+route+'/'+code}>
                 {this.props.children || this.props.code}
             </a>
         );

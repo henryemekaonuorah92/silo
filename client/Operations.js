@@ -5,6 +5,8 @@ const OperationEditor = require('./Editor/OperationEditor');
 const DataStore = require('./Editor/DataStore');
 const Modal = require('./Modal/OperationUploadModal');
 const BatchModal = require('./Modal/BatchUploadModal');
+const request = require('superagent');
+
 // @todo put some proofing in operation screen (no null loca)
 module.exports = React.createClass({
     getInitialState: function(){return {
@@ -21,17 +23,16 @@ module.exports = React.createClass({
         this.setState({
             operations: new DataStore([])
         });
-        $.ajax(
-            this.props.siloBasePath+"/inventory/operation/",
-            {
-                success: function (data) {
+        request
+            .get(this.props.siloBasePath+"/inventory/operation/")
+            .set('Accept', 'application/json')
+            .end((err, data) => {
+                if (data.ok) {
                     this.setState({
-                        operations: new DataStore(data)
+                        operations: new DataStore(data.body)
                     });
-                }.bind(this),
-                headers: {'Accept': 'application/json'}
-            }
-        );
+                }
+            });
     },
 
     render: function(){
@@ -58,11 +59,14 @@ module.exports = React.createClass({
                         onSuccess={()=>{
                             this.setState({showModalBis: false});
                             this.componentDidMount();
-                        }} />
+                        }}
+                        />
 
                 </Col></Row>
 
-                <OperationEditor operations={this.state.operations} onNeedRefresh={this.componentDidMount} />
+                <OperationEditor operations={this.state.operations}
+                                 onNeedRefresh={this.componentDidMount}
+                                 linkFactory={this.props.linkFactory} />
             </div>
         );
     }
