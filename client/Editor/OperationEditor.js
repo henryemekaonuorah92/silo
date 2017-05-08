@@ -6,6 +6,7 @@ const DataStoreWrapper = require('./DataStoreWrapper');
 const TextCell = require('./TextCell');
 const Datetime = require('../Common/Datetime');
 const Emoji = require('react-emoji');
+const Link = require('../Factory').Link;
 
 /**
  * Edit a set of Operations
@@ -50,7 +51,6 @@ class OperationEditor extends React.Component {
     }
 
     render(){
-        let Link = this.props.linkFactory;
         let operations = this.state.filteredDataList || this.props.operations;
         /*
          <li><input

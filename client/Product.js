@@ -1,6 +1,6 @@
 ;
 const React = require('react');
-const Link = require('./Common/Link');
+const Link = require('./Factory').Link;
 
 module.exports = React.createClass({
 

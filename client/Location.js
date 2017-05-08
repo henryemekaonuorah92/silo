@@ -3,8 +3,8 @@ const React = require('react');
 const BatchEditor = require('./Editor/BatchEditor');
 const OperationEditor = require('./Editor/OperationEditor');
 const DataStore = require('./Editor/DataStore');
-const Link = require('./Common/Link');
 const ModifierEditor = require('./ModifierEditor');
+const Link = require('./Factory').Link;
 
 module.exports = React.createClass({
 
@@ -81,7 +81,6 @@ module.exports = React.createClass({
     render: function(){
         let data = this.state.data;
         let uploadUrl = this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches';
-
         return (
             <div>
                 <h3><span className="glyphicon glyphicon-map-marker" />Location {this.props.code}</h3>

@@ -6,6 +6,7 @@ const Cache = require('./Cache');
 
 const Navbar = require('./Hud/Navbar');
 const Sidebar = require('./Hud/Sidebar');
+const Factory = require('./Factory');
 
 const App = React.createClass({
     getInitialState: () => ({
@@ -18,7 +19,8 @@ const App = React.createClass({
         '': 'home',
         'operations': 'operations',
         'operation/:id': 'operation',
-        'product(/:slug)': 'product',
+        'location/:id': 'location',
+        'product/:id': 'product',
         '*404': 'notfound'
     },
 
@@ -26,6 +28,8 @@ const App = React.createClass({
         home: require('./View/Home'),
         operations: require('./Operations'),
         operation: require('./Operation'),
+        location: require('./Location'),
+        product: require('./Product'),
         notfound: (props)=>(<div>Not found</div>)
     },
 
@@ -40,6 +44,7 @@ const App = React.createClass({
                 currentParams: params
             });
         });
+        Factory.setLink(this.createLink);
 
         this.router.history.start({pushState: false});
     },
@@ -71,7 +76,6 @@ const App = React.createClass({
                     <Sidebar onNavigate={this.onNavigate} route={this.state.currentRoute} />
                     <div className="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
                         <Handler siloBasePath="/silo"
-                                 linkFactory={this.createLink}
                                  route={this.state.currentRoute}
                                  cache={this.state.cache}
                                  id={id}/>

@@ -2,6 +2,7 @@
 const React = require('react');
 const BatchEditor = require('./Editor/BatchEditor');
 const DataStore = require('./Editor/DataStore');
+const Link = require('./Factory').Link;
 
 module.exports = React.createClass({
 
@@ -50,7 +51,6 @@ module.exports = React.createClass({
     },
 
     render: function(){
-        let Link = this.props.linkFactory;
         let data = this.state.data;
         return (
             <div>

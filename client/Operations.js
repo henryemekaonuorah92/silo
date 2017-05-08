@@ -65,8 +65,7 @@ module.exports = React.createClass({
                 </Col></Row>
 
                 <OperationEditor operations={this.state.operations}
-                                 onNeedRefresh={this.componentDidMount}
-                                 linkFactory={this.props.linkFactory} />
+                                 onNeedRefresh={this.componentDidMount} />
             </div>
         );
     }
