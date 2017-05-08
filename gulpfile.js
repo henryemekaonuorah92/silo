@@ -71,6 +71,11 @@ gulp.task('js-watch', function () {
     gulp.watch(['./client/**/*.js'], ['js'])
 });
 
+gulp.task('fonts', function() {
+    gulp.src('./node_modules/bootstrap/fonts/**/*.{ttf,woff,woff2,eof,svg}')
+        .pipe(gulp.dest('./public'));
+});
+
 gulp.task('watch', ['less', 'js', 'less-watch' ,'js-watch'], function(){});
 
-gulp.task('build', ['js', 'js-vendor'], function(){});
+gulp.task('build', ['fonts', 'less', 'js', 'js-vendor'], function(){});

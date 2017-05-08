@@ -5,4 +5,7 @@ node_modules
 composer.lock
 reports
 public/*.js
+public/*.svg
+public/*.ttf
+public/*.woff*
 **.DS_Store
