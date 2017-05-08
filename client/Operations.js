@@ -2,37 +2,18 @@
 const React = require('react');
 const {Row, Col, Button, Glyphicon} = require('react-bootstrap');
 const OperationEditor = require('./Editor/OperationEditor');
-const DataStore = require('./Editor/DataStore');
 const Modal = require('./Modal/OperationUploadModal');
 const BatchModal = require('./Modal/BatchUploadModal');
-const request = require('superagent');
 
 // @todo put some proofing in operation screen (no null loca)
 module.exports = React.createClass({
-    getInitialState: function(){return {
-        operations : new DataStore([]),
+    getInitialState: ()=>({
         showModal: false,
         showModalBis: false
-    }},
+    }),
 
     propTypes: {
         siloBasePath: React.PropTypes.string.isRequired
-    },
-
-    componentDidMount: function () {
-        this.setState({
-            operations: new DataStore([])
-        });
-        request
-            .get(this.props.siloBasePath+"/inventory/operation/")
-            .set('Accept', 'application/json')
-            .end((err, data) => {
-                if (data.ok) {
-                    this.setState({
-                        operations: new DataStore(data.body)
-                    });
-                }
-            });
     },
 
     render: function(){
@@ -48,7 +29,7 @@ module.exports = React.createClass({
                         url={this.props.siloBasePath+"/inventory/operation/import"}
                         onSuccess={()=>{
                             this.setState({showModal: false});
-                            this.componentDidMount();
+                            this.operationEditor.componentDidMount(); // refresh
                         }} />
                     <Button bsStyle="default" onClick={()=>{this.setState({showModalBis: true})}}><Glyphicon glyph="plus" /> Edit Batches</Button>
                     <BatchModal
@@ -58,14 +39,12 @@ module.exports = React.createClass({
                         url={this.props.siloBasePath+"/inventory/batch/import"}
                         onSuccess={()=>{
                             this.setState({showModalBis: false});
-                            this.componentDidMount();
+                            this.operationEditor.componentDidMount(); // refresh
                         }}
                         />
-
                 </Col></Row>
 
-                <OperationEditor operations={this.state.operations}
-                                 onNeedRefresh={this.componentDidMount} />
+                <OperationEditor ref={(ref)=>{this.operationEditor = ref;}} />
             </div>
         );
     }

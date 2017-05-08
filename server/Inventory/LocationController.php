@@ -42,6 +42,20 @@ class LocationController implements ControllerProviderInterface
             return $location;
         };
 
+        $controllers->post('/search', function (Request $request)use($app) {
+            $code = $request->query->get('query');
+            /** @var QueryBuilder $query */
+            $query = $app['em']->createQueryBuilder();
+            $query->select('Location.code')->from('Inventory:Location', 'Location')
+                ->andWhere($query->expr()->like('Location.code', ':code'))
+                ->setParameter('code', "%$code%");
+
+            return new JsonResponse(array_map(
+                function($l){return $l['code'];},
+                $query->getQuery()->getArrayResult()
+            ), Response::HTTP_ACCEPTED);
+        });
+
         /*
          * Inspect a Location given its code
          */

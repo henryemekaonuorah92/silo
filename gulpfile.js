@@ -17,6 +17,11 @@ var vendors = [
     "superagent"
 ];
 
+function swallowError(error){
+    console.error(error);
+    error.end();
+}
+
 /**
  * Compile vendor
  */
@@ -54,7 +59,7 @@ gulp.task('js', function () {
         .bundle()
         .pipe(source('app.js'))
         .pipe(gulp.dest('./public/'))
-        .on('error', console.log);
+        .on('error', swallowError);
 });
 
 gulp.task('less', function () {

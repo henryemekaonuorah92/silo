@@ -10,6 +10,7 @@ use Silo\Inventory\BatchCollectionFactory;
 use Silo\Inventory\Model\User;
 use Silo\Inventory\OperationValidator;
 use Silo\Inventory\ProductProviderInterface;
+use Silo\Inventory\UserController;
 use Symfony\Component\Debug\ErrorHandler;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -91,6 +92,7 @@ class Silo extends \Silex\Application
         $app->mount('/silo/inventory/operation', new \Silo\Inventory\OperationController());
         $app->mount('/silo/inventory/product', new \Silo\Inventory\ProductController());
         $app->mount('/silo/inventory/batch', new \Silo\Inventory\BatchController());
+        $app->mount('/silo/inventory/user', new \Silo\Inventory\UserController());
 
         // Deal with exceptions
         ErrorHandler::register();

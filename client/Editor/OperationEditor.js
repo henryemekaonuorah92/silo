@@ -7,57 +7,48 @@ const TextCell = require('./TextCell');
 const Datetime = require('../Common/Datetime');
 const Emoji = require('react-emoji');
 const Link = require('../Factory').Link;
-
+const FilterList = require('./FilterList');
+const DataStore = require('./DataStore');
+const request = require('superagent');
 /**
  * Edit a set of Operations
  * @type {*}
  */
-class OperationEditor extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            dimensions: {
-                width: -1,
-                height: -1,
-            },
-            data: {},
-            filteredDataList: null
-        };
+module.exports = React.createClass({
+    getInitialState: ()=>({
+        dimensions: {
+            width: -1,
+            height: -1,
+        },
+        operations : new DataStore([]),
+        filters: []
+    }),
 
-        this._onFilterChange = this._onFilterChange.bind(this);
-    }
+    propTypes: {
+        // batches: React.PropTypes.isRequired // new DataStore
+        // siloBasePath: React.PropTypes.string.isRequired
+    },
 
-    _onFilterChange(e) {
-        if (this.prop)
-        if (!e.target.value) {
-            this.setState({
-                filteredDataList: null,
+    componentDidMount: function () {
+        request
+            .post("/silo/inventory/operation/search")
+            .send({filters: this.state.filters})
+            .set('Accept', 'application/json')
+            .end((err, data) => {
+                if (data.ok) {
+                    this.setState({
+                        operations: new DataStore(data.body)
+                    });
+                }
             });
-        }
+    },
 
-        let filterBy = e.target.value.toLowerCase();
-        let size = this.props.operations.getSize();
-        let filteredIndexes = [];
-        for (let index = 0; index < size; index++) {
-            let {product, quantity} = this.props.operations.getObjectAt(index);
-            if (product.toLowerCase().indexOf(filterBy) !== -1) {
-                filteredIndexes.push(index);
-            }
-        }
+    handleFilterChange: function(filters){
+        this.setState({filters:filters}, this.componentDidMount);
+    },
 
-        this.setState({
-            filteredDataList: new DataStoreWrapper(filteredIndexes, this.props.operations),
-        });
-    }
-
-    render(){
-        let operations = this.state.filteredDataList || this.props.operations;
-        /*
-         <li><input
-         onChange={this._onFilterChange}
-         placeholder="Filter by SKU"
-         /></li>
-         */
+    render: function(){
+        let operations = this.state.operations;
         return (
             <div className="panel panel-default">
                 <div className="panel-heading nav navbar-default">
@@ -70,6 +61,9 @@ class OperationEditor extends React.Component {
                         </div>
                     </div>
                 </div>
+
+                <FilterList onFilterChange={this.handleFilterChange} />
+
                 {operations.getSize() > 0 ?
                     <Measure onMeasure={(dimensions)=>{this.setState({dimensions});}}>
                         <div className="panel-body panel-body_noPadding">
@@ -105,7 +99,7 @@ class OperationEditor extends React.Component {
                                                 &nbsp;&rarr;&nbsp;
                                                 {data.target ? <Link route="location" code={data.target} /> : <span className="label label-danger">DELETE</span>}
                                                 &nbsp;({data.location ? <Link route="location" code={data.location} /> : 'skus'})
-                                                </Cell>;
+                                            </Cell>;
                                         }}
                                     />
                                     <Column
@@ -114,18 +108,18 @@ class OperationEditor extends React.Component {
                                         cell={({rowIndex}) => {
                                             let status = operations.getObjectAt(rowIndex)['status'];
                                             return (
-                                            <Cell>
-                                                {status.isDone && <span className="text-success">
+                                                <Cell>
+                                                    {status.isDone && <span className="text-success">
                                                     <span className="glyphicon glyphicon-ok" /> Done <Datetime>{status.doneAt}</Datetime>&nbsp;{status.doneBy}
                                                 </span>}
-                                                {status.isCancelled && <span className="text-danger">
+                                                    {status.isCancelled && <span className="text-danger">
                                                     <span className="glyphicon glyphicon-remove" /> Cancelled <Datetime>{status.cancelledAt}</Datetime>&nbsp;{status.cancelledBy}
                                                 </span>}
-                                                {status.isPending && <span>
+                                                    {status.isPending && <span>
                                                     <span className="glyphicon glyphicon-time" /> Pending <Datetime>{status.requestedAt}</Datetime>&nbsp;{status.requestedBy}
                                                 </span>}
-                                            </Cell>
-                                        )}}
+                                                </Cell>
+                                            )}}
                                     />
                                     <Column
                                         width={300}
@@ -136,7 +130,7 @@ class OperationEditor extends React.Component {
                                                     return <span key={key}>
                                                         <Link route="operationSet" code={context.id} />
                                                         {typeof(context.value) === "object" && "description" in context.value &&
-                                                            <span>
+                                                        <span>
                                                                 &nbsp;({Emoji.emojify(context.value.description)})
                                                             </span>
                                                         }&nbsp;
@@ -154,11 +148,6 @@ class OperationEditor extends React.Component {
             </div>
         );
     }
-}
 
-module.exports = OperationEditor;
 
-OperationEditor.propTypes = {
-    // batches: React.PropTypes.isRequired // new DataStore
-};
-
+});

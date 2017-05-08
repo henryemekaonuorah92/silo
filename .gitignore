@@ -4,6 +4,7 @@ vendor
 node_modules
 composer.lock
 reports
+public/*.css
 public/*.js
 public/*.svg
 public/*.ttf

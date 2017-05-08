@@ -5,12 +5,14 @@ namespace Silo\Inventory;
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Silo\Base\JsonRequest;
+use Silo\Inventory\Finder\OperationFinder;
 use Silo\Inventory\Model\Batch;
 use Silo\Inventory\Collection\BatchCollection;
 use Silo\Inventory\Model\Context;
 use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation;
 use Silo\Inventory\Model\OperationSet;
+use Silo\Inventory\Model\OperationType;
 use Silo\Inventory\Repository\ModifierRepository;
 use Silo\Inventory\Validator\Constraints\LocationExists;
 use Silo\Inventory\Validator\Constraints\SkuExists;
@@ -176,15 +178,30 @@ class OperationController implements ControllerProviderInterface
             return new JsonResponse([]);
         });
 
+        $controllers->get('/types', function()use($app){
+            $types = $app['em']->getRepository('Inventory:OperationType')->findAll();
+            return new JsonResponse(array_map(function(OperationType $type){
+                return $type->getName();
+            }, $types));
+        });
+
         /*
          * Inspect Operations
          */
         // @todo test This
-        $controllers->get('/', function (Request $request) use ($app) {
+        $controllers->post('/search', function (Request $request) use ($app) {
+
+            //$finder = new OperationFinder($app['em']);
+
+
+
             $query = $app['em']->createQueryBuilder();
-            $query->select('operation, source, target, type, context, location')
+            $query->select('operation, source, target, type, context, location,doneBy,requestedBy,cancelledBy')
                 ->from('Inventory:Operation', 'operation')
                 ->leftJoin('operation.source', 'source')
+                ->leftJoin('operation.doneBy', 'doneBy')
+                ->leftJoin('operation.cancelledBy', 'cancelledBy')
+                ->leftJoin('operation.requestedBy', 'requestedBy')
                 ->leftJoin('operation.target', 'target')
                 ->leftJoin('operation.location', 'location')
                 ->leftJoin('operation.operationType', 'type')
@@ -200,6 +217,27 @@ class OperationController implements ControllerProviderInterface
                     'location.code = :location'
                 ));
                 $query->setParameter('location', $location);
+            }
+
+            $filters = $request->request->get('filters');
+            foreach ($filters as $filter) {
+                $type = $filter['_type'];
+                switch ($type) {
+                    case 'source':
+                        $query->andWhere($query->expr()->in(
+                            'source.code',':source'
+                        ));
+                        $query->setParameter('source', $filter['source']);
+                        break;
+                    case 'doneBy':
+                    case 'cancelledBy':
+                    case 'requestedBy':
+                        $query->andWhere($query->expr()->in(
+                            $type.'.name',':name'.$type
+                        ));
+                        $query->setParameter("name".$type, $filter[$type]);
+                        break;
+                }
             }
 
             $result = $query->getQuery()->execute();
@@ -222,7 +260,7 @@ class OperationController implements ControllerProviderInterface
                     ];
                 }, $result)
             );
-        });
+        })->before(new JsonRequest());
 
         $controllers->get('/{id}', function ($id, Application $app) {
             $operations = $app['em']->getRepository('Inventory:Operation');
