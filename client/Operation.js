@@ -3,6 +3,7 @@ const React = require('react');
 const BatchEditor = require('./Editor/BatchEditor');
 const DataStore = require('./Editor/DataStore');
 const Link = require('./Factory').Link;
+const request = require('superagent');
 
 module.exports = React.createClass({
 
@@ -37,17 +38,13 @@ module.exports = React.createClass({
     },
 
     handleAction: function (action) {
-        /*
-        @todo superagentize
-        $.post(
-            this.props.siloBasePath+"/inventory/operation/"+this.props.id+"/"+action
-        )
-            .done(function(data, textStatus, jqXHR){
+        request
+            .post(this.props.siloBasePath+"/inventory/operation/"+this.props.id+"/"+action)
+            .send({})
+            .end(()=>{
                 // @todo if jqXHR.status != 201 then do something
                 this.props.cache.refresh('operation/'+this.props.id);
-            }.bind(this));
-        */
-
+            });
     },
 
     render: function(){
