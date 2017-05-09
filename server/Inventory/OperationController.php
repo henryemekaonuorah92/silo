@@ -220,23 +220,28 @@ class OperationController implements ControllerProviderInterface
             }
 
             $filters = $request->request->get('filters');
-            foreach ($filters as $filter) {
-                $type = $filter['_type'];
-                switch ($type) {
-                    case 'source':
-                        $query->andWhere($query->expr()->in(
-                            'source.code',':source'
-                        ));
-                        $query->setParameter('source', $filter['source']);
-                        break;
-                    case 'doneBy':
-                    case 'cancelledBy':
-                    case 'requestedBy':
-                        $query->andWhere($query->expr()->in(
-                            $type.'.name',':name'.$type
-                        ));
-                        $query->setParameter("name".$type, $filter[$type]);
-                        break;
+            if(is_array($filters)) {
+                for($i=0;$i<count($filters);$i++){
+                    $filter = $filters[$i];
+                    $type = $filter['_type'];
+                    $var = $type.$i; // a query parameter unique name
+                    switch ($type) {
+                        case 'target':
+                        case 'source':
+                            $query->andWhere($query->expr()->in(
+                                'source.code',':'.$var
+                            ));
+                            $query->setParameter($var, $filter[$type]);
+                            break;
+                        case 'doneBy':
+                        case 'cancelledBy':
+                        case 'requestedBy':
+                            $query->andWhere($query->expr()->in(
+                                $type.'.name',':'.$var
+                            ));
+                            $query->setParameter($var, $filter[$type]);
+                            break;
+                    }
                 }
             }
 
