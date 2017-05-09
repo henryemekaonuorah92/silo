@@ -59,6 +59,10 @@ module.exports = React.createClass({
 
     render: function(){
         let operations = this.props.operations || this.state.operations;
+
+        // check if batches are here or not
+        let withBatches = operations.getSize() > 0 && operations.getObjectAt(0).batches;
+
         return (
             <div className="panel panel-default">
 
@@ -133,6 +137,20 @@ module.exports = React.createClass({
                                             </Cell>;
                                         }}
                                     />
+                                    {withBatches && <Column
+                                        width={80}
+                                        header="Qty"
+                                        cell={({rowIndex}) => (
+                                            <Cell>
+                                                {operations.getObjectAt(rowIndex).batches.map(function(batch, key){
+                                                    return <span key={key}>
+                                                        {batch.quantity}
+                                                    </span>
+                                                        ;
+                                                })}
+                                            </Cell>
+                                        )}
+                                    />}
                                     <Column
                                         width={300}
                                         header="Status"

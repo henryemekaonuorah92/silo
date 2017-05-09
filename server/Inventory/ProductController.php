@@ -38,6 +38,20 @@ class ProductController implements ControllerProviderInterface
             return $product;
         };
 
+        $controllers->post('/search', function (Request $request)use($app) {
+            $code = $request->query->get('query');
+            /** @var QueryBuilder $query */
+            $query = $app['em']->createQueryBuilder();
+            $query->select('Product.sku')->from('Inventory:Product', 'Product')
+                ->andWhere($query->expr()->like('Product.sku', ':code'))
+                ->setParameter('code', "%$code%");
+
+            return new JsonResponse(array_map(
+                function($l){return $l['sku'];},
+                $query->getQuery()->getArrayResult()
+            ), Response::HTTP_ACCEPTED);
+        });
+
         /*
          * Inspect a Product given its sku
          */

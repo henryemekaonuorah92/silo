@@ -193,7 +193,7 @@ class OperationController implements ControllerProviderInterface
         $controllers->post('/search', function (Request $request) use ($app) {
 
             //$finder = new OperationFinder($app['em']);
-
+            $withBatches = false;
 
             /** @var QueryBuilder $query */
             $query = $app['em']->createQueryBuilder();
@@ -264,6 +264,32 @@ class OperationController implements ControllerProviderInterface
                             ));
                             $query->setParameter($var, $value);
                             break;
+
+                        case 'status':
+                            switch($value){
+                                case 'cancelled':
+                                    $query->andWhere($query->expr()->isNotNull('operation.cancelledAt'));
+                                    break;
+                                case 'pending':
+                                    $query->andWhere($query->expr()->isNull('operation.cancelledAt'));
+                                    $query->andWhere($query->expr()->isNull('operation.doneAt'));
+                                    break;
+                                case 'done':
+                                    $query->andWhere($query->expr()->isNotNull('operation.doneAt'));
+                                    break;
+                            }
+                            break;
+
+                        case 'sku':
+                            $withBatches = true;
+                            $query->addSelect('batches,product')
+                                ->innerJoin('operation.batches', 'batches')
+                                ->innerJoin('batches.product', 'product')
+                                ->andWhere($query->expr()->in(
+                                    'product.sku',':'.$var
+                                ));
+                            $query->setParameter($var, $value);
+                            break;
                     }
                 }
             }
@@ -271,13 +297,14 @@ class OperationController implements ControllerProviderInterface
             $result = $query->getQuery()->execute();
 
             return new JsonResponse(
-                array_map(function (Operation $op) {
-                    return [
+                array_map(function (Operation $op)use($withBatches) {
+                    $data = [
                         'id' => $op->getId(),
                         'source' => $op->getSource() ? $op->getSource()->getCode() : null,
                         'target' => $op->getTarget() ? $op->getTarget()->getCode() : null,
                         'type' => $op->getType(),
                         'status' => $op->getStatus()->toArray(),
+
                         'location' => $op->getLocation() ? $op->getLocation()->getCode() : null,
                         'contexts' => array_map(function(OperationSet $context){
                             return [
@@ -286,6 +313,10 @@ class OperationController implements ControllerProviderInterface
                             ];
                         }, $op->getOperationSets())
                     ];
+                    if ($withBatches) {
+                        $data['batches'] = $op->getBatches()->toRawArray();
+                    }
+                    return $data;
                 }, $result)
             );
         })->before(new JsonRequest());

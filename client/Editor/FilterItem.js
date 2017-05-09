@@ -62,16 +62,24 @@ module.exports = React.createClass({
                                                   url="/silo/inventory/location/search"
                                                   placeholder="Location..." />;
                 break;
+            case "sku":
+                valuePartial = <AsyncSimpleSelect onChange={this.props.onChange}
+                                                  selected={value || []}
+                                                  url="/silo/inventory/product/search"
+                                                  placeholder="Product..." />;
+                break;
             case "status":
                 valuePartial = <FormControl name={type}
-                                            componentClass="select" placeholder="select"
+                                            componentClass="select"
                                             onChange={this.handleChange}
-                                            selected={value}>
+                                            selected={value}
+                                            placeholder="Status...">
                         <option value="cancelled">cancelled</option>
                         <option value="done">done</option>
                         <option value="pending">pending</option>
                     </FormControl>
                 break;
+
             case "type":
                 valuePartial = <OperationTypeSelect placeholder="Type..."
                                                 onChange={this.props.onChange}
@@ -97,7 +105,9 @@ module.exports = React.createClass({
                             <option value="doneBy">done by</option>
                             <option value="requestedAt">requested at</option>
                             <option value="requestedBy">requested by</option>
+                            <option value="sku">sku</option>
                             <option value="source">source</option>
+                            <option value="status">status</option>
                             <option value="target">target</option>
                             <option value="type">type</option>
                         </FormControl>
