@@ -70,51 +70,47 @@ module.exports = React.createClass({
         return (
             <div className="panel panel-default">
                 <div className="panel-heading nav navbar-default">
-                    <div>
-                        <div>
-                            <ul className="nav navbar-nav">
-                                <li><h4>BatchEditor</h4></li>
-                                <li className="dropdown"><a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">File <span className="caret" /></a>
-                                    <ul className="dropdown-menu">
-                                        { this.props.writable &&
-                                            <li>
-                                                <a onClick={()=>this.setState({showModal: true})}>Open CSV...</a>
-                                                <Modal
-                                                    show={this.state.showModal}
-                                                    onHide={()=>this.setState({showModal:false})}
-                                                    url={this.props.uploadUrl}
-                                                    onSuccess={()=>{
-                                                        this.setState({ showModal: false });
-                                                        this.props.onNeedRefresh();
-                                                    }} />
-                                            </li>
-                                        }
-                                        <li>
-                                            <DownloadDataLink
-                                                filename={this.props.exportFilename}
-                                                exportFile={function(){
-                                                    let header = "product,sku,quantity\n";
-                                                    return header + batches.getAll().map(function(data){
-                                                            return data.product+','+data.name+','+data.quantity
-                                                        }).join("\n")
-                                                }}>
-                                                Save CSV
-                                            </DownloadDataLink>
-                                        </li>
-                                        {this.props.additionalMenu}
-                                    </ul>
+                    <ul className="nav navbar-nav">
+                        <li><h4>BatchEditor</h4></li>
+                        <li className="dropdown"><a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">File <span className="caret" /></a>
+                            <ul className="dropdown-menu">
+                                { this.props.writable &&
+                                    <li>
+                                        <a onClick={()=>this.setState({showModal: true})}>Open CSV...</a>
+                                        <Modal
+                                            show={this.state.showModal}
+                                            onHide={()=>this.setState({showModal:false})}
+                                            url={this.props.uploadUrl}
+                                            onSuccess={()=>{
+                                                this.setState({ showModal: false });
+                                                this.props.onNeedRefresh();
+                                            }} />
+                                    </li>
+                                }
+                                <li>
+                                    <DownloadDataLink
+                                        filename={this.props.exportFilename}
+                                        exportFile={function(){
+                                            let header = "product,sku,quantity\n";
+                                            return header + batches.getAll().map(function(data){
+                                                    return data.product+','+data.name+','+data.quantity
+                                                }).join("\n")
+                                        }}>
+                                        Save CSV
+                                    </DownloadDataLink>
                                 </li>
-
-                                <li><input
-                                    onChange={this._onFilterChange}
-                                    placeholder="Filter by SKU"
-                                    ref="filter"
-                                /></li>
-
-                                <li><span>{batches.getSize()} batches</span></li>
+                                {this.props.additionalMenu}
                             </ul>
-                        </div>
-                    </div>
+                        </li>
+
+                        <li><input
+                            onChange={this._onFilterChange}
+                            placeholder="Filter by SKU"
+                            ref="filter"
+                        /></li>
+
+                        <li><span>{batches.getSize()} batches</span></li>
+                    </ul>
                 </div>
                 {batches.getSize() > 0 ?
                     <Measure onMeasure={(dimensions)=>{this.setState({dimensions});}}>

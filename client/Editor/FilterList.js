@@ -9,9 +9,7 @@ const FilterItem = require('./FilterItem');
 module.exports = React.createClass({
 
     getInitialState: ()=>({
-        filters: [
-            {_type:"source"}
-        ]
+        filters: []
     }),
 
     handleRemove: function(filterKey){
@@ -36,8 +34,12 @@ module.exports = React.createClass({
     },
 
     render: function(){
+        const filters = this.state.filters;
         return <ul className="list-group">
-            {this.state.filters.map((filter, i)=>(
+            {filters.length === 0 &&
+            <li className="list-group-item">No filter</li>
+                }
+            {filters.length > 0 && filters.map((filter, i)=>(
                 <FilterItem key={i}
                             onChange={this.handleChange.bind(this, i)}
                             onRemove={this.handleRemove.bind(this, i)}

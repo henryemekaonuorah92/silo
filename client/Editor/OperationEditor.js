@@ -1,6 +1,7 @@
 ;
 const React = require('react');
 const {Table, Column, Cell} = require('fixed-data-table');
+const {NavDropdown,MenuItem,Navbar,Nav,NavItem} = require('react-bootstrap');
 const Measure = require('react-measure');
 const DataStoreWrapper = require('./DataStoreWrapper');
 const TextCell = require('./TextCell');
@@ -10,6 +11,8 @@ const Link = require('../Factory').Link;
 const FilterList = require('./FilterList');
 const DataStore = require('./DataStore');
 const request = require('superagent');
+const DownloadDataLink = require('../Common/DownloadDataLink');
+
 /**
  * Edit a set of Operations
  * @type {*}
@@ -21,7 +24,8 @@ module.exports = React.createClass({
             height: -1,
         },
         operations : new DataStore([]),
-        filters: []
+        filters: [],
+        showFilter: false
     }),
 
     propTypes: {
@@ -29,18 +33,24 @@ module.exports = React.createClass({
         // siloBasePath: React.PropTypes.string.isRequired
     },
 
+    isStatic : function(){
+        return !!this.props.operations;
+    },
+
     componentDidMount: function () {
-        request
-            .post("/silo/inventory/operation/search")
-            .send({filters: this.state.filters})
-            .set('Accept', 'application/json')
-            .end((err, data) => {
-                if (data.ok) {
-                    this.setState({
-                        operations: new DataStore(data.body)
-                    });
-                }
-            });
+        if(!this.isStatic()) {
+            request
+                .post("/silo/inventory/operation/search")
+                .send({filters: this.state.filters})
+                .set('Accept', 'application/json')
+                .end((err, data) => {
+                    if (data.ok) {
+                        this.setState({
+                            operations: new DataStore(data.body)
+                        });
+                    }
+                });
+        }
     },
 
     handleFilterChange: function(filters){
@@ -48,22 +58,43 @@ module.exports = React.createClass({
     },
 
     render: function(){
-        let operations = this.state.operations;
+        let operations = this.props.operations || this.state.operations;
         return (
             <div className="panel panel-default">
-                <div className="panel-heading nav navbar-default">
-                    <div>
-                        <div>
-                            <ul className="nav navbar-nav">
-                                <li><h4>OperationEditor</h4></li>
-                                <li><span>{operations.getSize()} operations</span></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
 
-                <FilterList onFilterChange={this.handleFilterChange} />
+                <Navbar>
+                    <Navbar.Header>
+                        <Navbar.Brand>
+                            OperationEditor
+                        </Navbar.Brand>
+                    </Navbar.Header>
 
+                    <Nav>
+                        <NavDropdown title="File" id="basic-nav-dropdown">
+                            <li>
+                                <DownloadDataLink
+                                    filename={this.props.exportFilename}
+                                    exportFile={function(){
+                                        let header = "product,sku,quantity\n";
+                                        return header + batches.getAll().map(function(data){
+                                                return data.product+','+data.name+','+data.quantity
+                                            }).join("\n")
+                                    }}
+                                    style={{cursor: "pointer"}}>
+                                    Save CSV
+                                </DownloadDataLink>
+                            </li>
+                        </NavDropdown>
+                        <NavItem onClick={()=>{this.setState({showFilter: !this.state.showFilter});}}>Filter</NavItem>
+                        <Navbar.Text pullRight>
+                            {operations.getSize()} operations
+                        </Navbar.Text>
+                    </Nav>
+                </Navbar>
+
+                {this.isStatic() || this.state.showFilter &&
+                    <FilterList onFilterChange={this.handleFilterChange} />
+                }
                 {operations.getSize() > 0 ?
                     <Measure onMeasure={(dimensions)=>{this.setState({dimensions});}}>
                         <div className="panel-body panel-body_noPadding">

@@ -16,7 +16,7 @@ const App = React.createClass({
     }),
 
     routes: {
-        '': 'home',
+        '': 'sink',
         'operations': 'operations',
         'operation/:id': 'operation',
         'location/:id': 'location',
@@ -30,6 +30,7 @@ const App = React.createClass({
         operation: require('./Operation'),
         location: require('./Location'),
         product: require('./Product'),
+        sink: require('./View/Sink'),
         notfound: (props)=>(<div>Not found</div>)
     },
 

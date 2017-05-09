@@ -21,19 +21,32 @@
 Using default Bootstrap 3 classes we zero out the top and
 bottom padding .panel-heading ususally needs
 */
-.panel-heading.nav.navbar-default{padding-top:0px;padding-bottom:0px;}
+.panel-default nav.navbar-default{padding-top:0px;padding-bottom:0px;}
+
+.panel-default nav {
+  .container {
+    width: auto;
+  }
+  .panel-heading;
+
+}
+
+.panel-default .navbar {
+  margin-bottom: 0;
+  padding: 0;
+}
 
 /*
 Reintroduce 20px for .panel-title when a navbar is within .panel-heading.
 This can be put back to @line-height-computed; in your LESS file which
 is the default in type.less */
-.panel-heading.nav.navbar-default h3{margin-top:20px;}
-.panel-heading.nav.navbar-default h4{margin-top:15px;}
+.panel-default nav.navbar-default h3{margin-top:20px;}
+.panel-default nav.navbar-default h4{margin-top:15px;}
 
 
-.panel-heading .nav.navbar-nav.navbar-right h4{padding-bottom:0px;margin-bottom:0px;padding-top:0px;margin-top:0px;}
+.panel-default nav.navbar-nav.navbar-right h4{padding-bottom:0px;margin-bottom:0px;padding-top:0px;margin-top:0px;}
 
-.panel-heading .nav.navbar-nav a{
+.panel-default nav.navbar-nav a{
   cursor: pointer;
   &:hover {
     background-color: #cccccc;
