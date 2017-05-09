@@ -191,7 +191,6 @@ class OperationController implements ControllerProviderInterface
          */
         // @todo test This
         $controllers->post('/search', function (Request $request) use ($app) {
-
             //$finder = new OperationFinder($app['em']);
             $withBatches = false;
 

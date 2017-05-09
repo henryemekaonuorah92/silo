@@ -1,7 +1,7 @@
 ;
 const React = require('react');
 const {Table, Column, Cell} = require('fixed-data-table');
-const {NavDropdown,MenuItem,Navbar,Nav,NavItem} = require('react-bootstrap');
+const {NavDropdown,MenuItem,Navbar,Nav,NavItem,Glyphicon} = require('react-bootstrap');
 const Measure = require('react-measure');
 const DataStoreWrapper = require('./DataStoreWrapper');
 const TextCell = require('./TextCell');
@@ -25,7 +25,9 @@ module.exports = React.createClass({
         },
         operations : new DataStore([]),
         filters: [],
-        showFilter: false
+        showFilter: false,
+        wip: false,
+        error: null
     }),
 
     propTypes: {
@@ -39,14 +41,26 @@ module.exports = React.createClass({
 
     componentDidMount: function () {
         if(!this.isStatic()) {
+            this.setState({wip:true, error: null});
             request
                 .post("/silo/inventory/operation/search")
                 .send({filters: this.state.filters})
                 .set('Accept', 'application/json')
                 .end((err, data) => {
-                    if (data.ok) {
+                    if (err) {
                         this.setState({
-                            operations: new DataStore(data.body)
+                            wip: false,
+                            error: true
+                        });
+                    } else if (data) {
+                        this.setState({
+                            operations: new DataStore(data.body),
+                            wip:false
+                        });
+                    } else {
+                        this.setState({
+                            wip: false,
+                            error: true
                         });
                     }
                 });
@@ -112,7 +126,8 @@ module.exports = React.createClass({
                         </NavDropdown>
                         <NavItem onClick={()=>{this.setState({showFilter: !this.state.showFilter});}}>Filter</NavItem>
                         <Navbar.Text pullRight>
-                            {operations.getSize()} operations
+                            {this.state.error && <span className="text-danger"><Glyphicon glyph="warning-sign" />Error while loading</span>}
+                            &nbsp;{operations.getSize()} operations
                         </Navbar.Text>
                     </Nav>
                 </Navbar>
@@ -213,7 +228,9 @@ module.exports = React.createClass({
                                 </Table>
                             )}
                         </div>
-                    </Measure> : <div className="panel-body">Fetching or no data...</div>
+                    </Measure> : <div className="panel-body">
+                        {this.state.wip ? "Loading" : "No data"}
+                    </div>
                 }
             </div>
         );
