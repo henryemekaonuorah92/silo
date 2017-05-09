@@ -57,6 +57,7 @@ module.exports = React.createClass({
             //     break;
             case "source":
             case "target":
+            case "location":
                 valuePartial = <AsyncSimpleSelect onChange={this.props.onChange}
                                                   selected={value || []}
                                                   url="/silo/inventory/location/search"
@@ -103,6 +104,7 @@ module.exports = React.createClass({
                             <option value="cancelledBy">cancelled by</option>
                             <option value="doneAt">done at</option>
                             <option value="doneBy">done by</option>
+                            <option value="location">location</option>
                             <option value="requestedAt">requested at</option>
                             <option value="requestedBy">requested by</option>
                             <option value="sku">sku</option>

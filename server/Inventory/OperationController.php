@@ -236,6 +236,15 @@ class OperationController implements ControllerProviderInterface
                             $query->setParameter($var, $value);
                             break;
 
+                        case 'location':
+                            $query->andWhere($query->expr()->orX(
+                                'source.code = :'.$var,
+                                'target.code = :'.$var,
+                                'location.code = :'.$var
+                            ));
+                            $query->setParameter($var, $value);
+                            break;
+
                         // Luckily, available "By" are the right type already
                         case 'doneBy':
                         case 'cancelledBy':

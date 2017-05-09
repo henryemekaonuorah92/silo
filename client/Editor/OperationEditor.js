@@ -57,6 +57,32 @@ module.exports = React.createClass({
         this.setState({filters:filters}, this.componentDidMount);
     },
 
+    prepareExport: function(){
+        let operations = this.props.operations || this.state.operations;
+        let header = "operationId,type,source,target,location,sku,quantity"+
+            "requestedAt,requestedBy,cancelledAt,cancelledBy,doneAt,doneBy,contextId\n";
+        return header + operations.getAll().map(function(op){
+                let batch = op.batches && op.batches.pop()
+                return [
+                    op.id,
+                    op.type,
+                    op.source,
+                    op.target,
+                    op.location,
+                    batch && batch.product,
+                    batch && batch.quantity,
+                    op.status.requestedAt,
+                    op.status.requestedBy,
+                    op.status.cancelledAt,
+                    op.status.cancelledBy,
+                    op.status.doneAt,
+                    op.status.doneBy,
+                    op.contexts.map(ctx=>ctx.id).join(' ')
+                ].join(',')
+            }).join("\n")
+
+    },
+
     render: function(){
         let operations = this.props.operations || this.state.operations;
 
@@ -77,15 +103,10 @@ module.exports = React.createClass({
                         <NavDropdown title="File" id="basic-nav-dropdown">
                             <li>
                                 <DownloadDataLink
-                                    filename={this.props.exportFilename}
-                                    exportFile={function(){
-                                        let header = "product,sku,quantity\n";
-                                        return header + batches.getAll().map(function(data){
-                                                return data.product+','+data.name+','+data.quantity
-                                            }).join("\n")
-                                    }}
+                                    filename="operationExport.csv"
+                                    exportFile={this.prepareExport}
                                     style={{cursor: "pointer"}}>
-                                    Save CSV
+                                    Save as CSV
                                 </DownloadDataLink>
                             </li>
                         </NavDropdown>
