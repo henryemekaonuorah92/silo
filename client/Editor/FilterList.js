@@ -17,19 +17,23 @@ module.exports = React.createClass({
         w.splice(filterKey, 1);
         this.setState({filters: w});
     },
-    handleChange: function(filterKey, property, value){
+    handleChange: function(filterKey, value){
         let w = this.state.filters;
-        w[filterKey][property] = value;
+        w[filterKey]['value'] = value;
         this.setState({filters: w});
-
-        console.log(w);
+    },
+    handleTypeChange: function(filterKey, type){
+        let w = this.state.filters;
+        w[filterKey]['type'] = type;
+        this.setState({filters: w});
     },
     handleAdd: function(){
         let w = this.state.filters;
-        w.push({_type:"source"});
+        w.push({type:"cancelledAt", value:null});
         this.setState({filters: w});
     },
     handleApply: function(){
+        console.log("Filtering", this.state.filters);
         this.props.onFilterChange(this.state.filters);
     },
 
@@ -42,8 +46,10 @@ module.exports = React.createClass({
             {filters.length > 0 && filters.map((filter, i)=>(
                 <FilterItem key={i}
                             onChange={this.handleChange.bind(this, i)}
+                            onTypeChange={this.handleTypeChange.bind(this, i)}
                             onRemove={this.handleRemove.bind(this, i)}
-                            definition={filter} />
+                            type={filter.type}
+                            value={filter.value} />
             ))}
             <li className="list-group-item">
                 <Button bsStyle="default" bsSize="xs" onClick={this.handleAdd}>Add filter</Button>&nbsp;

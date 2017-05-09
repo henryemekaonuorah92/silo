@@ -9,7 +9,7 @@ module.exports = React.createClass({
     displayName: 'Form/DateRange',
 
     propTypes: {
-        onChange: React.PropTypes.func, // (moment newStartDate, moment newEndDate)=>...
+        onChange: React.PropTypes.func,
         startDate: React.PropTypes.object,
         endDate: React.PropTypes.object
     },
@@ -26,7 +26,7 @@ module.exports = React.createClass({
     },
 
     render: function(){
-        const rest = {};
+        //const rest = {};
         //Object.assign({}, this.props);
         //Object.getOwnPropertyNames(this.propTypes).map((name)=>{delete rest[name];});
 
@@ -54,7 +54,7 @@ module.exports = React.createClass({
             </Popover>
         );
         return (
-            <OverlayTrigger trigger="click" placement="bottom" {...rest} overlay={popover}>
+            <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
                 <Button className="selected-date-range-btn">
                     <div className="pull-left"><Glyphicon glyph="calendar" /></div>
                     <div className="pull-right">

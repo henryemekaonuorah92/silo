@@ -2,6 +2,7 @@
 
 namespace Silo\Inventory;
 
+use Doctrine\ORM\QueryBuilder;
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Silo\Base\JsonRequest;
@@ -194,7 +195,7 @@ class OperationController implements ControllerProviderInterface
             //$finder = new OperationFinder($app['em']);
 
 
-
+            /** @var QueryBuilder $query */
             $query = $app['em']->createQueryBuilder();
             $query->select('operation, source, target, type, context, location,doneBy,requestedBy,cancelledBy')
                 ->from('Inventory:Operation', 'operation')
@@ -223,7 +224,8 @@ class OperationController implements ControllerProviderInterface
             if(is_array($filters)) {
                 for($i=0;$i<count($filters);$i++){
                     $filter = $filters[$i];
-                    $type = $filter['_type'];
+                    $type = $filter['type'];
+                    $value = $filter['value'];
                     $var = $type.$i; // a query parameter unique name
                     switch ($type) {
                         case 'target':
@@ -231,15 +233,36 @@ class OperationController implements ControllerProviderInterface
                             $query->andWhere($query->expr()->in(
                                 'source.code',':'.$var
                             ));
-                            $query->setParameter($var, $filter[$type]);
+                            $query->setParameter($var, $value);
                             break;
+
+                        // Luckily, available "By" are the right type already
                         case 'doneBy':
                         case 'cancelledBy':
                         case 'requestedBy':
                             $query->andWhere($query->expr()->in(
                                 $type.'.name',':'.$var
                             ));
-                            $query->setParameter($var, $filter[$type]);
+                            $query->setParameter($var, $value);
+                            break;
+
+                        case 'doneAt':
+                        case 'cancelledAt':
+                        case 'requestedAt':
+                            $startDate = new \DateTime($value['startDate']);
+                            $endDate = new \DateTime($value['endDate']);
+                            $query->andWhere($query->expr()->between(
+                                'operation.'.$type,':start'.$var, ':end'.$var
+                            ));
+                            $query->setParameter(':start'.$var, $startDate->setTime(0,0,0)->format('Y-m-d H:i:s'));
+                            $query->setParameter(':end'.$var, $endDate->setTime(23,59,59)->format('Y-m-d H:i:s'));
+                            break;
+
+                        case 'type':
+                            $query->andWhere($query->expr()->in(
+                                'type.name',':'.$var
+                            ));
+                            $query->setParameter($var, $value);
                             break;
                     }
                 }
