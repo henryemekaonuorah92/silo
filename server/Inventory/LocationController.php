@@ -178,7 +178,7 @@ class LocationController implements ControllerProviderInterface
          */
         $controllers->patch('/{location}/child', function (Location $location, Request $request) use ($app) {
             $locations = $app['em']->getRepository('Inventory:Location');
-
+            $type = $app['em']->getRepository('Inventory:OperationType')->getByName('parent assign');
             $operations = [];
             foreach ($request->request->all() as $childCode) {
                 $child = $locations->forceFindOneByCode($childCode);
@@ -190,6 +190,7 @@ class LocationController implements ControllerProviderInterface
 
                 $op = new Operation($app['current_user'], $child->getParent(), $location, $child);
                 $app['OperationValidator']->assertValid($op);
+                $op->setType($type);
                 array_push($operations, $op);
 
                 $app['em']->persist($op);
