@@ -52,6 +52,18 @@ class ProductController implements ControllerProviderInterface
             ), Response::HTTP_ACCEPTED);
         });
 
+        $controllers->get('/all', function()use($app){
+            $query = $app['em']->createQueryBuilder();
+            $query->select('Product.sku')
+                ->from('Inventory:Product', 'Product');
+
+            $results = $query->getQuery()->getArrayResult();
+            $response = new JsonResponse(array_map(function($r){return $r['sku'];}, $results));
+            $response->setMaxAge(3600);
+
+            return $response;
+        });
+
         /*
          * Inspect a Product given its sku
          */
