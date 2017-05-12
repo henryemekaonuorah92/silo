@@ -49,6 +49,21 @@ class OperationFinder extends \Silo\Inventory\Finder\AbstractFinder
         return $this;
     }
 
+    public function manipulating(Location $location)
+    {
+        $this->getQuery()
+            ->andWhere($this->getQuery()->expr()->orX(
+                'o.location = :manipulating',
+                'o.target = :manipulating',
+                'o.source = :manipulating'
+
+            ))
+            ->setParameter('manipulating', $location)
+        ;
+
+        return $this;
+    }
+
     /**
      * @return $this
      */
