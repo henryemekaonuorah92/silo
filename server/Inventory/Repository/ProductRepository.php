@@ -26,12 +26,14 @@ class ProductRepository extends EntityRepository
     public function batchFromMap ($map)
     {
         $batches = new BatchCollection();
-        foreach ($map as $sku => $qty) {
-            $product = $this->cachedFindOneBySku($sku);
-            if (!$product) {
-                throw new Exception("No such Product:$sku");
+        if (is_array($map)) {
+            foreach ($map as $sku => $qty) {
+                $product = $this->cachedFindOneBySku($sku);
+                if (!$product) {
+                    throw new Exception("No such Product:$sku");
+                }
+                $batches->addProduct($product, $qty);
             }
-            $batches->addProduct($product, $qty);
         }
 
         return $batches;
