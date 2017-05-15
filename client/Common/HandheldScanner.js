@@ -34,8 +34,12 @@ module.exports = React.createClass({
     },
 
     handleManualInput: function(){
-        this.props.onScan(this.manualInput.value.trim());
-        this.manualInput.value = null;
+        let data = this.manualInput.value.trim();
+        if (data.length > 0) {
+            console.log("Scan", data);
+            this.props.onScan(data);
+            this.manualInput.value = null;
+        }
     },
 
     handleKeyPress: function(e) {
