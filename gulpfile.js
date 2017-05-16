@@ -9,10 +9,16 @@ var vendors = [
     "bootstrap",
     "fixed-data-table",
     "moment",
+    "moment-timezone",
+    "prop-types",
     "react",
     "react-addons-shallow-compare",
     "react-bootstrap",
+    "react-bootstrap-switch",
+    "react-bootstrap-typeahead",
+    "react-date-range",
     "react-dom",
+    "react-emoji",
     "react-measure",
     "superagent"
 ];
