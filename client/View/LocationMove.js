@@ -2,9 +2,9 @@
 const React = require('react');
 const HandheldScanner = require('../Common/HandheldScanner');
 const AjaxButton = require('../Common/AjaxButton');
-const Success = require('./Success');
-const Error = require('./Error');
-const Pending = require('./Pending');
+const Success = require('../Common/Success');
+const Error = require('../Common/Error');
+const Pending = require('../Common/Pending');
 const CloseButton = require('../Common/CloseButton');
 const {Row, Col, Well} = require('react-bootstrap');
 

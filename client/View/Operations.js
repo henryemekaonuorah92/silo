@@ -1,9 +1,9 @@
 ;
 const React = require('react');
 const {Row, Col, Button, Glyphicon} = require('react-bootstrap');
-const OperationEditor = require('./Editor/OperationEditor');
-const Modal = require('./Modal/OperationUploadModal');
-const BatchModal = require('./Modal/BatchUploadModal');
+const OperationEditor = require('../Editor/OperationEditor');
+const Modal = require('../Modal/OperationUploadModal');
+const BatchModal = require('../Modal/BatchUploadModal');
 
 // @todo put some proofing in operation screen (no null loca)
 module.exports = React.createClass({

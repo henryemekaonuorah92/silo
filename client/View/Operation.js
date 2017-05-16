@@ -1,8 +1,8 @@
 ;
 const React = require('react');
-const BatchEditor = require('./Editor/BatchEditor');
-const DataStore = require('./Editor/DataStore');
-const Link = require('./Factory').Link;
+const BatchEditor = require('../Editor/BatchEditor');
+const DataStore = require('../Editor/DataStore');
+const Link = require('../Factory').Link;
 const request = require('superagent');
 
 module.exports = React.createClass({

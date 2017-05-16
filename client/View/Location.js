@@ -1,10 +1,10 @@
 ;
 const React = require('react');
-const BatchEditor = require('./Editor/BatchEditor');
-const OperationEditor = require('./Editor/OperationEditor');
-const DataStore = require('./Editor/DataStore');
-const ModifierEditor = require('./ModifierEditor');
-const Link = require('./Factory').Link;
+const BatchEditor = require('../Editor/BatchEditor');
+const OperationEditor = require('../Editor/OperationEditor');
+const DataStore = require('../Editor/DataStore');
+const ModifierEditor = require('../Editor/ModifierEditor');
+const Link = require('../Factory').Link;
 
 module.exports = React.createClass({
 
