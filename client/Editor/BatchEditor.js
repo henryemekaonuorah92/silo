@@ -7,6 +7,8 @@ const DownloadDataLink = require('../Common/DownloadDataLink');
 const Modal = require('../Modal/BatchUploadModal');
 const TextCell = require('./TextCell');
 const Link = require('../Factory').Link;
+const {Navbar, NavText, NavForm} = require('./Editor');
+const {NavDropdown, FormGroup} = require('react-bootstrap');
 
 /**
  * Edit a set of Batches
@@ -69,49 +71,50 @@ module.exports = React.createClass({
         let batches = this.state.filteredDataList || this.props.batches;
         return (
             <div className="panel panel-default">
-                <div className="panel-heading nav navbar-default">
-                    <ul className="nav navbar-nav">
-                        <li><h4>BatchEditor</h4></li>
-                        <li className="dropdown"><a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">File <span className="caret" /></a>
-                            <ul className="dropdown-menu">
-                                { this.props.writable &&
-                                    <li>
-                                        <a onClick={()=>this.setState({showModal: true})}>Open CSV...</a>
-                                        <Modal
-                                            show={this.state.showModal}
-                                            onHide={()=>this.setState({showModal:false})}
-                                            url={this.props.uploadUrl}
-                                            onSuccess={()=>{
-                                                this.setState({ showModal: false });
-                                                this.props.onNeedRefresh();
-                                            }} />
-                                    </li>
-                                }
-                                <li>
-                                    <DownloadDataLink
-                                        filename={this.props.exportFilename}
-                                        exportFile={function(){
-                                            let header = "product,sku,quantity\n";
-                                            return header + batches.getAll().map(function(data){
-                                                    return data.product+','+data.name+','+data.quantity
-                                                }).join("\n")
-                                        }}>
-                                        Save CSV
-                                    </DownloadDataLink>
-                                </li>
-                                {this.props.additionalMenu}
-                            </ul>
+
+                <Navbar title="BatchEditor">
+                    <NavDropdown title="File" id="basic-nav-dropdown">
+                        { this.props.writable &&
+                        <li>
+                            <a onClick={()=>this.setState({showModal: true})}>Open CSV...</a>
+                            <Modal
+                                show={this.state.showModal}
+                                onHide={()=>this.setState({showModal:false})}
+                                url={this.props.uploadUrl}
+                                onSuccess={()=>{
+                                    this.setState({ showModal: false });
+                                    this.props.onNeedRefresh();
+                                }} />
                         </li>
+                        }
+                        <li>
+                            <DownloadDataLink
+                                filename={this.props.exportFilename}
+                                exportFile={function(){
+                                    let header = "product,sku,quantity\n";
+                                    return header + batches.getAll().map(function(data){
+                                            return data.product+','+data.name+','+data.quantity
+                                        }).join("\n")
+                                }}>
+                                Save CSV
+                            </DownloadDataLink>
+                        </li>
+                        {this.props.additionalMenu}
+                    </NavDropdown>
+                    <NavForm pullLeft>
+                        <FormGroup>
+                            <input
+                                onChange={this._onFilterChange}
+                                placeholder="Filter by SKU"
+                                ref="filter"
+                            />
+                        </FormGroup>
+                    </NavForm>
+                    <NavText pullRight>
+                        {batches.getSize()} batches
+                    </NavText>
+                </Navbar>
 
-                        <li><input
-                            onChange={this._onFilterChange}
-                            placeholder="Filter by SKU"
-                            ref="filter"
-                        /></li>
-
-                        <li><span>{batches.getSize()} batches</span></li>
-                    </ul>
-                </div>
                 {batches.getSize() > 0 ?
                     <Measure onMeasure={(dimensions)=>{this.setState({dimensions});}}>
                         <div className="panel-body panel-body_noPadding">

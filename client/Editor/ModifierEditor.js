@@ -1,6 +1,7 @@
 ;
 const React = require('react');
 const {Popover} = require('react-bootstrap');
+const {Navbar} = require('./Editor');
 
 module.exports = React.createClass({
 
@@ -51,15 +52,7 @@ module.exports = React.createClass({
     render: function(){
         return (
             <div className="panel panel-default">
-                <div className="panel-heading nav navbar-default">
-                    <div>
-                        <div>
-                            <ul className="nav navbar-nav">
-                                <li><h4>ModifierEditor</h4></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+                <Navbar title="ModifierEditor"/>
 
                 <div className="panel-body">
                     {this.state.modifiers.map(function(modifier, key){

@@ -1,7 +1,7 @@
 ;
 const React = require('react');
 const {Table, Column, Cell} = require('fixed-data-table');
-const {NavDropdown,MenuItem,Navbar,Nav,NavItem,Glyphicon} = require('react-bootstrap');
+const {NavDropdown,NavItem,Glyphicon} = require('react-bootstrap');
 const Measure = require('react-measure');
 const DataStoreWrapper = require('./DataStoreWrapper');
 const TextCell = require('./TextCell');
@@ -12,6 +12,7 @@ const FilterList = require('./FilterList');
 const DataStore = require('./DataStore');
 const request = require('superagent');
 const DownloadDataLink = require('../Common/DownloadDataLink');
+const {Navbar, NavText} = require('./Editor');
 
 /**
  * Edit a set of Operations
@@ -106,30 +107,22 @@ module.exports = React.createClass({
         return (
             <div className="panel panel-default">
 
-                <Navbar>
-                    <Navbar.Header>
-                        <Navbar.Brand>
-                            OperationEditor
-                        </Navbar.Brand>
-                    </Navbar.Header>
-
-                    <Nav>
-                        <NavDropdown title="File" id="basic-nav-dropdown">
-                            <li>
-                                <DownloadDataLink
-                                    filename="operationExport.csv"
-                                    exportFile={this.prepareExport}
-                                    style={{cursor: "pointer"}}>
-                                    Save as CSV
-                                </DownloadDataLink>
-                            </li>
-                        </NavDropdown>
-                        <NavItem onClick={()=>{this.setState({showFilter: !this.state.showFilter});}}>Filter</NavItem>
-                        <Navbar.Text pullRight>
-                            {this.state.error && <span className="text-danger"><Glyphicon glyph="warning-sign" />Error while loading</span>}
-                            &nbsp;{operations.getSize()} operations
-                        </Navbar.Text>
-                    </Nav>
+                <Navbar title="OperationEditor">
+                    <NavDropdown title="File" id="basic-nav-dropdown">
+                        <li>
+                            <DownloadDataLink
+                                filename="operationExport.csv"
+                                exportFile={this.prepareExport}
+                                style={{cursor: "pointer"}}>
+                                Save as CSV
+                            </DownloadDataLink>
+                        </li>
+                    </NavDropdown>
+                    <NavItem onClick={()=>{this.setState({showFilter: !this.state.showFilter});}}>Filter</NavItem>
+                    <NavText pullRight>
+                        {this.state.error && <span className="text-danger"><Glyphicon glyph="warning-sign" />Error while loading</span>}
+                        &nbsp;{operations.getSize()} operations
+                    </NavText>
                 </Navbar>
 
                 {this.isStatic() || this.state.showFilter &&
