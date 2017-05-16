@@ -1,5 +1,5 @@
 ![Logo](./silo.png)
-
+[![Build Status](https://travis-ci.org/frankandoak/silo.svg?branch=master)](https://travis-ci.org/frankandoak/silo)
 # Silo
 Simple yet powerful Warehouse Managment System. Daily used by Frank + Oak.
 
