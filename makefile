@@ -28,6 +28,9 @@ test: reports
 	rm -rf reports/*
 	php bin/behat -f progress,junit --out ,reports
 
+release.zip:
+	zip release.zip bin client features less public server vendor composer.json composer.lock gulpfile.js LICENSE makefile package.json README.md
+
 #
 # Sub targets
 #

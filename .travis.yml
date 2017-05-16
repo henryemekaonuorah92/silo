@@ -1,16 +1,27 @@
 language: php
 php:
-  - '5.4'
-  - '5.5'
+#  - '5.5'
   - '5.6'
-  - '7.0'
-  - '7.1'
-  - hhvm
-  - nightly
+#  - '7.0'
+#  - '7.1'
+#  - hhvm
+#  - nightly
 
 before_install:
   - composer install
   - npm install
 
 script:
-  - ./bin/behat
+  - ./vendor/behat/behat/bin/behat
+  - ./node_modules/gulp/bin/gulp.js build
+  - make release.zip
+  - mv release.zip release-$TRAVIS_PHP_VERSION.zip
+
+deploy:
+  provider: releases
+  api_key: ${GITHUB_OAUTH_TOKEN}
+  file: release-$TRAVIS_PHP_VERSION.zip
+  skip_cleanup: true
+  on:
+    tags: true
+    php: 5.6
