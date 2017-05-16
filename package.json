@@ -8,6 +8,7 @@
   "author": "",
   "dependencies": {
     "ampersand-router": "^4.0.0",
+    "babelify": "^7.3.0",
     "bootstrap": "^3.3.7",
     "fixed-data-table": "^0.6.3",
     "gulp-less": "^3.3.0",
