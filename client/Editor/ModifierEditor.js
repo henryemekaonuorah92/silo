@@ -1,24 +1,24 @@
 ;
 const React = require('react');
-const {Popover} = require('react-bootstrap');
+const {NavItem} = require('react-bootstrap');
+const {Navbar} = require('./Editor');
+const ModifierModal = require('../Modal/ModifierModal');
 
 module.exports = React.createClass({
 
     getInitialState: function () {
         return {
             modifiers: [],
-        };
-    },
-
-    getDefaultProps: function() {
-        return {
-
+            showModal: false
         };
     },
 
     propTypes: {
         endpoint: React.PropTypes.string.isRequired,
         cache: React.PropTypes.object.isRequired,
+        /**
+         * An object that knows what are the existing modifiers
+         */
         modifierFactory: React.PropTypes.object.isRequired
     },
 
@@ -38,38 +38,43 @@ module.exports = React.createClass({
         this.props.cache.cleanup('operation/'+this.props.id);
     },
 
-    getPopover: function() {
-        return null;
-        return (<Popover id="popover-positioned-left" title="Add a new Modifier">
-            Select one of the following modifier:<br />
-        <button className="btn btn-default">Store</button><br />
-            <button className="btn btn-default">USink</button><br />
-            <button className="btn btn-default">USource</button>
-            </Popover>);
-    },
-
     render: function(){
+        let modifiers = this.state.modifiers;
         return (
             <div className="panel panel-default">
-                <div className="panel-heading nav navbar-default">
-                    <div>
-                        <div>
-                            <ul className="nav navbar-nav">
-                                <li><h4>ModifierEditor</h4></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+                <ModifierModal show={this.state.showModal}
+                               onHide={()=>this.setState({showModal:false})}
+                               modifierFactory={this.props.modifierFactory}/>
 
-                <div className="panel-body">
-                    {this.state.modifiers.map(function(modifier, key){
-                        return (
-                            <div key={key}>
-                                {this.props.modifierFactory.make(modifier.name, modifier.value, this.props)}
-                            </div>
-                        );
-                    }.bind(this))}
-                </div>
+                <Navbar title="ModifierEditor">
+                    <NavItem onClick={()=>{this.setState({showModal: !this.state.showModal});}}>Add</NavItem>
+                </Navbar>
+
+                <table className="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            {modifiers.length ? modifiers.map((modifier)=>{
+                                let partial = this.props.modifierFactory.getView(modifier.name);
+                                let rest = {};
+                                if (! partial) {
+                                    partial = () => <span>{modifier.name}</span>;
+                                } else {
+                                    rest = Object.assign({}, this.props);
+                                    rest.value = modifier.value;
+                                }
+
+                                return <tr key={modifier.name}>
+                                    <td>{modifier.name}</td>
+                                    <td>{React.createElement(partial, rest)}</td>
+                                </tr>
+                            }) : <tr><td colSpan={2}>No Modifiers</td></tr>}
+                    </tbody>
+                </table>
             </div>
         );
     }
