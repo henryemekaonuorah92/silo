@@ -2,6 +2,7 @@
 
 namespace Silo\Inventory\Finder;
 
+use Silo\Inventory\Collection\ArrayCollection;
 use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation;
 use Silo\Inventory\Model\OperationType;
@@ -20,6 +21,20 @@ class OperationFinder extends \Silo\Inventory\Finder\AbstractFinder
         $this->getQuery()
             ->andWhere('o.target = :to')
             ->setParameter('to', $location)
+        ;
+
+        return $this;
+    }
+
+    /**
+     * @param Location $location
+     * @return $this
+     */
+    public function toLocations(ArrayCollection $locations)
+    {
+        $this->getQuery()
+            ->andWhere($this->getQuery()->expr()->in('o.target', ':locations'))
+            ->setParameter('locations', $locations)
         ;
 
         return $this;
@@ -77,6 +92,18 @@ class OperationFinder extends \Silo\Inventory\Finder\AbstractFinder
         return $this;
     }
 
+    /**
+     * @return $this
+     */
+    public function isDone()
+    {
+        $this->getQuery()
+            ->andWhere($this->getQuery()->expr()->isNotNull('o.doneAt'))
+        ;
+
+        return $this;
+    }
+
     public function isOlderThan(\DateTime $time)
     {
         $this->getQuery()
@@ -92,6 +119,17 @@ class OperationFinder extends \Silo\Inventory\Finder\AbstractFinder
         $this->getQuery()
             ->andWhere($this->getQuery()->expr()->gte('o.requestedAt', ':newerThan'))
             ->setParameter('newerThan', $time->format('Y-m-d H:i:s'))
+        ;
+
+        return $this;
+    }
+
+    public function requestedBetween(\DateTime $start, \DateTime $end)
+    {
+        $this->getQuery()
+            ->andWhere($this->getQuery()->expr()->between('o.requestedAt', ':start', ':end'))
+            ->setParameter('start', $start->format('Y-m-d H:i:s'))
+            ->setParameter('end', $end->format('Y-m-d H:i:s'))
         ;
 
         return $this;
@@ -153,6 +191,12 @@ class OperationFinder extends \Silo\Inventory\Finder\AbstractFinder
             ->leftJoin('o.operationSets', 'operationSet')
             ->orderBy('o.requestedAt', 'DESC');
 
+        if ($this->loadBatches) {
+            $this->getQuery()
+                ->addSelect('batches')
+                ->innerJoin('o.batches', 'batches');
+        }
+
         return $this->getQuery()->getQuery()->getResult();
     }
 
@@ -176,6 +220,15 @@ class OperationFinder extends \Silo\Inventory\Finder\AbstractFinder
         $this->getQuery()
             ->andWhere($this->getQuery()->expr()->in('o.id', ':ids'))
             ->setParameter('ids', $ids);
+
+        return $this;
+    }
+
+    private $loadBatches = false;
+
+    public function withBatches()
+    {
+        $this->loadBatches = true;
 
         return $this;
     }
