@@ -217,9 +217,10 @@ class FeatureContext extends BehatContext
      */
     public function isExecuted($ref)
     {
-        $op = $this->getRef($ref);
+        $op = $this->em->find('Inventory:Operation', $this->getRef($ref));
         $op->execute($this->getRef('User'));
         $this->app['em']->flush();
+        sleep(1);
     }
 
     // Check type
@@ -247,5 +248,18 @@ class FeatureContext extends BehatContext
         $op = $this->getRef($ref);
         $op->setType($type);
         $this->app['em']->flush();
+    }
+
+    /**
+     * @Then /^Playbacker for (.+) at "([^"]*)" gives:$/
+     */
+    public function playbackerAtGives($code, $opRef, TableNode $table)
+    {
+        $location = $this->em->getRepository('Inventory:Location')->forceFindOneByCode($code);
+        $op = $this->em->getRepository('Inventory:Operation')->find($this->getRef($opRef));;
+        $found = $this->app['Playbacker']->getBatchesAt($location, $op->getStatus()->getRequestedAt());
+        $expected = $this->tableNodeToProductQuantities($table);
+
+        $this->getSubcontext('then')->exclusiveDiff($expected, $found);
     }
 }

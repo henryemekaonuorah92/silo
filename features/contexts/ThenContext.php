@@ -29,7 +29,7 @@ class ThenContext extends BehatContext implements AppAwareContextInterface
         );
     }
 
-    private function exclusiveDiff($expecteds, $currents)
+    public function exclusiveDiff($expecteds, $currents)
     {
         foreach ($currents as $current) {
             if (!$expecteds->contains($current)) {

@@ -11,6 +11,7 @@ use Silo\Inventory\Model\User;
 use Silo\Inventory\OperationValidator;
 use Silo\Inventory\ProductProviderInterface;
 use Silo\Inventory\UserController;
+use Silo\Inventory\Playbacker;
 use Symfony\Component\Debug\ErrorHandler;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -86,6 +87,12 @@ class Silo extends \Silex\Application
                 $app['validator'],
                 isset($app['skuTransformer']) ? $app['skuTransformer'] : null
             );
+        };
+
+        $app['Playbacker'] = function () use ($app) {
+            $s = new Playbacker();
+            $s->setEntityManager($app['em']);
+            return $s;
         };
 
         $app->mount('/silo/inventory/location', new \Silo\Inventory\LocationController());

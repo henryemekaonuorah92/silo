@@ -197,6 +197,14 @@ class OperationFinder extends \Silo\Inventory\Finder\AbstractFinder
                 ->innerJoin('o.batches', 'batches');
         }
 
+        if ($this->loadLocations) {
+            $this->getQuery()
+                ->addSelect('target, source, location')
+                ->innerJoin('o.target', 'target')
+                ->innerJoin('o.source', 'source')
+                ->innerJoin('o.location', 'location');
+        }
+
         return $this->getQuery()->getQuery()->getResult();
     }
 
@@ -226,9 +234,18 @@ class OperationFinder extends \Silo\Inventory\Finder\AbstractFinder
 
     private $loadBatches = false;
 
+    private $loadLocations = false;
+
     public function withBatches()
     {
         $this->loadBatches = true;
+
+        return $this;
+    }
+
+    public function withLocations()
+    {
+        $this->loadLocations = true;
 
         return $this;
     }
