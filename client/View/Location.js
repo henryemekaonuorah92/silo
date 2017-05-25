@@ -3,7 +3,8 @@ const React = require('react');
 const BatchEditor = require('../Editor/BatchEditor');
 const OperationEditor = require('../Editor/OperationEditor');
 const DataStore = require('../Editor/DataStore');
-const ModifierEditor = require('../Editor/ModifierEditor');
+const withLocationModifier = require('../Editor/withLocationModifier');
+const ModifierEditor = withLocationModifier(require('../Editor/ModifierEditor'));
 const Link = require('../Factory').Link;
 
 module.exports = React.createClass({
@@ -45,6 +46,8 @@ module.exports = React.createClass({
         batchEndpoint: React.PropTypes.string,
 
         batchEditorAdditionalMenu: React.PropTypes.any,
+
+        modifierFactory: React.PropTypes.any.isRequired
     },
 
     componentDidMount: function () {
@@ -94,9 +97,8 @@ module.exports = React.createClass({
                     {this.props.children}
                     <ModifierEditor cache={this.props.cache}
                                     siloBasePath={this.props.siloBasePath}
-                                    endpoint={this.props.siloBasePath+"/inventory/location/"+this.props.code+'/modifiers'}
+                                    location={this.props.code}
                                     modifierFactory={this.props.modifierFactory}
-                                    code={this.props.code}
                     />
                     <BatchEditor
                         exportFilename={'location-'+this.props.code+'-batches.csv'}

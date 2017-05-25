@@ -6,61 +6,85 @@ const Alerts = require('../Common/Alerts');
 
 module.exports = React.createClass({
 
+    displayName: 'ModifierModal',
+
     propTypes: {
-        onSuccess: React.PropTypes.func,
-        // url: React.PropTypes.string.isRequired,
-        modifierFactory: React.PropTypes.any.isRequired
+        onSave: React.PropTypes.func,
+        modifierFactory: React.PropTypes.any.isRequired,
+        // modifier: React.PropTypes.any // Passed when editing a modifier
     },
+
+    getDefaultProps: ()=>({
+        onSave: console.log
+    }),
 
     getInitialState: ()=>({
         name: null,
         value: {}
     }),
 
-    onSave: function(){
-        return fetch('/{code}/modifiers')
-            .set()
-            .send();
+    componentWillReceiveProps: function(nextProps){
+        if (nextProps.modifier){
+            this.setState({value: nextProps.modifier.value});
+        }
+    },
+
+    onChange: function(value){
+        this.setState({value: value});
     },
 
     render: function(){
-        const rest = Object.assign({}, this.props);
-        delete rest.onSuccess;
-        delete rest.url;
-        delete rest.modifierFactory;
-
-        const modifierNames = this.props.modifierFactory.listEditors();
+        const {modifierFactory, modifier, onSave, ...rest} = this.props;
+        const modifierNames = modifierFactory.listEditors();
+        const name = (modifier && modifier.name) || this.state.name;
 
         let partial = null;
-        if (this.state.name) {
-            partial = React.createElement(this.props.modifierFactory.getEditor(this.state.name));
+        if (name) {
+            let editor = modifierFactory.getEditor(name);
+            if (editor) {
+                partial = React.createElement(editor, {value: this.state.value, onChange: this.onChange});
+            }
         }
 
         return (
-        <Modal {...rest}>
-            <Modal.Header closeButton>
-                <Modal.Title>Modifier</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
+            <Modal {...rest}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Modifier</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {modifierNames.length > 0 ?
+                        <div>
+                            {modifier ?
+                                <span>{name}</span>
+                                :
+                                <FormControl componentClass="select"
+                                             onChange={(e)=>this.setState({name:e.target.value})}
+                                             selected={
+                                                 modifierNames.indexOf(this.state.name) > -1 ? this.state.name : null
+                                             }
+                                             placeholder="Source">
+                                    <option value={null}>Modifier...</option>
+                                    {modifierNames.map((name, k)=><option key={k} value={name}>{name}</option>)}
+                                </FormControl>
+                            }
 
-                <FormControl componentClass="select"
-                             onChange={(e)=>this.setState({name:e.target.value})}
-                             selected={
-                                 modifierNames.indexOf(this.state.name) > -1 ? this.state.name : null
-                             }
-                             placeholder="Source">
-                    <option value={null}>Modifier...</option>
-                    {modifierNames.map((name, k)=><option key={k} value={name}>{name}</option>)}
-                </FormControl>
+                            <hr />
 
-                {partial}
+                            {partial}
 
-                <Alerts />
-            </Modal.Body>
-            <Modal.Footer>
-                <Button bsStyle="success" onClick={this.onSave}>Save</Button>
-            </Modal.Footer>
-        </Modal>
+                            <Alerts />
+                        </div>
+                        :
+                        "There's no Modifier defined"
+                    }
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button bsStyle="success" onClick={onSave.bind(this, {
+                        name: name,
+                        value: this.state.value
+                    })}>Save</Button>
+                </Modal.Footer>
+            </Modal>
         );
     }
 });

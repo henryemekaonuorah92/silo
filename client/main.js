@@ -7,12 +7,14 @@ const Cache = require('./Cache');
 const Navbar = require('./Hud/Navbar');
 const Sidebar = require('./Hud/Sidebar');
 const Factory = require('./Factory');
+const ModifierFactory = require('./Common/ModifierFactory');
 
 const App = React.createClass({
     getInitialState: () => ({
         currentRoute: 'home',
         currentParams: null,
-        cache: new Cache()
+        cache: new Cache(),
+        modifierFactory: ModifierFactory
     }),
 
     routes: {
@@ -78,6 +80,7 @@ const App = React.createClass({
                         <Handler siloBasePath="/silo"
                                  route={this.state.currentRoute}
                                  cache={this.state.cache}
+                                 modifierFactory={this.state.modifierFactory}
                                  id={id}/>
                     </div>
                 </div>

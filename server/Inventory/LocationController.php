@@ -17,6 +17,7 @@ use Silo\Inventory\Validator\Constraints\SkuExists;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Validator\Constraints as Constraint;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -426,6 +427,9 @@ EOQ;
             return new Response('', Response::HTTP_ACCEPTED);
         })->convert('location', $locationProvider);
 
+        /**
+         * Get assigned modifiers to a specific Location
+         */
         $controllers->get('/{code}/modifiers', function ($code, Application $app, Request $request) {
             $query = $app['em']->createQueryBuilder();
             $query->select('modifier, type, location')
@@ -448,34 +452,41 @@ EOQ;
             );
         });
 
-        /*
+        /**
          * Create a Modifier
+         * @todo Modifier value validation to implement
          */
         $controllers->post('/{location}/modifiers', function (Location $location, Request $request) use ($app) {
             /** @var ModifierRepository $modifiers */
             $modifiers = $app['re']('Inventory:Modifier');
-            $modifiers->add($location, $request->get('name'), $request->get('value'));
+            $modifiers->add($location, $request->request->get('name'), $request->request->get('value'));
             $app['em']->flush();
 
             return new JsonResponse([], Response::HTTP_ACCEPTED);
-        })->convert('location', $locationProvider);;
+        })
+            ->convert('location', $locationProvider)
+            ->before(new JsonRequest())
+        ;
 
-        // does not follow REST
-        $controllers->delete('/{code}/modifiers', function ($code, Application $app, Request $request) {
+        /**
+         * Remove a Modifier
+         */
+        $controllers->delete('/{code}/modifiers', function ($code, Request $request)use($app) {
             $locations = $app['re']('Inventory:Location');
 
-            $name = $request->get('name');
-
+            $name = $request->request->get('name');
+            if (!$name) {
+                //throw new BadRequestHttpException();
+            }
             /** @var Location $location */
             $location = $locations->forceFindOneByCode($code);
             /** @var ModifierRepository $modifiers */
             $modifiers = $app['re']('Inventory:Modifier');
             $modifiers->remove($location, $name);
-
             $app['em']->flush();
 
             return new JsonResponse([], Response::HTTP_ACCEPTED);
-        });
+        })->before(new JsonRequest());
 
         return $controllers;
     }

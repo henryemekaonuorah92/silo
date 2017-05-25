@@ -12,6 +12,11 @@ module.exports = React.createClass({
         options: [],
     }),
 
+    getDefaultProps: ()=>({
+        allowNew: false,
+        multiple: false,
+    }),
+
     _handleSearch: function(query) {
         if (!query) {
             return;
@@ -31,8 +36,6 @@ module.exports = React.createClass({
 
     render: function(){
         return <AsyncTypeahead
-            allowNew={false}
-            multiple={false}
             options={this.state.options}
             onSearch={this._handleSearch}
             placeholder={this.props.placeholder}

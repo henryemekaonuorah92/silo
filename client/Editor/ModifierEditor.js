@@ -1,53 +1,53 @@
 ;
 const React = require('react');
-const {NavItem} = require('react-bootstrap');
+const {NavItem, Glyphicon} = require('react-bootstrap');
 const {Navbar} = require('./Editor');
 const ModifierModal = require('../Modal/ModifierModal');
 
 module.exports = React.createClass({
 
-    getInitialState: function () {
-        return {
-            modifiers: [],
-            showModal: false
-        };
-    },
+    displayName: 'ModifierEditor',
+
+    getInitialState: ()=>({
+        showModal: false,
+        modifier: null // set if we are editing a modifier
+    }),
 
     propTypes: {
-        endpoint: React.PropTypes.string.isRequired,
-        cache: React.PropTypes.object.isRequired,
-        /**
-         * An object that knows what are the existing modifiers
-         */
-        modifierFactory: React.PropTypes.object.isRequired
+        modifiers: React.PropTypes.array.isRequired,
+        onDelete: React.PropTypes.func,
     },
 
-    componentDidMount: function () {
-        this.props.cache
-            .get(this.props.endpoint)
-            .from(this.props.endpoint)
-            .onUpdate(function(value){
-                this.setState({
-                    modifiers: value
-                });
-            }.bind(this))
-            .refresh();
+    getDefaultProps: ()=>({
+        onDelete: console.log
+    }),
+
+    onEdit: function(modifier){
+        this.setState({
+            modifier: modifier,
+            showModal: true
+        });
     },
 
-    componentWillUnmount : function () {
-        this.props.cache.cleanup('operation/'+this.props.id);
+    handleSave: function(data){
+        if (this.props.onSave) {
+            this.props.onSave(data);
+        }
+        this.setState(this.getInitialState());
     },
 
     render: function(){
-        let modifiers = this.state.modifiers;
+        let {modifiers, onDelete, onSave, ...rest} = this.props;
         return (
             <div className="panel panel-default">
                 <ModifierModal show={this.state.showModal}
-                               onHide={()=>this.setState({showModal:false})}
-                               modifierFactory={this.props.modifierFactory}/>
+                               onHide={()=>this.setState(this.getInitialState())}
+                               modifier={this.state.modifier}
+                               onSave={this.handleSave}
+                               {...rest}/>
 
                 <Navbar title="ModifierEditor">
-                    <NavItem onClick={()=>{this.setState({showModal: !this.state.showModal});}}>Add</NavItem>
+                    <NavItem onClick={()=>{this.setState({showModal: !this.state.showModal, modifier: null});}}>Add</NavItem>
                 </Navbar>
 
                 <table className="table">
@@ -60,17 +60,18 @@ module.exports = React.createClass({
                     <tbody>
                             {modifiers.length ? modifiers.map((modifier)=>{
                                 let partial = this.props.modifierFactory.getView(modifier.name);
-                                let rest = {};
-                                if (! partial) {
-                                    partial = () => <span>{modifier.name}</span>;
-                                } else {
-                                    rest = Object.assign({}, this.props);
-                                    rest.value = modifier.value;
-                                }
-
                                 return <tr key={modifier.name}>
-                                    <td>{modifier.name}</td>
-                                    <td>{React.createElement(partial, rest)}</td>
+                                    <td>
+                                        <div className="pull-right">
+                                            {false &&
+                                                <Glyphicon glyph="pencil" onClick={this.onEdit.bind(this, modifier)}/>
+                                            }
+                                            &nbsp;
+                                            <Glyphicon glyph="trash" onClick={this.props.onDelete.bind(this, modifier.name)}/>
+                                        </div>
+                                        {modifier.name}
+                                    </td>
+                                    <td>{partial ? React.createElement(partial, {value: modifier.value}) : null}</td>
                                 </tr>
                             }) : <tr><td colSpan={2}>No Modifiers</td></tr>}
                     </tbody>
