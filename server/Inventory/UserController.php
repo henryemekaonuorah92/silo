@@ -27,7 +27,7 @@ class UserController implements ControllerProviderInterface
                 ->setParameter('code', "%$code%");
 
             return new JsonResponse(array_map(
-                function($l){return $l['name'];},
+                function($l){return utf8_encode($l['name']);},
                 $query->getQuery()->getArrayResult()
             ), Response::HTTP_ACCEPTED);
         });
