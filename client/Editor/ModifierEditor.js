@@ -47,9 +47,11 @@ module.exports = React.createClass({
                                {...rest}/>
 
                 <Navbar title="ModifierEditor">
-                    <NavItem onClick={()=>{this.setState({showModal: !this.state.showModal, modifier: null});}}>Add</NavItem>
+                    {this.props.writable &&
+                        <NavItem onClick={()=>{this.setState({showModal: !this.state.showModal, modifier: null});}}>Add</NavItem>
+                    }
                 </Navbar>
-
+                
                 <table className="table">
                     <thead>
                         <tr>
@@ -62,13 +64,17 @@ module.exports = React.createClass({
                                 let partial = this.props.modifierFactory.getView(modifier.name);
                                 return <tr key={modifier.name}>
                                     <td>
-                                        <div className="pull-right">
-                                            {false &&
+                                        {this.props.writable &&
+                                            <div className="pull-right">
+
+                                                {false &&
                                                 <Glyphicon glyph="pencil" onClick={this.onEdit.bind(this, modifier)}/>
-                                            }
-                                            &nbsp;
-                                            <Glyphicon glyph="trash" onClick={this.props.onDelete.bind(this, modifier.name)}/>
-                                        </div>
+                                                }
+                                                &nbsp;
+                                                <Glyphicon glyph="trash"
+                                                           onClick={this.props.onDelete.bind(this, modifier.name)}/>
+                                            </div>
+                                        }
                                         {modifier.name}
                                     </td>
                                     <td>{partial ? React.createElement(partial, {value: modifier.value}) : null}</td>

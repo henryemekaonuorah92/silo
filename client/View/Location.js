@@ -99,6 +99,7 @@ module.exports = React.createClass({
                                     siloBasePath={this.props.siloBasePath}
                                     location={this.props.code}
                                     modifierFactory={this.props.modifierFactory}
+                                    writable={this.props.writable}
                     />
                     <BatchEditor
                         exportFilename={'location-'+this.props.code+'-batches.csv'}
