@@ -1,10 +1,13 @@
 <?php
 
+namespace Silo\Context;
+
 use Behat\Behat\Context\BehatContext;
 use Symfony\Component\HttpKernel\Client;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Behat\Behat\Exception\PendingException;
 use Behat\Gherkin\Node\TableNode;
+use Silo\Context\AppAwareContextInterface;
 
 /**
  * @see Silex\WebTestCase

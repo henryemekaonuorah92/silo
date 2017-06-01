@@ -1,5 +1,7 @@
 <?php
 
+namespace Silo\Context;
+
 use \Behat\Behat\Context\BehatContext;
 
 class CoverageContext extends BehatContext

@@ -1,5 +1,7 @@
 <?php
 
+namespace Silo\Context;
+
 use \Behat\Behat\Context\BehatContext;
 use Behat\Gherkin\Node\TableNode;
 use Doctrine\Common\Collections\ArrayCollection;

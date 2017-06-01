@@ -1,5 +1,7 @@
 <?php
 
+namespace Silo\Context;
+
 use Behat\Behat\Context\BehatContext;
 use Silo\Inventory\Model as Inventory;
 

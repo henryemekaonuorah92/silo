@@ -1,21 +1,11 @@
 <?php
 
+namespace Silo\Context;
+
 use Behat\Behat\Context\BehatContext;
 use Behat\Gherkin\Node\TableNode;
 use Doctrine\Common\Collections\ArrayCollection;
 use Silo\Inventory\Model as Inventory;
-
-//
-// Require 3rd-party libraries here:
-//
-//   require_once 'PHPUnit/Autoload.php';
-//   require_once 'PHPUnit/Framework/Assert/Functions.php';
-//
-require_once __DIR__.'/CoverageContext.php';
-require_once __DIR__.'/ThenContext.php';
-require_once __DIR__.'/UnitContext.php';
-require_once __DIR__.'/SilexContext.php';
-require_once __DIR__.'/PrintDebugLogger.php';
 
 /**
  * Features context.

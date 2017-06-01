@@ -27,7 +27,8 @@
   },
   "autoload": {
     "psr-4": {
-      "Silo\\": "server"
+      "Silo\\": "server",
+      "Silo\\Context\\": "features/contexts"
     }
   }
 }

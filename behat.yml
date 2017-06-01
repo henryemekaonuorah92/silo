@@ -3,7 +3,7 @@ default:
     features: features
     bootstrap: %behat.paths.features%/contexts
   context:
-    class: FeatureContext
+    class: Silo\Context\FeatureContext
     parameters:
       debugDoctrine: false
       coverage: false
@@ -13,7 +13,7 @@ coverage:
     features: features
     bootstrap: %behat.paths.features%/contexts
   context:
-    class: FeatureContext
+    class: Silo\Context\FeatureContext
     parameters:
       debugDoctrine: false
       coverage: true

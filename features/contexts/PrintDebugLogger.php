@@ -1,5 +1,7 @@
 <?php
 
+namespace Silo\Context;
+
 class PrintDebugLogger implements \Doctrine\DBAL\Logging\SQLLogger
 {
     private $context;
