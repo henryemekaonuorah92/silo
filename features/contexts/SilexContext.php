@@ -12,24 +12,14 @@ use Silo\Context\AppAwareContextInterface;
 /**
  * @see Silex\WebTestCase
  */
-class SilexContext extends BehatContext implements AppAwareContextInterface
+class SilexContext extends BehatContext implements AppAwareContextInterface, ClientContextInterface
 {
-    /** @var \Silex\Application */
-    private $app;
+    use AppAwareContextTrait;
 
-    public function setApp(\Silex\Application $app)
+    use ClientContextTrait;
+
+    public function getClient()
     {
-        $this->app = $app;
-    }
-
-    private $client;
-
-    public function getClient(array $server = array())
-    {
-        if (!$this->client) {
-            $this->client = new Client($this->app, $server);
-        }
-
         return $this->client;
     }
 
@@ -47,24 +37,7 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
         $this->assertSuccessful($response);
     }
 
-    /**
-     * @When /^one assign modifier (\w+) to (\w+)(?: with:)?$/
-     */
-    public function oneAddModifierTo($name, $code, \Behat\Gherkin\Node\PyStringNode $value = null)
-    {
-        if (!is_null($value)) {
-            $value = ['value' => json_decode($value, true)];
-        } else {
-            $value = [];
-        }
-        $this->getClient()->request(
-            'POST',
-            "/silo/inventory/location/$code/modifiers",
-            ['name' => $name] + $value
-        );
-        $response = $this->getClient()->getResponse();
-        $this->assertSuccessful($response);
-    }
+
 
     /**
      * @Then /^(\w+) has (\w+|no) modifier$/
@@ -111,38 +84,7 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
         }
     }
 
-    /**
-     * @Given /^(?:a )?Locations? ([\w,]+)(?: with:)?$/
-     */
-    public function aLocation($codes, TableNode $table = null)
-    {
-        foreach (explode(',', $codes) as $code) {
-            $this->oneAddChildLocationTo($code);
-            if ($table) {
-                $this->oneFillLocationWith($code, $table);
-            }
-        }
-    }
 
-    /**
-     * @When /^one add a child Location (\w+) to (\w+)$/
-     */
-    public function oneAddChildLocationTo($code, $parentCode = \Silo\Inventory\Model\Location::CODE_ROOT)
-    {
-        $this->getClient()->request('POST', "/silo/inventory/location/$parentCode/child", ['name' => $code]);
-        $response = $this->getClient()->getResponse();
-        $this->assertSuccessful($response);
-    }
-
-    /**
-     * @Given /^one move (\w+) to (\w+)$/
-     */
-    public function oneMoveCToB($code, $parentCode)
-    {
-        $this->getClient()->request('PATCH', "/silo/inventory/location/$parentCode/child", [$code]);
-        $response = $this->getClient()->getResponse();
-        $this->assertSuccessful($response);
-    }
 
     /**
      * @Then /^(\w+) is in (\w+)$/
@@ -157,70 +99,13 @@ class SilexContext extends BehatContext implements AppAwareContextInterface
         }
     }
 
-    private function transformBatch(TableNode $table)
-    {
-        return array_map(function($row){
-            if (count($row) != 2) {throw new \Exception("Cannot parse batch");}
-            $qtyFirst = is_numeric($row[0]);
-            return [
-                'product' => $qtyFirst ? $row[1] : $row[0],
-                'quantity' => $qtyFirst ? $row[0] : $row[1]
-            ];
-        }, $table->getRows());
-    }
 
-    /**
-     * @When /^one fill Location (\w+) with:$/
-     */
-    public function oneFillLocationWith($code, TableNode $table)
-    {
-        $this->getClient()->request(
-            'PATCH',
-            "/silo/inventory/location/$code/batches",
-            $this->transformBatch($table)
-        );
-        $response = $this->getClient()->getResponse();
-        $this->assertSuccessful($response);
-    }
 
-    /**
-     * @When /^one execute Operation "(\w+)"(?: with:)?$/
-     */
-    public function oneExecuteOperation($opRef, TableNode $table = null)
-    {
-        $data = [];
-        if ($table) {
-            $data = $this->transformBatch($table);
-        }
 
-        $id = $this->getMainContext()->getRef($opRef);
 
-        $this->getClient()->request(
-            'POST',
-            "/silo/inventory/operation/$id/execute",
-            $data
-        );
-        $response = $this->getClient()->getResponse();
-        $this->assertSuccessful($response);
-    }
 
-    /**
-     * @Given /^Operation "(\w+)" contains:$/
-     */
-    public function operationContains($opRef, TableNode $table)
-    {
-        $expected = $this->transformBatch($table);
-        $id = $this->getMainContext()->getRef($opRef);
 
-        $this->getClient()->request(
-            'GET',
-            "/silo/inventory/operation/$id"
-        );
-        $response = $this->getClient()->getResponse();
-        $data = json_decode($response->getContent(), true);
 
-        $this->assertSame($expected, $data['batches']);
-    }
 
     private function assertTrue($flag)
     {

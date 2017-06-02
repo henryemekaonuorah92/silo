@@ -10,36 +10,30 @@ use Silo\Inventory\Model as Inventory;
 /**
  * Features context.
  */
-class FeatureContext extends BehatContext
+class FeatureContext extends BehatContext implements AppAwareContextInterface, ClientContextInterface
 {
-    private $app;
+    protected $app;
 
     /** @var \Doctrine\ORM\EntityManager */
-    private $em;
+    protected $em;
 
-    private $refs = [];
+    public function setApp(\Silex\Application $app)
+    {
+        $this->app = $app;
+        $this->em = $app['em'];
+    }
+
+    use ClientContextTrait;
 
     public function getRef($name)
     {
-        if (!isset($this->refs[$name])) {
-            throw new \Exception("No such ref $name");
-        }
-
-        return $this->refs[$name];
+        return $this->getSubcontext('app')->getRef($name);
     }
 
-    private function setRef($name, $object)
+    public function setRef($name, $object)
     {
-        if (isset($this->refs[$name])) {
-            throw new \Exception("Ref $name is already set");
-        }
-        // $this->printDebug("Set Ref $name as $object");
-        $this->refs[$name] = $object;
+        return $this->getSubcontext('app')->setRef($name, $object);
     }
-
-    protected $dsn;
-
-    protected $parameters;
 
     /**
      * {@inheritdoc}
@@ -49,71 +43,13 @@ class FeatureContext extends BehatContext
         if (isset($parameters['coverage']) && $parameters['coverage']) {
             $this->useContext('coverage', new CoverageContext($parameters));
         }
-        if (isset($parameters['dsn']) && $parameters['dsn']) {
-            $this->dsn = $parameters['dsn'];
-        }
-        $this->parameters = $parameters;
 
         // $this->useContext('ranking', $ranking);
+        $this->useContext('app', new AppContext($parameters));
+        $this->useContext('inventory', new InventoryContext());
         $this->useContext('then', new ThenContext());
         $this->useContext('unit', new UnitContext());
         $this->useContext('silex', new SilexContext());
-    }
-
-    /** @BeforeScenario */
-    public function before($event)
-    {
-        $that = $this;
-        $logger = new \Monolog\Logger('test');
-        $logger->pushHandler(new \Silo\Base\CallbackHandler(function($record)use($that){
-            if (stripos($record['message'], 'Matched route') === 0){return;}
-            echo "\033[36m|  ".strtr($record['message'], array("\n" => "\n|  "))."\033[0m\n";
-        }, \Monolog\Logger::INFO));
-
-        $this->app = $app = new \Silo\Silo([
-            'em.dsn' => $this->dsn ?: 'sqlite:///:memory:',
-            'logger' => $logger
-        ]);
-        $app->boot();
-        $this->em = $em = $app['em'];
-
-        // Generate the database
-        $metadatas = $em->getMetadataFactory()->getAllMetadata();
-
-        $tool = new \Doctrine\ORM\Tools\SchemaTool($this->app['em']);
-        $tool->createSchema($metadatas);
-
-        $user = new Inventory\User('test');
-        $em->persist($user);
-
-        $em->flush();
-
-        $app['current_user'] = $user;
-
-        $this->setRef('User', $user);
-
-        foreach ($this->getSubcontexts() as $context) {
-            if ($context instanceof AppAwareContextInterface) {
-                $context->setApp($app);
-            }
-        }
-
-        // Register a logger if needed
-        if (isset($this->parameters['debugDoctrine']) && $this->parameters['debugDoctrine']) {
-            $em->getConnection()
-                ->getConfiguration()
-                ->setSQLLogger(new \PrintDebugLogger($this))
-            ;
-        }
-    }
-
-    /**
-     * @Given /^a Product "([^"]*)"$/
-     */
-    public function aProduct($sku)
-    {
-        $this->em->persist(new Inventory\Product($sku));
-        $this->em->flush();
     }
 
     /**
@@ -137,57 +73,12 @@ class FeatureContext extends BehatContext
         return $result;
     }
 
-    /**
-     * @Given /^an Operation "([^"]*)"(?: to (\w+)) with:$/
-     */
-    public function anOperationToAWith($ref, $to, TableNode $table)
-    {
-        $this->anOperationFromToWith($ref, null, $to, $table);
-    }
 
-    /**
-     * @Given /^an Operation "([^"]*)"(?: from (\w+)) with:$/
-     */
-    public function anOperationFromAWith($ref, $from, TableNode $table)
-    {
-        $this->anOperationFromToWith($ref, $from, null, $table);
-    }
 
-    /**
-     * @Given /^an Operation "([^"]*)"(?: to (\w+)) moving (\w+)$/
-     */
-    public function anOperationToAMovingB($ref, $to, $what)
-    {
-        $this->anOperationFromToWith($ref, null, $to, $what);
-    }
 
-    /**
-     * @Given /^an Operation "([^"]*)"(?: from (\w+))(?: to (\w+))(?: with:| moving (\w+))$/
-     */
-    public function anOperationFromToWith($ref, $from, $to, $table)
-    {
-        $locations = $this->em->getRepository('Inventory:Location');
-        if ($table instanceof TableNode) {
-            $op = new Inventory\Operation(
-                $this->getRef('User'),
-                $locations->findOneBy(['code' => $from]),
-                $locations->findOneBy(['code' => $to]),
-                $this->tableNodeToProductQuantities($table)
-            );
-        } else {
-            $op = new Inventory\Operation(
-                $this->getRef('User'),
-                $locations->findOneBy(['code' => $from]),
-                $locations->findOneBy(['code' => $to]),
-                $locations->findOneBy(['code' => $table])
-            );
-        }
 
-        $this->em->persist($op);
-        $this->em->flush();
 
-        $this->setRef($ref, $op->getId());
-    }
+
 
     /**
      * @Then /^Operation "([^"]*)" is cancelled$/
@@ -228,17 +119,6 @@ class FeatureContext extends BehatContext
         }
     }
 
-    /**
-     * @Given /^"([^"]*)" is typed as "([^"]*)"$/
-     */
-    public function isTypedAs($ref, $name)
-    {
-        $type = $this->app['em']->getRepository('Inventory:OperationType')->getByName($name);
-
-        $op = $this->getRef($ref);
-        $op->setType($type);
-        $this->app['em']->flush();
-    }
 
     /**
      * @Then /^Playbacker for (.+) at "([^"]*)" gives:$/
