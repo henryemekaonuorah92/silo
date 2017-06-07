@@ -50,7 +50,7 @@ module.exports = (WrappedComponent)=>{
         },
 
         render: function(){
-            const {cache, location, ...rest} = this.props;
+            const {cache, ...rest} = this.props;
             return <WrappedComponent onDelete={this.handleDelete}
                                      onSave={this.handleSave}
                                      modifiers={this.state.modifiers}

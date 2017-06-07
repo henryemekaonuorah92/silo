@@ -77,7 +77,10 @@ module.exports = React.createClass({
                                         }
                                         {modifier.name}
                                     </td>
-                                    <td>{partial ? React.createElement(partial, {value: modifier.value}) : null}</td>
+                                    <td>{partial ? React.createElement(partial, {
+                                        value: modifier.value,
+                                        code: this.props.location
+                                    }) : null}</td>
                                 </tr>
                             }) : <tr><td colSpan={2}>No Modifiers</td></tr>}
                     </tbody>

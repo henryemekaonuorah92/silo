@@ -7,6 +7,8 @@ use Silo\Base\ConstraintValidatorFactory;
 use Silo\Base\Provider\DoctrineProvider\SQLLogger;
 use Silo\Base\ValidationException;
 use Silo\Inventory\BatchCollectionFactory;
+use Silo\Inventory\GC\BatchGarbageCollector;
+use Silo\Inventory\GC\GarbageCollectorProvider;
 use Silo\Inventory\Model\User;
 use Silo\Inventory\OperationValidator;
 use Silo\Inventory\ProductProviderInterface;
@@ -94,6 +96,8 @@ class Silo extends \Silex\Application
             $s->setEntityManager($app['em']);
             return $s;
         };
+
+        $app->register(new GarbageCollectorProvider());
 
         $app->mount('/silo/inventory/location', new \Silo\Inventory\LocationController());
         $app->mount('/silo/inventory/operation', new \Silo\Inventory\OperationController());
