@@ -28,6 +28,8 @@ class AppContext extends BehatContext
 
     private $refs = [];
 
+    private $providers;
+
     public function getRef($name)
     {
         if (!isset($this->refs[$name])) {
@@ -54,7 +56,7 @@ class AppContext extends BehatContext
     public function __construct(array $parameters)
     {
         $this->dsn = isset($parameters['dsn']) ? $parameters['dsn'] : 'sqlite:///:memory:';
-        //$this->debug = $parameters['debug']?: null;
+        $this->providers = isset($parameters['providers']) ? $parameters['providers'] : [];
     }
 
     /** @BeforeScenario */
@@ -71,6 +73,11 @@ class AppContext extends BehatContext
             'em.dsn' => $this->dsn,
             'logger' => $logger
         ]);
+
+        foreach($this->providers as $provider) {
+            $app->register($provider);
+        }
+
         $app->boot();
         $this->em = $em = $app['em'];
 
