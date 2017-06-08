@@ -20,12 +20,22 @@ abstract class AbstractFinder
      */
     public function __construct(EntityManager $em)
     {
-        $this->query = $em->createQueryBuilder();
+        $this->query = $this->buildRoot($em->createQueryBuilder());
+
     }
 
     public static function create(EntityManager $em)
     {
         return new static($em);
+    }
+
+    /**
+     * @param QueryBuilder $query
+     * @return QueryBuilder
+     */
+    protected function buildRoot(QueryBuilder $query)
+    {
+        return $query;
     }
 
     /**
