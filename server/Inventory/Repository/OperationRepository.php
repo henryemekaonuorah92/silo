@@ -6,7 +6,7 @@ use Doctrine\ORM\EntityRepository;
 use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation as Model;
 
-class Operation extends EntityRepository
+class OperationRepository extends EntityRepository
 {
     public function executeOperation($user, $from, $to, $type, $content)
     {

@@ -11,8 +11,11 @@ use Silo\Inventory\Collection\BatchCollection;
  * Something can either be a Location, or a Batch set, but not both (could
  * be possible, but let's make it simple for futur generations).
  *
+ * Operations can either be Pending, Cancelled or Executed. You can also rollback
+ * an Executed Operation.
+ *
  * @ORM\Table(name="operation")
- * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\Operation")
+ * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\OperationRepository")
  */
 class Operation
 {
@@ -242,6 +245,37 @@ class Operation
         $this->rollbackOperation = $rollbackingOperation;
 
         return $rollbackingOperation;
+    }
+
+    /**
+     * Cancel the current Operation, and return a pending replacement Operation
+     * @param User $replaceUser
+     * @param $replaceContent
+     * @return Operation
+     * @throws \Exception
+     */
+    public function createReplace(User $replaceUser, $replaceContent)
+    {
+        // has to be pending to be replaced
+        if ($this->doneAt) {
+            throw new \Exception("Cannot replace $this, it is done already");
+        }
+        if ($this->cancelledAt) {
+            throw new \Exception("Cannot replace $this, it is cancelled already");
+        }
+
+        $replacingOperation = new Operation(
+            $replaceUser,
+            $this->target,
+            $this->source,
+            $replaceContent
+        );
+        $replacingOperation->operationType = $this->operationType;
+
+        $this->replaceOperation = $replacingOperation;
+        $this->cancel($replaceUser);
+
+        return $replacingOperation;
     }
 
     /**

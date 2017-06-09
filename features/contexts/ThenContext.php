@@ -161,13 +161,13 @@ class ThenContext extends BehatContext implements AppAwareContextInterface
     public function showRawTable($tables)
     {
         $em = $this->app['em'];
-        $output = new Symfony\Component\Console\Output\BufferedOutput();
+        $output = new \Symfony\Component\Console\Output\BufferedOutput();
 
         foreach (explode(',', $tables) as $table) {
             $sql = "SELECT * FROM $table";
             $stmt = $em->getConnection()->prepare($sql);
             $stmt->execute();
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
             if (empty($result)) {
                 $this->printDebug("No data in $table");
@@ -182,7 +182,7 @@ class ThenContext extends BehatContext implements AppAwareContextInterface
             $headers = array_keys($result[0]);
 
             $output->writeln("$table");
-            $table = new Symfony\Component\Console\Helper\Table($output);
+            $table = new \Symfony\Component\Console\Helper\Table($output);
             $table
                 ->setHeaders($headers)
                 ->setRows($rows);
