@@ -10,6 +10,8 @@ abstract class AbstractFinder
     /** @var QueryBuilder */
     private $query;
 
+    protected $suffix;
+
     public function __clone()
     {
         $this->query = clone $this->query;
@@ -18,10 +20,10 @@ abstract class AbstractFinder
     /**
      * @param EntityManager $em
      */
-    public function __construct(EntityManager $em)
+    public function __construct(EntityManager $em, $suffix = null)
     {
+        $this->suffix = $suffix;
         $this->query = $this->buildRoot($em->createQueryBuilder());
-
     }
 
     public static function create(EntityManager $em)

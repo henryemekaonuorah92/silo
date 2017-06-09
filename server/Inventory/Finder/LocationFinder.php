@@ -2,7 +2,9 @@
 
 namespace Silo\Inventory\Finder;
 
+use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\QueryBuilder;
+use Silo\Inventory\Collection\ArrayCollection;
 use Silo\Inventory\Model\Location;
 
 class LocationFinder extends \Silo\Inventory\Finder\AbstractFinder
@@ -11,7 +13,7 @@ class LocationFinder extends \Silo\Inventory\Finder\AbstractFinder
 
     protected function buildRoot(QueryBuilder $query)
     {
-        return $query->select('l')->from('Inventory:Location', 'l');
+        return $query->select('l'.$this->suffix)->from('Inventory:Location', 'l'.$this->suffix);
     }
 
     public function onlyDeleted()
@@ -21,14 +23,43 @@ class LocationFinder extends \Silo\Inventory\Finder\AbstractFinder
         return $this;
     }
 
+    private $joinModifier = false;
+
+    private function joinModifier()
+    {
+        if (!$this->joinModifier) {
+            $this->getQuery()
+                ->join('l'.$this->suffix.'.modifiers', 'm'.$this->suffix)
+                ->join('m'.$this->suffix.'.type', 't'.$this->suffix);
+            $this->joinModifier = true;
+        }
+
+        return $this;
+    }
+
+    public function excluding(self $exclude)
+    {
+        $q = $this->getQuery();
+        $q->andWhere($q->expr()->notIn('l'.$this->suffix, $exclude->getQuery()->getDQL()));
+        $exclude->getQuery()->getParameters()->map(function(Parameter $parameter)use($q){
+            $q->setParameter($parameter->getName(), $parameter->getValue());
+        });
+
+        return $this;
+    }
+
+    /**
+     * @param $modifierName
+     * @return self
+     */
     public function withModifier($modifierName)
     {
-        $this->getQuery()
-            ->join('l.modifiers', 'm')
-            ->join('m.type', 't')
-            ->andWhere('t.name = :type')
-            ->setParameter('type', $modifierName)
+        $this->joinModifier()->getQuery()
+            ->andWhere('t'.$this->suffix.'.name = :type'.$this->suffix)
+            ->setParameter('type'.$this->suffix, $modifierName)
         ;
+
+        return $this;
     }
 
     /**
@@ -37,11 +68,24 @@ class LocationFinder extends \Silo\Inventory\Finder\AbstractFinder
     public function find()
     {
         $this->getQuery()
-            ->andWhere('l.isDeleted = :deleted')
-            ->setParameter('deleted', $this->isDeleted)
+            ->andWhere('l'.$this->suffix.'.isDeleted = :deleted'.$this->suffix)
+            ->setParameter('deleted'.$this->suffix, $this->isDeleted)
         ;
 
         return $this->getQuery()->getQuery()->getResult();
+    }
+
+    /**
+     * @return Location|null
+     */
+    public function findOne()
+    {
+        $this->getQuery()
+            ->andWhere('l'.$this->suffix.'.isDeleted = :deleted')
+            ->setParameter('deleted', $this->isDeleted)
+        ;
+
+        return $this->getQuery()->getQuery()->getOneOrNullResult();
     }
 
     /**
@@ -50,8 +94,8 @@ class LocationFinder extends \Silo\Inventory\Finder\AbstractFinder
     public function iterate()
     {
         $this->getQuery()
-            ->orderBy('l.id', 'DESC')
-            ->andWhere('l.isDeleted = :deleted')
+            ->orderBy('l'.$this->suffix.'.id', 'DESC')
+            ->andWhere('l'.$this->suffix.'.isDeleted = :deleted')
             ->setParameter('deleted', $this->isDeleted)
         ;
 

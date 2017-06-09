@@ -51,7 +51,16 @@ class SilexContext extends BehatContext implements AppAwareContextInterface, Cli
             $this->assertEmpty($data);
         } else {
             $this->assertNotEmpty($data);
-            $this->assertContainsKeyWithValue($data[0], 'name', $name);
+            $found = false;
+            foreach($data as $d) {
+                if (array_key_exists('name', $d) && $d['name'] === $name) {
+                    $found = true;
+                }
+            }
+
+            if (!$found) {
+                throw new \Exception("Cannot find wanted Modifier");
+            }
         }
     }
 

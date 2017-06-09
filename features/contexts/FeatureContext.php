@@ -99,7 +99,7 @@ class FeatureContext extends BehatContext implements AppAwareContextInterface, C
     public function isExecuted($ref)
     {
         $op = $this->em->find('Inventory:Operation', $this->getRef($ref));
-        $op->execute($this->getRef('User'));
+        $op->execute($this->app['current_user']);
         $this->app['em']->flush();
         sleep(1);
     }

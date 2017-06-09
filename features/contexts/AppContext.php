@@ -49,7 +49,6 @@ class AppContext extends BehatContext
     }
 
 
-
     /**
      * {@inheritdoc}
      */
@@ -60,7 +59,7 @@ class AppContext extends BehatContext
     }
 
     /** @BeforeScenario */
-    public function before($event)
+    public function beforeScenario($event)
     {
         $that = $this;
         $logger = new \Monolog\Logger('test');
@@ -87,12 +86,6 @@ class AppContext extends BehatContext
         $tool = new \Doctrine\ORM\Tools\SchemaTool($this->app['em']);
         $tool->createSchema($metadatas);
 
-        $user = new User('test');
-        $em->persist($user);
-        $em->flush();
-        $app['current_user'] = $user;
-        $this->setRef('User', $user);
-
         $mainContext = $this->getMainContext();
         if ($mainContext instanceof AppAwareContextInterface) {
             $mainContext->setApp($app);
@@ -112,6 +105,11 @@ class AppContext extends BehatContext
             }
         }
 
+        $user = new User('test');
+        $em->persist($user);
+        $em->flush();
+        $this->setRef('User', $user);
+
         // Register a logger if needed
         if (isset($this->parameters['debugDoctrine']) && $this->parameters['debugDoctrine']) {
             $em->getConnection()
@@ -119,5 +117,13 @@ class AppContext extends BehatContext
                 ->setSQLLogger(new \PrintDebugLogger($this))
             ;
         }
+    }
+
+    /** @BeforeStep */
+    public function beforeStep($event)
+    {
+        $em = $this->app['em'];
+        $em->clear();
+        $this->app['current_user'] = $em->getRepository('Inventory:User')->find($this->getRef('User'));
     }
 }
