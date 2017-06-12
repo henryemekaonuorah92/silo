@@ -40,7 +40,7 @@ class SilexContext extends BehatContext implements AppAwareContextInterface, Cli
 
 
     /**
-     * @Then /^(\w+) has (\w+|no) modifier$/
+     * @Then /^([\w-]+) has (\w+|no) modifier$/
      */
     public function aHasModifier($code, $name)
     {

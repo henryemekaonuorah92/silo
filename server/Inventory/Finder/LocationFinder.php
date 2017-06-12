@@ -25,7 +25,7 @@ class LocationFinder extends \Silo\Inventory\Finder\AbstractFinder
 
     private $joinModifier = false;
 
-    private function joinModifier()
+    protected function joinModifier()
     {
         if (!$this->joinModifier) {
             $this->getQuery()
@@ -50,7 +50,7 @@ class LocationFinder extends \Silo\Inventory\Finder\AbstractFinder
 
     /**
      * @param $modifierName
-     * @return self
+     * @return $this
      */
     public function withModifier($modifierName)
     {

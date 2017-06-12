@@ -26,7 +26,7 @@ class InventoryContext extends BehatContext implements AppAwareContextInterface,
     }
 
     /**
-     * @Given /^(?:a )?Locations? ([\w,]+)(?: with:)?$/
+     * @Given /^(?:a )?Locations? ([\w-,]+)(?: with:)?$/
      */
     public function aLocation($codes, TableNode $table = null)
     {
@@ -73,7 +73,7 @@ class InventoryContext extends BehatContext implements AppAwareContextInterface,
     }
 
     /**
-     * @When /^one assign modifier (\w+) to (\w+)(?: with:)?$/
+     * @When /^one assign modifier (\w+) to ([\w-]+)(?: with:)?$/
      */
     public function oneAddModifierTo($name, $code, \Behat\Gherkin\Node\PyStringNode $value = null)
     {
