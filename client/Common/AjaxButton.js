@@ -32,7 +32,8 @@ module.exports = React.createClass({
             wip: false
     }),
 
-    send: function(){
+    send: function(event){
+        event.stopPropagation();
         this.setState({wip: true});
         $.ajax({
             url: this.props.url,
