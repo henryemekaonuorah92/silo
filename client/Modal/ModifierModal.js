@@ -11,6 +11,7 @@ module.exports = React.createClass({
     propTypes: {
         onSave: React.PropTypes.func,
         modifierFactory: React.PropTypes.any.isRequired,
+        availableModifiers: React.PropTypes.array.isRequired,
         // modifier: React.PropTypes.any // Passed when editing a modifier
     },
 
@@ -20,12 +21,15 @@ module.exports = React.createClass({
 
     getInitialState: ()=>({
         name: null,
-        value: {}
+        value: null
     }),
 
     componentWillReceiveProps: function(nextProps){
         if (nextProps.modifier){
-            this.setState({value: nextProps.modifier.value});
+            this.setState({
+                name: nextProps.modifier.name || null,
+                value: nextProps.modifier.value || null
+            });
         }
     },
 
@@ -33,8 +37,19 @@ module.exports = React.createClass({
         this.setState({value: value});
     },
 
+    handleSave: function() {
+        this.props.onSave({
+            name: this.state.name,
+            value: this.state.value
+        })
+    },
+
+    handleDelete: function(){
+        this.props.onDelete(this.state.name)
+    },
+
     render: function(){
-        const {modifierFactory, modifier, onSave, ...rest} = this.props;
+        const {modifierFactory, modifier, availableModifiers, edit, ...rest} = this.props;
         const modifierNames = modifierFactory.listEditors();
         const name = (modifier && modifier.name) || this.state.name;
 
@@ -54,8 +69,8 @@ module.exports = React.createClass({
                 <Modal.Body>
                     {modifierNames.length > 0 ?
                         <div>
-                            {modifier ?
-                                <span>{name}</span>
+                            {edit ?
+                                <span>{modifier.name}</span>
                                 :
                                 <FormControl componentClass="select"
                                              onChange={(e)=>this.setState({name:e.target.value})}
@@ -64,7 +79,7 @@ module.exports = React.createClass({
                                              }
                                              placeholder="Source">
                                     <option value={null}>Modifier...</option>
-                                    {modifierNames.map((name, k)=><option key={k} value={name}>{name}</option>)}
+                                    {availableModifiers.map((name, k)=><option key={k} value={name}>{name}</option>)}
                                 </FormControl>
                             }
 
@@ -79,10 +94,8 @@ module.exports = React.createClass({
                     }
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button bsStyle="success" onClick={onSave.bind(this, {
-                        name: name,
-                        value: this.state.value
-                    })}>Save</Button>
+                    {edit && <Button bsStyle="danger" onClick={this.handleDelete}>Delete</Button>}
+                    <Button bsStyle="success" onClick={this.handleSave} disabled={!this.state.name}>Save</Button>
                 </Modal.Footer>
             </Modal>
         );

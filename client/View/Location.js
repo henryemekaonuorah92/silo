@@ -51,6 +51,7 @@ module.exports = React.createClass({
     },
 
     componentDidMount: function () {
+        return;
         function replace(str) {
             return str.replace('%siloBasePath%', this.props.siloBasePath).replace('%code%', this.props.code);
         };

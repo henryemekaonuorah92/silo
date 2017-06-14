@@ -3,56 +3,85 @@ const React = require('react');
 const {NavItem, Glyphicon} = require('react-bootstrap');
 const {Navbar} = require('./Editor');
 const ModifierModal = require('../Modal/ModifierModal');
+const StringToColor = require('../Common/StringToColor');
 
 module.exports = React.createClass({
 
     displayName: 'ModifierEditor',
 
     getInitialState: ()=>({
-        showModal: false,
-        modifier: null // set if we are editing a modifier
+        // Setting a modifier will display the ModifierModal
+        modifier: null,
+        // Edit mode changes slightly the modal
+        edit: false
     }),
 
     propTypes: {
         modifiers: React.PropTypes.array.isRequired,
         onDelete: React.PropTypes.func,
+        modifierFactory: React.PropTypes.any.isRequired
     },
 
     getDefaultProps: ()=>({
         onDelete: console.log
     }),
 
-    onEdit: function(modifier){
-        this.setState({
-            modifier: modifier,
-            showModal: true
-        });
+    handleAdd: function(){
+        this.setState({modifier: {}});
     },
 
     handleSave: function(data){
-        if (this.props.onSave) {
-            this.props.onSave(data);
-        }
+        this.props.onSave && this.props.onSave(data);
         this.setState(this.getInitialState());
     },
 
+    handleDelete: function(name){
+        this.props.onDelete && this.props.onDelete(name);
+        this.setState(this.getInitialState());
+    },
+
+    handleEdit: function(modifier){
+        this.props.writable &&
+        this.setState({
+            modifier: modifier,
+            edit: true
+        });
+        console.log(modifier)
+    },
+
     render: function(){
-        let {modifiers, onDelete, onSave, ...rest} = this.props;
+        let colorFn = function orderColorNugget(index) {
+            var val = index * 70;
+            var background = 'hsl(' + val + ', 100%, 50%)';
+            return <div className={'orderColorNugget'} style={{background}} key={val}>&nbsp;</div>;
+        };
+
+        let {modifiers, onDelete, onSave, modifierFactory, ...rest} = this.props;
+        const modifierNames = modifierFactory.listEditors();
+        const usedModifiers = modifiers.map(m=>m.name);
+        const canAdd = usedModifiers.length < modifierNames.length;
+        const availableModifiers = modifierNames.filter(function(n) {
+            return usedModifiers.indexOf(n) === -1;
+        });
         return (
             <div className="panel panel-default">
-                <ModifierModal show={this.state.showModal}
+                <ModifierModal show={!!this.state.modifier}
                                onHide={()=>this.setState(this.getInitialState())}
                                modifier={this.state.modifier}
+                               availableModifiers={availableModifiers}
                                onSave={this.handleSave}
+                               onDelete={this.handleDelete}
+                               edit={this.state.edit}
+                               modifierFactory={modifierFactory}
                                {...rest}/>
 
                 <Navbar title="ModifierEditor">
-                    {this.props.writable &&
-                        <NavItem onClick={()=>{this.setState({showModal: !this.state.showModal, modifier: null});}}>Add</NavItem>
+                    {this.props.writable && canAdd &&
+                        <NavItem onClick={this.handleAdd}>Add</NavItem>
                     }
                 </Navbar>
                 
-                <table className="table">
+                <table className={"table "+ (this.props.writable ? "table-hover" : "")}>
                     <thead>
                         <tr>
                             <th>Name</th>
@@ -62,19 +91,8 @@ module.exports = React.createClass({
                     <tbody>
                             {modifiers.length ? modifiers.map((modifier)=>{
                                 let partial = this.props.modifierFactory.getView(modifier.name);
-                                return <tr key={modifier.name}>
-                                    <td>
-                                        {this.props.writable &&
-                                            <div className="pull-right">
-
-                                                {false &&
-                                                <Glyphicon glyph="pencil" onClick={this.onEdit.bind(this, modifier)}/>
-                                                }
-                                                &nbsp;
-                                                <Glyphicon glyph="trash"
-                                                           onClick={this.props.onDelete.bind(this, modifier.name)}/>
-                                            </div>
-                                        }
+                                return <tr key={modifier.name} onClick={this.handleEdit.bind(this, modifier)}>
+                                    <td style={{backgroundColor: StringToColor(modifier.name)}}>
                                         {modifier.name}
                                     </td>
                                     <td>{partial ? React.createElement(partial, {
