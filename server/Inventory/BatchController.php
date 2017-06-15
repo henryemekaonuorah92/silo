@@ -64,7 +64,7 @@ class BatchController implements ControllerProviderInterface
                     new Constraint\Collection([
                         'location' => [new Constraint\NotBlank(), new LocationExists()],
                         'product' => [new Constraint\Required(), new SkuExists()],
-                        'quantity' => new Constraint\Range(['min' => -100, 'max' => 100]),
+                        'quantity' => new Constraint\Required() //(['min' => -100, 'max' => 100]),
                     ]),
                     new Constraint\Callback(function ($payload, ExecutionContextInterface $context) {
                         if (isset($payload['location']) &&

@@ -112,7 +112,7 @@ class OperationController implements ControllerProviderInterface
                         'source' => [new Constraint\NotBlank(), new LocationExists()],
                         'target' => [new Constraint\NotBlank(), new LocationExists()],
                         'sku' => [new Constraint\Required(), new SkuExists()],
-                        'quantity' => new Constraint\Range(['min' => -100, 'max' => 100]),
+                        'quantity' => new Constraint\Required(),//new Constraint\Range(['min' => -100, 'max' => 100]),
                     ]),
                     new Constraint\Callback(function($payload, ExecutionContextInterface $context)
                     {

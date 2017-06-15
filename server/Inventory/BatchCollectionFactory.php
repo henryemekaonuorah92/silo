@@ -49,7 +49,7 @@ class BatchCollectionFactory
                 new Constraint\Collection([
                     'product' => [new Constraint\Required(), new SkuExists()],
                     // Negatives ?
-                    'quantity' => new Constraint\Range(['min' => -100, 'max' => 100]),
+                    'quantity' => new Constraint\Required(), //new Constraint\Range(['min' => -100, 'max' => 100]),
                 ]),
             ]);
 
