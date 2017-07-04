@@ -89,10 +89,11 @@ module.exports = React.createClass({
     render: function(){
         let data = this.state.data;
         let uploadUrl = this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches';
+        // <button className="btn btn-danger" onClick={this.handleDelete}>Delete</button>
         return (
             <div>
                 <h3><span className="glyphicon glyphicon-map-marker" />Location {this.props.code}</h3>
-                <button className="btn btn-danger" onClick={this.handleDelete}>Delete</button>
+
                 {data ? (<div>
                     <b>Parent:</b>&nbsp;{data.parent ? <Link route="location" code={data.parent} /> : "No parent"}<br />
                     <b>Childs:</b>&nbsp;
