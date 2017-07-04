@@ -52,7 +52,7 @@ class ModifierRepository extends EntityRepository
     public function getType($name)
     {
         if (!isset($this->typeCache[$name]) || !$this->_em->contains($this->typeCache[$name])) {
-            $type = $this->_em->getRepository('Inventory:ModifierType')
+            $type = $this->_em->getRepository(ModifierType::class)
                 ->findOneBy(['name' => $name]);
             if (!$type) {
                 $type = call_user_func($this->createModifierType, $name);
@@ -71,7 +71,7 @@ class ModifierRepository extends EntityRepository
      */
     public function remove(Location $location, $name)
     {
-        $type = $this->_em->getRepository('Inventory:ModifierType')
+        $type = $this->_em->getRepository(ModifierType::class)
             ->findOneBy(['name' => $name]);
         if ($type) {
             $instance = $this->findOneBy(['type' => $type, 'location' => $location]);

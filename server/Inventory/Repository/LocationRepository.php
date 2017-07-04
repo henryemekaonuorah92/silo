@@ -8,9 +8,11 @@ use Silo\Inventory\Finder\OperationFinder;
 use Silo\Inventory\LocationWalker;
 use Silo\Inventory\Collection\BatchCollection;
 use Silo\Inventory\Model\Location;
+use Silo\Inventory\Model\Modifier;
 use Silo\Inventory\Model\Operation as OperationModel;
 use Silo\Inventory\Model\User as UserModel;
 use Silo\Inventory\Model\User;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class LocationRepository extends EntityRepository
 {
@@ -125,7 +127,7 @@ class LocationRepository extends EntityRepository
     {
         $query = $this->_em->createQueryBuilder();
         $query->select('modifier, location')
-            ->from('Inventory:Modifier', 'modifier')
+            ->from(Modifier::class, 'modifier')
             ->join('modifier.location', 'location')
             ->join('modifier.type', 'type')
             ->andWhere('type.name = :type')

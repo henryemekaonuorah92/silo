@@ -11,6 +11,7 @@ use Silo\Inventory\Finder\OperationFinder;
 use Silo\Inventory\Model\Batch;
 use Silo\Inventory\Collection\BatchCollection;
 use Silo\Inventory\Model\Location;
+use Silo\Inventory\Model\Modifier;
 use Silo\Inventory\Model\Operation;
 use Silo\Inventory\Model\OperationSet;
 use Silo\Inventory\Repository\LocationRepository;
@@ -392,7 +393,7 @@ EOQ;
         $controllers->get('/{code}/modifiers', function ($code, Application $app, Request $request) {
             $query = $app['em']->createQueryBuilder();
             $query->select('modifier, type, location')
-                ->from('Inventory:Modifier', 'modifier')
+                ->from(Modifier::class, 'modifier')
                 ->innerJoin('modifier.location', 'location')
                 ->innerJoin('modifier.type', 'type')
                 ->andWhere('location.code = :code')
@@ -417,7 +418,7 @@ EOQ;
          */
         $controllers->post('/{location}/modifiers', function (Location $location, Request $request) use ($app) {
             /** @var ModifierRepository $modifiers */
-            $modifiers = $app['re']('Inventory:Modifier');
+            $modifiers = $app['re'](Modifier::class);
             $modifiers->add($location, $request->request->get('name'), $request->request->get('value'));
             $app['em']->flush();
 
@@ -440,7 +441,7 @@ EOQ;
             /** @var Location $location */
             $location = $locations->forceFindOneByCode($code);
             /** @var ModifierRepository $modifiers */
-            $modifiers = $app['re']('Inventory:Modifier');
+            $modifiers = $app['re'](Modifier::class);
             $modifiers->remove($location, $name);
             $app['em']->flush();
 
