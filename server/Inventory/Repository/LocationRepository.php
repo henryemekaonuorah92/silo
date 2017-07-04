@@ -47,7 +47,7 @@ class LocationRepository extends EntityRepository
                 return $l->getBatches();
             },
             function ($a, $b) {
-                return $a->merge($b);
+                return $a->merge($b, true);
             },
             new BatchCollection()
         );
