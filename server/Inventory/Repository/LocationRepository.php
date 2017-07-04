@@ -4,11 +4,13 @@ namespace Silo\Inventory\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Silo\Inventory\Finder\OperationFinder;
 use Silo\Inventory\LocationWalker;
 use Silo\Inventory\Collection\BatchCollection;
 use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation as OperationModel;
 use Silo\Inventory\Model\User as UserModel;
+use Silo\Inventory\Model\User;
 
 class LocationRepository extends EntityRepository
 {
@@ -138,5 +140,41 @@ class LocationRepository extends EntityRepository
         }
 
         return !empty($modifiers) ? $modifiers[0]->getLocation() : null;
+    }
+
+    public function delete(Location $location, User $user)
+    {
+        if ($location->isDeleted()) {
+            throw new \LogicException("$location is already deleted");
+        }
+        if (count($location->getChildren()) > 0) {
+            throw new \LogicException("Cannot delete $location because it has children");
+        }
+
+        // Cancel all pending operations
+        $finder = new OperationFinder($this->_em);
+        $operations = $finder->manipulating($location)->isPending()->find();
+        foreach ($operations as $operation) {
+            $operation->cancel($user);
+        }
+
+        // Delete location
+        $this->_em->getRepository(\Silo\Inventory\Model\Operation::class)
+            ->executeOperation($user, $location->getParent(), null, 'delete location', $location);
+
+        $this->_em->flush();
+    }
+
+    public function getProvider()
+    {
+        $locations = $this;
+        return function ($code) use ($locations) {
+            $location = $locations->findOneByCode($code);
+            if (!$location || $location->isDeleted()) {
+                throw new NotFoundHttpException("Location $code cannot be found");
+            }
+
+            return $location;
+        };
     }
 }

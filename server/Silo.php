@@ -99,6 +99,10 @@ class Silo extends \Silex\Application
 
         $app->register(new GarbageCollectorProvider());
 
+        if (class_exists('\\Sorien\\Provider\\PimpleDumpProvider')) {
+            $app->register(new \Sorien\Provider\PimpleDumpProvider());
+        }
+
         $app->mount('/silo/inventory/location', new \Silo\Inventory\LocationController());
         $app->mount('/silo/inventory/operation', new \Silo\Inventory\OperationController());
         $app->mount('/silo/inventory/product', new \Silo\Inventory\ProductController());

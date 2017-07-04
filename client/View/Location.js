@@ -6,6 +6,7 @@ const DataStore = require('../Editor/DataStore');
 const withLocationModifier = require('../Editor/withLocationModifier');
 const ModifierEditor = withLocationModifier(require('../Editor/ModifierEditor'));
 const Link = require('../Factory').Link;
+const Api = require('../Api');
 
 module.exports = React.createClass({
 
@@ -76,6 +77,10 @@ module.exports = React.createClass({
         this.batchCache.refresh();
     },
 
+    handleDelete: function(){
+        Api.fetch(this.props.siloBasePath+"/inventory/location/"+this.props.code, {method: "DELETE"});
+    },
+
     componentWillUnmount : function () {
         this.locationCache.cleanup();
         this.batchCache.cleanup();
@@ -87,6 +92,7 @@ module.exports = React.createClass({
         return (
             <div>
                 <h3><span className="glyphicon glyphicon-map-marker" />Location {this.props.code}</h3>
+                <button className="btn btn-danger" onClick={this.handleDelete}>Delete</button>
                 {data ? (<div>
                     <b>Parent:</b>&nbsp;{data.parent ? <Link route="location" code={data.parent} /> : "No parent"}<br />
                     <b>Childs:</b>&nbsp;

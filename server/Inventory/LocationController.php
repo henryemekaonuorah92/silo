@@ -7,11 +7,13 @@ use Doctrine\ORM\QueryBuilder;
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Silo\Base\JsonRequest;
+use Silo\Inventory\Finder\OperationFinder;
 use Silo\Inventory\Model\Batch;
 use Silo\Inventory\Collection\BatchCollection;
 use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation;
 use Silo\Inventory\Model\OperationSet;
+use Silo\Inventory\Repository\LocationRepository;
 use Silo\Inventory\Repository\ModifierRepository;
 use Silo\Inventory\Validator\Constraints\SkuExists;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -33,15 +35,8 @@ class LocationController implements ControllerProviderInterface
     {
         $controllers = $app['controllers_factory'];
 
-        $locations = $app['em']->getRepository('Inventory:Location');
-        $locationProvider = function ($code) use ($locations) {
-            $location = $locations->findOneByCode($code);
-            if (!$location || $location->isDeleted()) {
-                throw new NotFoundHttpException("Location $code cannot be found");
-            }
-
-            return $location;
-        };
+        /** @var LocationRepository $locations */
+        $locations = $app['em']->getRepository(Location::class);
 
         $controllers->post('/search', function (Request $request)use($app) {
             $code = $request->query->get('query');
@@ -105,51 +100,15 @@ class LocationController implements ControllerProviderInterface
                     ];
                 }, $operations)
             ]);
-        })->convert('location', $locationProvider);
+        })->convert('location', $locations->getProvider());
 
         /*
          * Delete a Location
          */
         $controllers->delete('/{code}', function ($code, Application $app, Request $request) {
-            $em = $app['em'];
-            $location = $app['re']('Inventory:Location')->forceFindOneByCode($code);
-            $operations = $app['re']('Inventory:Operation');
-
-            /*
-            if ($location->isDeleted()) {
-            throw new \LogicException("$location is already deleted");
-            }
-
-            if ($location->getChildren()->count() > 0) {
-                throw new \LogicException("Cannot delete $location because it has children");
-            }
-            */
-
-            // Cancel all pending operations
-            $query = $em->createQueryBuilder();
-            $query
-                ->select('o')
-                ->from('Inventory:Operation', 'o')
-                ->andWhere($query->expr()->orX(
-                    'o.source = :location',
-                    'o.target = :location',
-                    'o.location = :location'
-                ))
-                ->andWhere($query->expr()->isNull('o.doneAt'))
-                ->andWhere($query->expr()->isNull('o.cancelledAt'))
-                ->setParameter('location', $location)
-            ;
-            foreach ($query->getQuery()->getResult() as $operation) {
-                $operation->cancel($app['current_user']);
-            }
-            $em->flush();
-
-            // Empty and remove location
-            // @todo do not empty empty location
-            $operations->executeOperation($app['current_user'], $location, null, 'empty location', $location->getBatches());
-            $operations->executeOperation($app['current_user'], $location->getParent(), null, 'remove location', $location);
-
-            $em->flush();
+            $locations = $app['re'](Location::class);
+            $location = $locations->forceFindOneByCode($code);
+            $locations->delete($location, $app['current_user']);
 
             return new JsonResponse([], Response::HTTP_ACCEPTED);
         });
@@ -205,7 +164,7 @@ class LocationController implements ControllerProviderInterface
 
             return new JsonResponse([]);
         })
-            ->convert('location', $locationProvider)
+            ->convert('location', $locations->getProvider())
             ->before(new JsonRequest());
 
         /*
@@ -364,7 +323,7 @@ EOQ;
 
             // Is it merge or adjust ?
             return new JsonResponse(null, JsonResponse::HTTP_ACCEPTED);
-        })->method('PATCH|PUT')->convert('location', $locationProvider);
+        })->method('PATCH|PUT')->convert('location', $locations->getProvider());
         
         
         /*
@@ -425,7 +384,7 @@ EOQ;
             $app['em']->flush();
 
             return new Response('', Response::HTTP_ACCEPTED);
-        })->convert('location', $locationProvider);
+        })->convert('location', $locations->getProvider());
 
         /**
          * Get assigned modifiers to a specific Location
@@ -464,7 +423,7 @@ EOQ;
 
             return new JsonResponse([], Response::HTTP_ACCEPTED);
         })
-            ->convert('location', $locationProvider)
+            ->convert('location', $locations->getProvider())
             ->before(new JsonRequest())
         ;
 
