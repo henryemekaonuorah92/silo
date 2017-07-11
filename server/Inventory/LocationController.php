@@ -221,6 +221,7 @@ EOQ;
             }
 
             // Extract all batches from the inventory
+            $join = $condition = "";
             if ($modifier) {
                 $allowedModifiers = [
                     'store',
