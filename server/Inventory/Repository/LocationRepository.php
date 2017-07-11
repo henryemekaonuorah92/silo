@@ -48,10 +48,10 @@ class LocationRepository extends EntityRepository
         return $walker->mapReduce(
             $location,
             function (Location $l) {
-                return $l->getBatches();
+                return $l->getBatches()->copy();
             },
             function ($a, $b) {
-                return $a->merge($b, true);
+                return $a->merge($b, true)->copy();
             },
             new BatchCollection()
         );

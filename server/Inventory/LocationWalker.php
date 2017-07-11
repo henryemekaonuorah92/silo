@@ -15,11 +15,16 @@ class LocationWalker
 
     private $queryExtender;
 
-    public function __construct(EntityManager $em, \Closure $queryExtender = null)
+    private $exceptionOnLoop;
+
+    public function __construct(EntityManager $em, \Closure $queryExtender = null, $exceptionOnLoop = false)
     {
         $this->em = $em;
         $this->queryExtender = $queryExtender;
+        $this->exceptionOnLoop = $exceptionOnLoop;
     }
+
+    private $loopDetect = [];
 
     /**
      * Apply a mapReduce algorithm on a subtree starting at $location, extracting $map
@@ -28,32 +33,49 @@ class LocationWalker
      * $reduce is passed for each node a new value and the reminder
      *
      * @param Location $location
-     * @param callable $map
-     * @param callable $reduce
+     * @param callable $mapFn
+     * @param callable $reduceFn
      * @return mixed
      * @todo Warn for cycles !
      */
-    public function mapReduce(Location $location, callable $map, callable $reduce, $reduceInit)
+    public function mapReduce(Location $location, callable $mapFn, callable $reduceFn, $reduceInitial)
     {
-        $reminder = call_user_func($map, $location);
+        // Loop avoidance by maintaining a explored node list
+        $code = $location->getCode();
+        if (in_array($code, $this->loopDetect)) {
+            if ($this->exceptionOnLoop) {
+                throw new \Exception("Loop detected");
+            }
+            return $reduceInitial;
+        }
+        array_push($this->loopDetect, $code);
 
+        // First fetch all childs and apply mapReduce recursively on them
         $query = $this->em->createQueryBuilder();
         $query->addSelect('Location')
             ->from('Inventory:Location', 'Location')
             ->andWhere('Location.parent = :parent')
             ->setParameter('parent', $location);
-
         if (is_callable($this->queryExtender)) {
             call_user_func($this->queryExtender, $query);
         }
-
         $childs = $query->getQuery()->getResult();
 
+        $mapped = [];
         foreach ($childs as $child) {
-            $reminder = $this->mapReduce($child, $map, $reduce, $reminder);
+            if (is_object($reduceInitial)) {
+                $reduceInitial = clone $reduceInitial;
+            }
+            array_push($mapped, $this->mapReduce($child, $mapFn, $reduceFn, $reduceInitial));
             $this->em->detach($child);
         }
 
-        return call_user_func($reduce, $reminder, $reduceInit);
+        // Apply mapping function on current !
+        array_push($mapped, $mapFn($location));
+
+        if (is_object($reduceInitial)) {
+            $reduceInitial = clone $reduceInitial;
+        }
+        return array_reduce($mapped, $reduceFn, $reduceInitial);
     }
 }

@@ -235,4 +235,12 @@ class Location
     {
         return $this->isDeleted;
     }
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 }
