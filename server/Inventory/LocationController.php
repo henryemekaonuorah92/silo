@@ -194,7 +194,9 @@ class LocationController implements ControllerProviderInterface
          * This method doesn't rely on Doctrine's object to speed up things
          * It could be speed up even more with some sort of partitionning strategy
          */
-        $controllers->get('/{startCode}/inclusiveBatches', function ($startCode)use($app) {
+        $controllers->get('/{startCode}/inclusiveBatches', function ($startCode, Request $request)use($app) {
+            $modifier = $request->get('modifier');
+            
             /** @var EntityManager $em */
             $em = $app['em'];
 
@@ -219,13 +221,33 @@ EOQ;
             }
 
             // Extract all batches from the inventory
+            $join = $condition = "";
+            if ($modifier) {
+                $allowedModifiers = [
+                    'store',
+                    'damaged',
+                    'surplus',
+                    'picking'
+                ];
+                if (!in_array($modifier, $allowedModifiers)) {
+                    throw new \Exception("Please use one modifier out of ".implode(',',
+                            $allowedModifiers));
+                }
+                $join = <<<EOQ
+                    INNER JOIN silo_modifier sm on sm.location = location.location_id
+                    INNER JOIN silo_modifier_type smt on sm.modifier_type_id = smt.modifier_type_id
+EOQ;
+                $condition = sprintf(" AND smt.name = \"%s\" ", $modifier);
+            }
             $sql = <<<EOQ
             select location.code as code, product.sku as s, product.name as n, SUM(batch.quantity) as q
             from silo_location location
             inner join silo_batch batch on location.location_id = batch.location_id
             inner join silo_product product on batch.product_id = product.product_id
+            $join
             where batch.quantity != 0
             and location.isDeleted = 0
+            $condition
             group by location.code, product.sku
 EOQ;
             $stmt = $em->getConnection()->prepare($sql);
