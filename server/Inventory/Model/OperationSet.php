@@ -84,8 +84,10 @@ class OperationSet
 
     public function add(Operation $operation)
     {
-        $operation->addOperationSet($this);
-        $this->operations->add($operation);
+        if (!$this->operations->contains($operation)) {
+            $operation->addOperationSet($this);
+            $this->operations->add($operation);
+        }
     }
 
     /**
