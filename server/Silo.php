@@ -5,6 +5,7 @@ namespace Silo;
 use Doctrine\ORM\EntityManager;
 use Silo\Base\ConstraintValidatorFactory;
 use Silo\Base\Provider\DoctrineProvider\SQLLogger;
+use Silo\Base\Provider\MetricProvider;
 use Silo\Base\ValidationException;
 use Silo\Inventory\BatchCollectionFactory;
 use Silo\Inventory\GC\BatchGarbageCollector;
@@ -48,9 +49,12 @@ class Silo extends \Silex\Application
             throw new \Exception('current_user should be an User');
         }
 
-        parent::__construct($values);
-
         $app = $this;
+
+        $app->register(new GarbageCollectorProvider());
+        $app->register(new MetricProvider());
+
+        parent::__construct($values);
 
         if (!$app->offsetExists('em')) {
             $app->register(new \Silo\Base\Provider\DoctrineProvider([
@@ -96,8 +100,6 @@ class Silo extends \Silex\Application
             $s->setEntityManager($app['em']);
             return $s;
         };
-
-        $app->register(new GarbageCollectorProvider());
 
         if (class_exists('\\Sorien\\Provider\\PimpleDumpProvider')) {
             $app->register(new \Sorien\Provider\PimpleDumpProvider());

@@ -14,7 +14,8 @@
     "parsecsv/php-parsecsv": "0.4.5",
     "doctrine/migrations": "*",
     "symfony/validator": "^3.1",
-    "dav-m85/std-makefile":"dev-master"
+    "dav-m85/std-makefile":"dev-master",
+    "beberlei/metrics": "^2.5"
   },
   "require-dev": {
     "behat/behat": "v2.5.5",
