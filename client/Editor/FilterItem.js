@@ -24,6 +24,10 @@ module.exports = React.createClass({
         this.props.onChange(value);
     },
 
+    handleInputChange: function(value) {
+        this.props.onChange([value]);
+    },
+
     render: function(){
         const value = this.props.value;
         const type = this.props.type;
@@ -45,7 +49,7 @@ module.exports = React.createClass({
             case "cancelledBy":
             case "doneBy":
             case "requestedBy":
-                valuePartial = <AsyncSimpleSelect onChange={this.props.onChange}
+                valuePartial = <AsyncSimpleSelect onChange={this.props.onChange} onInputChange={this.handleInputChange}
                                              selected={value || []}
                                              url="/silo/inventory/user/search"
                                              placeholder="User..." />;
@@ -58,13 +62,13 @@ module.exports = React.createClass({
             case "source":
             case "target":
             case "location":
-                valuePartial = <AsyncSimpleSelect onChange={this.props.onChange}
+                valuePartial = <AsyncSimpleSelect onChange={this.props.onChange} onInputChange={this.handleInputChange}
                                                   selected={value || []}
                                                   url="/silo/inventory/location/search"
                                                   placeholder="Location..." />;
                 break;
             case "sku":
-                valuePartial = <AsyncSimpleSelect onChange={this.props.onChange}
+                valuePartial = <AsyncSimpleSelect onChange={this.props.onChange} onInputChange={this.handleInputChange}
                                                   selected={value || []}
                                                   url="/silo/inventory/product/search"
                                                   placeholder="Product..." />;
