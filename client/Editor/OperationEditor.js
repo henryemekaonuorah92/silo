@@ -9,6 +9,7 @@ const Datetime = require('../Common/Datetime');
 const Emoji = require('react-emoji');
 const Link = require('../Factory').Link;
 const FilterList = require('./FilterList');
+const fetch = require('../Api').fetch;
 const DataStore = require('./DataStore');
 const request = require('superagent');
 const DownloadDataLink = require('../Common/DownloadDataLink');
@@ -73,10 +74,24 @@ module.exports = React.createClass({
     },
 
     prepareExport: function(){
-        let operations = this.props.operations || this.state.operations;
-        let header = "operationId,type,source,target,location,sku,quantity"+
-            "requestedAt,requestedBy,cancelledAt,cancelledBy,doneAt,doneBy,contextId\n";
-        return header + operations.getAll().map(function(op){
+        let process = operations => {
+            let header = [
+                "operationId",
+                "type",
+                "source",
+                "target",
+                "location",
+                "sku",
+                "quantity",
+                "requestedAt",
+                "requestedBy",
+                "cancelledAt",
+                "cancelledBy",
+                "doneAt",
+                "doneBy",
+                "contextId"
+            ].join(',')+"\n";
+            return header + operations.map(function(op){
                 let batch = op.batches && op.batches.pop()
                 return [
                     op.id,
@@ -95,7 +110,16 @@ module.exports = React.createClass({
                     op.contexts.map(ctx=>ctx.id).join(' ')
                 ].join(',')
             }).join("\n")
+        };
 
+        if (this.state.filters.length > 0) {
+            return fetch(
+                "/silo/inventory/operation/search",
+                {method: "POST", body: JSON.stringify({filters: this.state.filters, limit: -1})}
+            ).then(process)
+        } else {
+            return process((this.props.operations || this.state.operations).getAll())
+        }
     },
 
     render: function(){

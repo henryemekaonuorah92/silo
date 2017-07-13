@@ -194,6 +194,8 @@ class OperationController implements ControllerProviderInterface
             //$finder = new OperationFinder($app['em']);
             $withBatches = false;
 
+            $maxResults = $request->get('limit', 100);
+
             /** @var QueryBuilder $query */
             $query = $app['em']->createQueryBuilder();
             $query->select('operation, source, target, type, context, location,doneBy,requestedBy,cancelledBy')
@@ -207,8 +209,11 @@ class OperationController implements ControllerProviderInterface
                 ->leftJoin('operation.operationType', 'type')
                 ->leftJoin('operation.operationSets', 'context')
                 ->orderBy('operation.id', 'DESC')
-                ->setMaxResults(100)
                 ;
+
+            if (is_numeric($maxResults) && $maxResults > 0) {
+                $query->setMaxResults($maxResults);
+            }
 
             if ($location = $request->get('location')) {
                 $query->andWhere($query->expr()->orX(
