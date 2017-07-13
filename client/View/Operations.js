@@ -44,7 +44,7 @@ module.exports = React.createClass({
                         />
                 </Col></Row>
 
-                <OperationEditor ref={(ref)=>{this.operationEditor = ref;}} />
+                <OperationEditor ref={(ref)=>{this.operationEditor = ref;}} router={this.props.router}/>
             </div>
         );
     }

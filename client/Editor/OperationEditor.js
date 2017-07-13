@@ -20,21 +20,29 @@ const {Navbar, NavText} = require('./Editor');
  * @type {*}
  */
 module.exports = React.createClass({
-    getInitialState: ()=>({
-        dimensions: {
-            width: -1,
-            height: -1,
-        },
-        operations : new DataStore([]),
-        filters: [],
-        showFilter: false,
-        wip: false,
-        error: null
-    }),
+    getInitialState: function(){
+        let params = [];
+        if (this.props.router) {
+            params = this.props.router.getParams()
+        }
+
+        return {
+            dimensions: {
+                width: -1,
+                height: -1,
+            },
+            operations : new DataStore([]),
+            filters: params,
+            showFilter: false,
+            wip: false,
+            error: null
+        }
+    },
 
     propTypes: {
         // batches: React.PropTypes.isRequired // new DataStore
         // siloBasePath: React.PropTypes.string.isRequired
+        // routerParams
     },
 
     isStatic : function(){
@@ -70,6 +78,10 @@ module.exports = React.createClass({
     },
 
     handleFilterChange: function(filters){
+        if (this.props.router) {
+            this.props.router.setParams(filters);
+        }
+
         this.setState({filters:filters}, this.componentDidMount);
     },
 
@@ -150,7 +162,7 @@ module.exports = React.createClass({
                 </Navbar>
 
                 {this.isStatic() || this.state.showFilter &&
-                    <FilterList onFilterChange={this.handleFilterChange} />
+                    <FilterList onFilterChange={this.handleFilterChange} filters={this.state.filters} />
                 }
                 {operations.getSize() > 0 ?
                     <Measure onMeasure={(dimensions)=>{this.setState({dimensions});}}>

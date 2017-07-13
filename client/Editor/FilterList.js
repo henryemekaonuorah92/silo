@@ -8,9 +8,9 @@ const FilterItem = require('./FilterItem');
  */
 module.exports = React.createClass({
 
-    getInitialState: ()=>({
-        filters: []
-    }),
+    getInitialState: function(){return{
+        filters: this.props.filters || []
+    }},
 
     handleRemove: function(filterKey){
         let w = this.state.filters;
@@ -33,7 +33,6 @@ module.exports = React.createClass({
         this.setState({filters: w});
     },
     handleApply: function(){
-        console.log("Filtering", this.state.filters);
         this.props.onFilterChange(this.state.filters);
     },
 
