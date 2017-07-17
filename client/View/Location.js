@@ -7,6 +7,7 @@ const withLocationModifier = require('../Editor/withLocationModifier');
 const ModifierEditor = withLocationModifier(require('../Editor/ModifierEditor'));
 const Link = require('../Factory').Link;
 const Api = require('../Api');
+const DownloadDataLink = require('../Common/DownloadDataLink');
 
 module.exports = React.createClass({
 
@@ -87,6 +88,25 @@ module.exports = React.createClass({
     },
 
     render: function(){
+
+        let menus = [this.props.batchEditorAdditionalMenu];
+        menus.push(
+            <li>
+                <DownloadDataLink
+                    filename={'location-'+this.props.code+'-inclusiveBatches.csv'}
+                    exportFile={()=>{
+                        return Api.fetch('/silo/inventory/location/'+this.props.code+'/inclusiveBatches').then(data=>{
+                            let header = "product,sku,quantity\n";
+                            return header + data.map(function(data){
+                                return data.sku+','+data.name+','+data.quantity
+                            }).join("\n")
+                        })
+                    }}>
+                    Save Inclusive CSV
+                </DownloadDataLink>
+            </li>
+        );
+
         let data = this.state.data;
         let uploadUrl = this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches';
         // <button className="btn btn-danger" onClick={this.handleDelete}>Delete</button>
@@ -112,7 +132,7 @@ module.exports = React.createClass({
                         exportFilename={'location-'+this.props.code+'-batches.csv'}
                         batches={this.state.batches} uploadUrl={uploadUrl} onNeedRefresh={this.refresh} writable={this.props.writable}
                         batchColumns={this.props.batchColumns}
-                        additionalMenu={this.props.batchEditorAdditionalMenu} />
+                        additionalMenu={menus} />
 
                     <OperationEditor operations={this.state.operations} />
                 </div>) : "Loading data"}
