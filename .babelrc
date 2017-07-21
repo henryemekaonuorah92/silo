@@ -1,0 +1,15 @@
+/*
+    ./.babelrc
+*/
+{
+  "presets":[
+    "react"
+  ],
+  "plugins": [
+    "transform-es2015-block-scoping", // const and let
+    "transform-es2015-arrow-functions", // ()=>{}
+    "babel-plugin-transform-es2015-destructuring",
+    "babel-plugin-transform-es2015-spread",
+    "babel-plugin-transform-object-rest-spread" // spreads !
+  ]
+}

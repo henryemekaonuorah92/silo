@@ -19,7 +19,7 @@ $app->get('/', function(){
     </head>
     <body>
     <div id="ReactMount"></div>
-    <script src="vendor.js"></script>
+    <script src="vendors.js"></script>
     <script src="app.js"></script>
     </body>
 </html>
