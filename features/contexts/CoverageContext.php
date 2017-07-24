@@ -9,39 +9,66 @@ class CoverageContext extends BehatContext
     /** @var PHP_CodeCoverage */
     private static $coverage;
 
+    private static $configuration = null;
+
     public function __construct(array $parameters)
     {
+        if (isset($parameters['coverage']))
+        {
+            self::$configuration = $c = $parameters['coverage'];
+            if (!isset($c['whitelist'])) {
+                throw new \Exception("add coverage.whitelist to the configuration");
+            }
+            if (!isset($c['outputDir'])) {
+                throw new \Exception("add coverage.outputDir to the configuration");
+            }
+        }
     }
 
     public static function getCoverageInstance()
     {
         if (!self::$coverage) {
-            $filter = new PHP_CodeCoverage_Filter();
-            $filter->addDirectoryToWhitelist(__DIR__.'/../../server');
+            $filter = new \PHP_CodeCoverage_Filter();
+            if (!is_array(self::$configuration['whitelist'])) {
+                self::$configuration['whitelist'] = [self::$configuration['whitelist']];
+            }
+            array_walk(self::$configuration['whitelist'], function($path)use($filter){
+                echo $path;
+                $filter->addDirectoryToWhitelist($path);
+            });
 
-            self::$coverage = new PHP_CodeCoverage(null, $filter);
+            self::$coverage = new \PHP_CodeCoverage(null, $filter);
         }
 
         return self::$coverage;
     }
 
+
+
     /** @BeforeScenario */
     public function before(\Behat\Behat\Event\ScenarioEvent $event)
     {
-        $this->getCoverageInstance()->start($event->getScenario()->getTitle());
+        if (self::$configuration) {
+            $s = $event->getScenario();
+            self::getCoverageInstance()->start($s->getFile().$s->getLine());
+        }
     }
 
     /** @AfterScenario */
     public function after($event)
     {
-        $this->getCoverageInstance()->stop();
+        if (self::$configuration) {
+            self::getCoverageInstance()->stop();
+        }
     }
 
     /** @AfterSuite */
     public static function teardown(\Behat\Behat\Event\SuiteEvent $event)
     {
-        $writer = new PHP_CodeCoverage_Report_HTML();
-        $writer->process(self::getCoverageInstance(), __DIR__.'/../../code-coverage-report');
+        if (self::$configuration) {
+            $writer = new \PHP_CodeCoverage_Report_HTML();
+            $writer->process(self::getCoverageInstance(), self::$configuration['outputDir']);
+        }
     }
 
     /**
