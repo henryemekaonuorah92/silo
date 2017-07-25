@@ -10,3 +10,4 @@ public/*.svg
 public/*.ttf
 public/*.woff*
 **.DS_Store
+public/vendors-manifest.json
