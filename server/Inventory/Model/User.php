@@ -51,6 +51,14 @@ class User
         return $this->name;
     }
 
+    /**
+     * @return string
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
     public function __toString()
     {
         return 'User:'.$this->name;
