@@ -18,7 +18,7 @@ build:
 	npm install
 	node node_modules/gulp/bin/gulp.js build
 	node node_modules/.bin/webpack --config vendors.webpack.config.js
-    node node_modules/.bin/webpack --config app.webpack.config.js
+	node node_modules/.bin/webpack --config app.webpack.config.js
 
 clean:
 	rm -rf vendor
