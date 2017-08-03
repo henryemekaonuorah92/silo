@@ -3,7 +3,7 @@
   "repositories": [
     {
         "type": "vcs",
-        "url": "https://github.com/dav-m85/makefile-trusty"
+        "url": "https://github.com/dav-m85/std-makefile"
     }
   ],
   "require": {
