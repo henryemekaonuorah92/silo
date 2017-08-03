@@ -36,7 +36,7 @@ class Playbacker
             $batches = $operation->getBatches();
             if (Location::compare($operation->getSource(), $location)) {
                 $now->merge($batches);
-            } else if (Location::compare($operation->getTarget(), $location)) {
+            } elseif (Location::compare($operation->getTarget(), $location)) {
                 $now->diff($batches);
             }
         }

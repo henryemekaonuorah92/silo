@@ -11,6 +11,5 @@ class ModifierFactory
 
     public function decode(Modifier $modifier)
     {
-
     }
 }

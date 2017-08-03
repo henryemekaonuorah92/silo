@@ -18,7 +18,7 @@ class MetricProvider implements ServiceProviderInterface, EventListenerProviderI
         $app['collector.type'] = 'null';
         $app['collector.configuration'] = [];
 
-        $app['collector'] = function($app){
+        $app['collector'] = function ($app) {
             return \Beberlei\Metrics\Factory::create(
                 $app['collector.type'],
                 $app['collector.configuration']

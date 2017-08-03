@@ -120,15 +120,15 @@ class Location
             // Deal with deletion and creation cases
             if (is_null($operation->getSource())) { // Creation
                 $this->isDeleted = false;
-            } else if (is_null($operation->getTarget())) {  // Deletion
+            } elseif (is_null($operation->getTarget())) {  // Deletion
                 $this->isDeleted = true;
             }
             $this->parent = $operation->getTarget();
-        } else if (self::compare($operation->getSource(), $this)) {
+        } elseif (self::compare($operation->getSource(), $this)) {
             // $this is the source Location, we substract the Operation Batches
             $this->batches = BatchCollection::fromCollection($this->batches);
             $this->batches->merge($operation->getBatches()->opposite());
-        } else if (self::compare($operation->getTarget(), $this)) {
+        } elseif (self::compare($operation->getTarget(), $this)) {
             // $this is the target Location, we add the Operation Batches
             $this->batches = BatchCollection::fromCollection($this->batches);
             $this->batches->merge($operation->getBatches()->copy());

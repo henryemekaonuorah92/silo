@@ -180,11 +180,11 @@ class Operation
         }
 
         if ($override) {
-            foreach($this->batches->toArray() as $batch) {
+            foreach ($this->batches->toArray() as $batch) {
                 $batch->detach();
             }
             $this->batches->clear();
-            foreach($override->toArray() as $batch) {
+            foreach ($override->toArray() as $batch) {
                 $this->batches->add($batch);
                 $batch->setOperation($this);
             }

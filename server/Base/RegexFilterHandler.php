@@ -67,10 +67,10 @@ class RegexFilterHandler extends AbstractHandler
         }
 
         $excluded = array_reduce(
-            array_map(function($regex)use($record){
+            array_map(function ($regex) use ($record) {
                 return preg_match($regex, $record['message']);
             }, $this->excludedRegexes),
-            function($a, $b){return $a || $b;},
+            function ($a, $b) {return $a || $b;},
             false
         );
 

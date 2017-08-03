@@ -15,7 +15,7 @@ class OperationSetCollection extends ArrayCollection
     public function getOperations()
     {
         $ops = new OperationCollection();
-        foreach($this->toArray() as $set){ /** @var OperationSet $set */
+        foreach ($this->toArray() as $set) { /** @var OperationSet $set */
             $ops->merge($set->getOperations());
         }
 

@@ -54,7 +54,7 @@ class OperationCollection extends ArrayCollection
      */
     public function filterType($type)
     {
-        return $this->filter(function(Operation $operation)use($type){
+        return $this->filter(function (Operation $operation) use ($type) {
             return $operation->getType() === $type;
         });
     }
@@ -64,7 +64,7 @@ class OperationCollection extends ArrayCollection
      */
     public function filterDone()
     {
-        return $this->filter(function(Operation $operation){
+        return $this->filter(function (Operation $operation) {
             return $operation->getStatus()->isDone();
         });
     }

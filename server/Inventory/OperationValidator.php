@@ -7,5 +7,6 @@ use Silo\Inventory\Model\Operation;
 class OperationValidator
 {
     public function assertValid(Operation $operation)
-    {}
+    {
+    }
 }

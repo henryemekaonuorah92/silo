@@ -8,7 +8,6 @@
 
 namespace Silo\Base\Provider\DoctrineProvider;
 
-
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Repository\DefaultRepositoryFactory;
 use Silo\Context\AppAwareContextInterface;

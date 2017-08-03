@@ -113,7 +113,7 @@ class Silo extends \Silex\Application
 
         // Deal with exceptions
         ErrorHandler::register();
-        $app->error(function (\Exception $e, $request) use ($app){
+        $app->error(function (\Exception $e, $request) use ($app) {
             if ($e instanceof NotFoundHttpException) {
                 return new JsonResponse($e->getMessage(), JsonResponse::HTTP_NOT_FOUND);
             }

@@ -41,7 +41,7 @@ class LocationFinder extends \Silo\Inventory\Finder\AbstractFinder
     {
         $q = $this->getQuery();
         $q->andWhere($q->expr()->notIn('l'.$this->suffix, $exclude->getQuery()->getDQL()));
-        $exclude->getQuery()->getParameters()->map(function(Parameter $parameter)use($q){
+        $exclude->getQuery()->getParameters()->map(function (Parameter $parameter) use ($q) {
             $q->setParameter($parameter->getName(), $parameter->getValue());
         });
 

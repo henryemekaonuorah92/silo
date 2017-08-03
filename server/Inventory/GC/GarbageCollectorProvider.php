@@ -26,7 +26,7 @@ class GarbageCollectorProvider implements ServiceProviderInterface, EventListene
 
     public function subscribe(Container $app, EventDispatcherInterface $dispatcher)
     {
-        $dispatcher->addListener(self::EVENT_GARBAGE_COLLECT, function() use ($app){
+        $dispatcher->addListener(self::EVENT_GARBAGE_COLLECT, function () use ($app) {
             $app['GarbageCollector']->collect();
         });
     }

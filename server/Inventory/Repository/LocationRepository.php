@@ -39,7 +39,7 @@ class LocationRepository extends EntityRepository
      */
     public function getInclusiveContent($location)
     {
-        $walker = new LocationWalker($this->_em, function(QueryBuilder $query){
+        $walker = new LocationWalker($this->_em, function (QueryBuilder $query) {
             $query->addSelect('Batches, Product')
                 ->join('Location.batches', 'Batches')
                 ->join('Batches.product', 'Product');
@@ -102,7 +102,8 @@ class LocationRepository extends EntityRepository
 
 
         $location = new \Silo\Inventory\Model\Location($code);
-        $this->_em->persist($location); $this->_em->flush();
+        $this->_em->persist($location);
+        $this->_em->flush();
 
         $operation = new OperationModel($user, null, $parentLocation, $location);
         $operation->setType(

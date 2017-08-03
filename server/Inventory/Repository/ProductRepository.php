@@ -23,7 +23,7 @@ class ProductRepository extends EntityRepository
         return $this->cacheFindOneBySku[$sku];
     }
 
-    public function batchFromMap ($map)
+    public function batchFromMap($map)
     {
         $batches = new BatchCollection();
         if (is_array($map)) {

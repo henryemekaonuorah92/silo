@@ -105,7 +105,7 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
     {
         $that = $this;
         $ref = $batches->toArray();
-        array_walk($ref, function (Batch $add) use ($that,$allowZero) {
+        array_walk($ref, function (Batch $add) use ($that, $allowZero) {
             $this->addProduct($add->getProduct(), $add->getQuantity(), $allowZero);
         });
 
@@ -152,7 +152,7 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
      */
     public function filterZero()
     {
-        return $this->filter(function (Batch $batch){
+        return $this->filter(function (Batch $batch) {
             return $batch->getQuantity() !== 0;
         });
     }
@@ -181,7 +181,7 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
 
     public function hasNegative()
     {
-        foreach($this->getValues() as $batch) { /** @var Batch $batch */
+        foreach ($this->getValues() as $batch) { /** @var Batch $batch */
             if ($batch->getQuantity() < 0) {
                 return true;
             }
@@ -198,7 +198,7 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
         }
 
         // ... we can also have Batch with quantity = 0
-        foreach($this->getValues() as $batch) { /** @var Batch $batch */
+        foreach ($this->getValues() as $batch) { /** @var Batch $batch */
             if (!$batch->isEmpty()) {
                 return false;
             }
@@ -209,8 +209,8 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
 
     public function getQuantity()
     {
-        $sum = function($a, $b){return $a+$b;};
-        return array_reduce(array_map(function(Batch $batch){
+        $sum = function ($a, $b) {return $a+$b;};
+        return array_reduce(array_map(function (Batch $batch) {
             return $batch->getQuantity();
         }, $this->toArray()), $sum, 0);
     }
@@ -226,7 +226,7 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
     public function toRawArray()
     {
         return array_map(
-            function(Batch $batch){
+            function (Batch $batch) {
                 return [
                     'product' => $batch->getProduct()->getSku(),
                     'name' => $batch->getProduct()->getName(),
@@ -239,11 +239,11 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
 
     public function __toString()
     {
-        $batches = array_map(function(Batch $b){return (string)$b;}, $this->toArray());
+        $batches = array_map(function (Batch $b) {return (string)$b;}, $this->toArray());
 
         return sprintf(
             "BatchCollection[%s]",
-                implode(',',$batches)
+                implode(',', $batches)
             );
     }
 
@@ -253,7 +253,7 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
     public function getProducts()
     {
         $products = new ArrayCollection();
-        $this->map(function(Batch $batch)use($products){
+        $this->map(function (Batch $batch) use ($products) {
             $products->addUnique($batch->getProduct());
         });
 
@@ -268,7 +268,7 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
     public function intersectWith(self $batches)
     {
         $products = $batches->getProducts();
-        return $this->filter(function(Batch $batch)use($products){
+        return $this->filter(function (Batch $batch) use ($products) {
             return $products->contains($batch->getProduct());
         });
     }

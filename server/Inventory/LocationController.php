@@ -39,7 +39,7 @@ class LocationController implements ControllerProviderInterface
         /** @var LocationRepository $locations */
         $locations = $app['em']->getRepository(Location::class);
 
-        $controllers->post('/search', function (Request $request)use($app) {
+        $controllers->post('/search', function (Request $request) use ($app) {
             $code = $request->query->get('query');
             /** @var QueryBuilder $query */
             $query = $app['em']->createQueryBuilder();
@@ -48,7 +48,7 @@ class LocationController implements ControllerProviderInterface
                 ->setParameter('code', "%$code%");
 
             return new JsonResponse(array_map(
-                function($l){return $l['code'];},
+                function ($l) {return $l['code'];},
                 $query->getQuery()->getArrayResult()
             ), Response::HTTP_ACCEPTED);
         });
@@ -92,7 +92,7 @@ class LocationController implements ControllerProviderInterface
                         'type' => $op->getType(),
                         'status' => $op->getStatus()->toArray(),
                         'location' => $op->getLocation() ? $op->getLocation()->getCode() : null,
-                        'contexts' => array_map(function(OperationSet $context){
+                        'contexts' => array_map(function (OperationSet $context) {
                             return [
                                 'id' => $context->getId(),
                                 'value' => $context->getValue()
@@ -158,7 +158,7 @@ class LocationController implements ControllerProviderInterface
             }
             $app['em']->flush();
 
-            foreach($operations as $op) {
+            foreach ($operations as $op) {
                 $op->execute($app['current_user']);
             }
             $app['em']->flush();
@@ -171,7 +171,7 @@ class LocationController implements ControllerProviderInterface
         /*
          * Inspect content of a Location
          */
-        $controllers->get('/{code}/batches', function ($code)use($app) {
+        $controllers->get('/{code}/batches', function ($code) use ($app) {
             $query = $app['em']->createQueryBuilder();
             $query->select('location, batch, product')
                 ->from('Inventory:Location', 'location')
@@ -194,7 +194,7 @@ class LocationController implements ControllerProviderInterface
          * This method doesn't rely on Doctrine's object to speed up things
          * It could be speed up even more with some sort of partitionning strategy
          */
-        $controllers->get('/{startCode}/inclusiveBatches', function ($startCode, Request $request)use($app) {
+        $controllers->get('/{startCode}/inclusiveBatches', function ($startCode, Request $request) use ($app) {
             $modifier = $request->get('modifier');
             
             /** @var EntityManager $em */
@@ -266,10 +266,10 @@ EOQ;
             // Accumulate all products from recursively walked locations, top to bottom
             // We'll use the accumulator later to build the final response
             $accumulator = [];
-            $recursiveWalk = function($code, $self)use($adjacencyMap,$productMap,&$accumulator){
+            $recursiveWalk = function ($code, $self) use ($adjacencyMap, $productMap, &$accumulator) {
                 // Explore children first
                 if (isset($adjacencyMap[$code])) {
-                    foreach($adjacencyMap[$code] as $child) {
+                    foreach ($adjacencyMap[$code] as $child) {
                         call_user_func($self, $child, $self);
                     }
                 }
@@ -282,7 +282,7 @@ EOQ;
             // Lets' build the response
             $batches = [];
             foreach ($accumulator as $skuGroups) {
-                foreach($skuGroups as $skuGroup) {
+                foreach ($skuGroups as $skuGroup) {
                     $sku = $skuGroup['s'];
                     $quantity = $skuGroup['q'];
                     isset($batches[$sku]) ? $batches[$sku]+=$quantity: $batches[$sku] = (int)$quantity;
@@ -291,7 +291,7 @@ EOQ;
 
             // Flatten the response
             $response = [];
-            foreach($batches as $sku => $quantity) {
+            foreach ($batches as $sku => $quantity) {
                 $response[] = [
                     'sku' => $sku,
                     'name' => $nameMap[$sku],
@@ -352,7 +352,7 @@ EOQ;
         /*
          * Edit Batches in a given Location
          */
-        $controllers->post('/{location}/batches', function (Location $location, Request $request)use($app) {
+        $controllers->post('/{location}/batches', function (Location $location, Request $request) use ($app) {
             /** @var \Symfony\Component\HttpFoundation\File\UploadedFile $file */
             $file = $request->files->get('file');
             $csv = new \parseCSV();
@@ -453,7 +453,7 @@ EOQ;
         /**
          * Remove a Modifier
          */
-        $controllers->delete('/{code}/modifiers', function ($code, Request $request)use($app) {
+        $controllers->delete('/{code}/modifiers', function ($code, Request $request) use ($app) {
             $locations = $app['re']('Inventory:Location');
 
             $name = $request->request->get('name');

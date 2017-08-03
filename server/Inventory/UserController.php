@@ -18,7 +18,7 @@ class UserController implements ControllerProviderInterface
     {
         $controllers = $app['controllers_factory'];
 
-        $controllers->post('/search', function (Request $request)use($app) {
+        $controllers->post('/search', function (Request $request) use ($app) {
             $code = $request->query->get('query');
             /** @var QueryBuilder $query */
             $query = $app['em']->createQueryBuilder();
@@ -27,7 +27,7 @@ class UserController implements ControllerProviderInterface
                 ->setParameter('code', "%$code%");
 
             return new JsonResponse(array_map(
-                function($l){return utf8_encode($l['name']);},
+                function ($l) {return utf8_encode($l['name']);},
                 $query->getQuery()->getArrayResult()
             ), Response::HTTP_ACCEPTED);
         });

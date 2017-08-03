@@ -12,7 +12,7 @@ class ModifierCollection extends ArrayCollection
     public function containsName($name)
     {
         foreach ($this->toArray() as $modifier) {/** @var Modifier $modifier */
-            if($modifier->getName() === $name) {
+            if ($modifier->getName() === $name) {
                 return true;
             }
         }
@@ -27,7 +27,7 @@ class ModifierCollection extends ArrayCollection
     public function getByName($name)
     {
         foreach ($this->toArray() as $modifier) {/** @var Modifier $modifier */
-            if($modifier->getName() === $name) {
+            if ($modifier->getName() === $name) {
                 return $modifier;
             }
         }

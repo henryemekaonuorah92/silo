@@ -1,8 +1,8 @@
 <?php
 
 namespace Silo\Inventory;
-use Doctrine\ORM\EntityManager;
 
+use Doctrine\ORM\EntityManager;
 use Silo\Base\ValidationException;
 use Symfony\Component\Validator\Constraints as Constraint;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -29,7 +29,7 @@ class BatchCollectionFactory
         EntityManager $em,
         ValidatorInterface $validator,
         $transformer = null
-    ){
+    ) {
         $this->em = $em;
         $this->validator = $validator;
         $this->skuTransformer = $transformer;

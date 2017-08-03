@@ -41,7 +41,7 @@ class ProductController implements ControllerProviderInterface
             return $product;
         };
 
-        $controllers->post('/search', function (Request $request)use($app) {
+        $controllers->post('/search', function (Request $request) use ($app) {
             $code = $request->query->get('query');
             /** @var QueryBuilder $query */
             $query = $app['em']->createQueryBuilder();
@@ -50,18 +50,18 @@ class ProductController implements ControllerProviderInterface
                 ->setParameter('code', "%$code%");
 
             return new JsonResponse(array_map(
-                function($l){return $l['sku'];},
+                function ($l) {return $l['sku'];},
                 $query->getQuery()->getArrayResult()
             ), Response::HTTP_ACCEPTED);
         });
 
-        $controllers->get('/all', function()use($app){
+        $controllers->get('/all', function () use ($app) {
             $query = $app['em']->createQueryBuilder();
             $query->select('Product.sku')
                 ->from('Inventory:Product', 'Product');
 
             $results = $query->getQuery()->getArrayResult();
-            $response = new JsonResponse(array_map(function($r){return $r['sku'];}, $results));
+            $response = new JsonResponse(array_map(function ($r) {return $r['sku'];}, $results));
             $response->setMaxAge(3600);
 
             return $response;
@@ -85,11 +85,11 @@ class ProductController implements ControllerProviderInterface
 
             return new JsonResponse([
                 'product' => $product->getSku(),
-                'locations' => array_map(function(Batch $batch){
+                'locations' => array_map(function (Batch $batch) {
                     return [
                         'location' => $batch->getLocation()->getCode(),
                         'quantity' => $batch->getQuantity(),
-                        'modifiers' => array_map(function(Modifier $mod){
+                        'modifiers' => array_map(function (Modifier $mod) {
                             return $mod->getName();
                         }, $batch->getLocation()->getModifiers()->toArray())
                     ];

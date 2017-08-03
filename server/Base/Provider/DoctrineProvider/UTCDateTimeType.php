@@ -9,9 +9,9 @@ use Doctrine\DBAL\Types\DateTimeType;
 // @see http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/cookbook/working-with-datetime.html
 class UTCDateTimeType extends DateTimeType
 {
-    static private $utc;
+    private static $utc;
 
-    static private function getUtc()
+    private static function getUtc()
     {
         return self::$utc ? self::$utc : self::$utc = new \DateTimeZone('UTC');
     }

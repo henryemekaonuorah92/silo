@@ -25,7 +25,7 @@ class OperationMetric implements MetricInterface
             ->groupBy('type.id');
 
         $results = $q->getQuery()->getArrayResult();
-        foreach( $results as $r) {
+        foreach ($results as $r) {
             $type = str_replace(['-', ' ', '.'], '_', $r['name']);
             $collector->gauge('operation.type.'.$type, $r['cnt']);
         }

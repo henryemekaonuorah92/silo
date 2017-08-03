@@ -112,10 +112,9 @@ class OperationController implements ControllerProviderInterface
                         'source' => [new Constraint\NotBlank(), new LocationExists()],
                         'target' => [new Constraint\NotBlank(), new LocationExists()],
                         'sku' => [new Constraint\Required(), new SkuExists()],
-                        'quantity' => new Constraint\Required(),//new Constraint\Range(['min' => -100, 'max' => 100]),
+                        'quantity' => new Constraint\Required(), //new Constraint\Range(['min' => -100, 'max' => 100]),
                     ]),
-                    new Constraint\Callback(function($payload, ExecutionContextInterface $context)
-                    {
+                    new Constraint\Callback(function ($payload, ExecutionContextInterface $context) {
                         if (isset($payload['source']) &&
                             isset($payload['target']) &&
                             $payload['source'] === "VOID" &&
@@ -154,8 +153,12 @@ class OperationController implements ControllerProviderInterface
 
             foreach ($operationMap as $operation => $batches) {
                 list($sourceCode, $targetCode) = explode(',', $operation);
-                if ($sourceCode == 'VOID') {$sourceCode = null;}
-                if ($targetCode == 'VOID') {$targetCode = null;}
+                if ($sourceCode == 'VOID') {
+                    $sourceCode = null;
+                }
+                if ($targetCode == 'VOID') {
+                    $targetCode = null;
+                }
 
                 $source = !empty($sourceCode) ?
                     $app['em']->getRepository('Inventory:Location')->findOneBy(['code' => $sourceCode]) :
@@ -179,9 +182,9 @@ class OperationController implements ControllerProviderInterface
             return new JsonResponse([]);
         });
 
-        $controllers->get('/types', function()use($app){
+        $controllers->get('/types', function () use ($app) {
             $types = $app['em']->getRepository('Inventory:OperationType')->findAll();
-            return new JsonResponse(array_map(function(OperationType $type){
+            return new JsonResponse(array_map(function (OperationType $type) {
                 return $type->getName();
             }, $types));
         });
@@ -225,8 +228,8 @@ class OperationController implements ControllerProviderInterface
             }
 
             $filters = $request->request->get('filters');
-            if(is_array($filters)) {
-                for($i=0;$i<count($filters);$i++){
+            if (is_array($filters)) {
+                for ($i=0;$i<count($filters);$i++) {
                     $filter = $filters[$i];
                     $type = $filter['type'];
                     $value = $filter['value'];
@@ -235,7 +238,7 @@ class OperationController implements ControllerProviderInterface
                         case 'target':
                         case 'source':
                             $query->andWhere($query->expr()->in(
-                                'source.code',':'.$var
+                                'source.code', ':'.$var
                             ));
                             $query->setParameter($var, $value);
                             break;
@@ -254,7 +257,7 @@ class OperationController implements ControllerProviderInterface
                         case 'cancelledBy':
                         case 'requestedBy':
                             $query->andWhere($query->expr()->in(
-                                $type.'.name',':'.$var
+                                $type.'.name', ':'.$var
                             ));
                             $query->setParameter($var, $value);
                             break;
@@ -265,21 +268,21 @@ class OperationController implements ControllerProviderInterface
                             $startDate = new \DateTime($value['startDate']);
                             $endDate = new \DateTime($value['endDate']);
                             $query->andWhere($query->expr()->between(
-                                'operation.'.$type,':start'.$var, ':end'.$var
+                                'operation.'.$type, ':start'.$var, ':end'.$var
                             ));
-                            $query->setParameter(':start'.$var, $startDate->setTime(0,0,0)->format('Y-m-d H:i:s'));
-                            $query->setParameter(':end'.$var, $endDate->setTime(23,59,59)->format('Y-m-d H:i:s'));
+                            $query->setParameter(':start'.$var, $startDate->setTime(0, 0, 0)->format('Y-m-d H:i:s'));
+                            $query->setParameter(':end'.$var, $endDate->setTime(23, 59, 59)->format('Y-m-d H:i:s'));
                             break;
 
                         case 'type':
                             $query->andWhere($query->expr()->in(
-                                'type.name',':'.$var
+                                'type.name', ':'.$var
                             ));
                             $query->setParameter($var, $value);
                             break;
 
                         case 'status':
-                            switch($value){
+                            switch ($value) {
                                 case 'cancelled':
                                     $query->andWhere($query->expr()->isNotNull('operation.cancelledAt'));
                                     break;
@@ -299,7 +302,7 @@ class OperationController implements ControllerProviderInterface
                                 ->innerJoin('operation.batches', 'batches')
                                 ->innerJoin('batches.product', 'product')
                                 ->andWhere($query->expr()->in(
-                                    'product.sku',':'.$var
+                                    'product.sku', ':'.$var
                                 ));
                             $query->setParameter($var, $value);
                             break;
@@ -310,7 +313,7 @@ class OperationController implements ControllerProviderInterface
             $result = $query->getQuery()->execute();
 
             return new JsonResponse(
-                array_map(function (Operation $op)use($withBatches) {
+                array_map(function (Operation $op) use ($withBatches) {
                     $data = [
                         'id' => $op->getId(),
                         'source' => $op->getSource() ? $op->getSource()->getCode() : null,
@@ -319,7 +322,7 @@ class OperationController implements ControllerProviderInterface
                         'status' => $op->getStatus()->toArray(),
 
                         'location' => $op->getLocation() ? $op->getLocation()->getCode() : null,
-                        'contexts' => array_map(function(OperationSet $context){
+                        'contexts' => array_map(function (OperationSet $context) {
                             return [
                                 'id' => $context->getId(),
                                 'value' => $context->getValue()
@@ -352,7 +355,7 @@ class OperationController implements ControllerProviderInterface
                 'type' => $op->getType(),
                 'status' => $op->getStatus()->toArray(),
                 'rollback' => $op->getRollbackOperation() ? $op->getRollbackOperation()->getId() : null,
-                'contexts' => array_map(function(OperationSet $context){
+                'contexts' => array_map(function (OperationSet $context) {
                     return [
                         'id' => $context->getId(),
                         'value' => $context->getValue()

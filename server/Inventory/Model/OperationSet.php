@@ -62,7 +62,7 @@ class OperationSet
     public function __toString()
     {
         $str = 'OperationSet:'.$this->id.'(';
-        foreach($this->operations as $op){
+        foreach ($this->operations as $op) {
             $str.="+$op";
         }
         return $str.')['.$this->value.']';
@@ -133,7 +133,7 @@ class OperationSet
             throw new \LogicException("You cannot remerge an OperationSet");
         }
 
-        foreach($set->getOperations() as $operation) {
+        foreach ($set->getOperations() as $operation) {
             $set->remove($operation);
             $this->add($operation);
         }

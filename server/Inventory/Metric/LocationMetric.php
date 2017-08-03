@@ -30,7 +30,7 @@ class LocationMetric implements MetricInterface
             ->groupBy('type.id');
 
         $results = $q->getQuery()->getArrayResult();
-        foreach( $results as $r) {
+        foreach ($results as $r) {
             if (empty($r['name'])) {
                 $r['name'] = 'null';
             }
