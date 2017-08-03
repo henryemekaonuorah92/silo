@@ -12,7 +12,7 @@ class ConstraintValidatorFactory implements ConstraintValidatorFactoryInterface
     /** @var Container */
     private $container;
 
-    protected $validators = array();
+    protected $validators = [];
 
     public function __construct(Container $container)
     {

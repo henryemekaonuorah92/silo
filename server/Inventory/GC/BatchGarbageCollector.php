@@ -13,7 +13,8 @@ class BatchGarbageCollector
     // @todo add some probe reporting here
     public function collect()
     {
-        $q = $this->em->createQuery(<<<EOQ
+        $q = $this->em->createQuery(
+            <<<EOQ
         DELETE FROM Inventory:Batch b
         WHERE b.quantity = 0
 EOQ

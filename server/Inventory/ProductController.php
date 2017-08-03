@@ -50,7 +50,9 @@ class ProductController implements ControllerProviderInterface
                 ->setParameter('code', "%$code%");
 
             return new JsonResponse(array_map(
-                function ($l) {return $l['sku'];},
+                function ($l) {
+                    return $l['sku'];
+                },
                 $query->getQuery()->getArrayResult()
             ), Response::HTTP_ACCEPTED);
         });
@@ -61,7 +63,9 @@ class ProductController implements ControllerProviderInterface
                 ->from('Inventory:Product', 'Product');
 
             $results = $query->getQuery()->getArrayResult();
-            $response = new JsonResponse(array_map(function ($r) {return $r['sku'];}, $results));
+            $response = new JsonResponse(array_map(function ($r) {
+                return $r['sku'];
+            }, $results));
             $response->setMaxAge(3600);
 
             return $response;

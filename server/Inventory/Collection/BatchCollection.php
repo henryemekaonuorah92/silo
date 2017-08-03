@@ -30,7 +30,9 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
      */
     public function copy()
     {
-        return new static(array_map(function (Batch $batch) {return $batch->copy();}, $this->toArray()));
+        return new static(array_map(function (Batch $batch) {
+            return $batch->copy();
+        }, $this->toArray()));
     }
 
     /**
@@ -71,7 +73,9 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
      */
     public function opposite()
     {
-        return new static(array_map(function (Batch $batch) {return $batch->opposite();}, $this->toArray()));
+        return new static(array_map(function (Batch $batch) {
+            return $batch->opposite();
+        }, $this->toArray()));
     }
 
     /**
@@ -135,7 +139,7 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
             //if ($found->getQuantity() + $quantity === 0) {
             //    $this->removeElement($found);
             //} else {
-                $found->add($quantity);
+            $found->add($quantity);
             //}
         } elseif ($founds->count() > 1) {
             throw new \LogicException('You cannot have many Batch with the same Product');
@@ -209,7 +213,9 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
 
     public function getQuantity()
     {
-        $sum = function ($a, $b) {return $a+$b;};
+        $sum = function ($a, $b) {
+            return $a+$b;
+        };
         return array_reduce(array_map(function (Batch $batch) {
             return $batch->getQuantity();
         }, $this->toArray()), $sum, 0);
@@ -239,7 +245,9 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
 
     public function __toString()
     {
-        $batches = array_map(function (Batch $b) {return (string)$b;}, $this->toArray());
+        $batches = array_map(function (Batch $b) {
+            return (string)$b;
+        }, $this->toArray());
 
         return sprintf(
             "BatchCollection[%s]",

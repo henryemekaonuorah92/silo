@@ -50,7 +50,11 @@ class DoctrineProvider implements ServiceProviderInterface
 
         $app['em'] = function () use ($app, $cache, $paths) {
             $config = Setup::createAnnotationMetadataConfiguration(
-                $paths, true, null, null, false
+                $paths,
+                true,
+                null,
+                null,
+                false
             );
             $config->addEntityNamespace('Inventory', 'Silo\Inventory\Model');
             $config->setSQLLogger($app['em_logger']);

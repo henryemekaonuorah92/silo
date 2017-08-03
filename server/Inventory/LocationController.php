@@ -48,7 +48,9 @@ class LocationController implements ControllerProviderInterface
                 ->setParameter('code', "%$code%");
 
             return new JsonResponse(array_map(
-                function ($l) {return $l['code'];},
+                function ($l) {
+                    return $l['code'];
+                },
                 $query->getQuery()->getArrayResult()
             ), Response::HTTP_ACCEPTED);
         });
@@ -230,8 +232,10 @@ EOQ;
                     'picking'
                 ];
                 if (!in_array($modifier, $allowedModifiers)) {
-                    throw new \Exception("Please use one modifier out of ".implode(',',
-                            $allowedModifiers));
+                    throw new \Exception("Please use one modifier out of ".implode(
+                        ',',
+                            $allowedModifiers
+                    ));
                 }
                 $join = <<<EOQ
                     INNER JOIN silo_modifier sm on sm.location = location.location_id

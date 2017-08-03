@@ -304,7 +304,8 @@ class Operation
 
     public function __toString()
     {
-        return sprintf('Operation:%s:%s:%s',
+        return sprintf(
+            'Operation:%s:%s:%s',
             $this->id,
             $this->source ? $this->source->getCode() : null,
             $this->target ? $this->target->getCode() : null

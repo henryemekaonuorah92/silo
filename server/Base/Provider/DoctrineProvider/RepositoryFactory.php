@@ -31,7 +31,7 @@ class RepositoryFactory implements \Doctrine\ORM\Repository\RepositoryFactory
      *
      * @var \Doctrine\Common\Persistence\ObjectRepository[]
      */
-    private $repositoryList = array();
+    private $repositoryList = [];
 
     /**
      * {@inheritdoc}

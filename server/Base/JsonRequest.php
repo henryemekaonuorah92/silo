@@ -20,7 +20,7 @@ class JsonRequest
                 return new JsonResponse(null, JsonResponse::HTTP_BAD_REQUEST);
             }
             $request->attributes->set('body', $data);
-            $request->request->replace(is_array($data) ? $data : array());
+            $request->request->replace(is_array($data) ? $data : []);
         }
     }
 }

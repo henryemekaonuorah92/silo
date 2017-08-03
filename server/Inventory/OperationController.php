@@ -238,7 +238,8 @@ class OperationController implements ControllerProviderInterface
                         case 'target':
                         case 'source':
                             $query->andWhere($query->expr()->in(
-                                'source.code', ':'.$var
+                                'source.code',
+                                ':'.$var
                             ));
                             $query->setParameter($var, $value);
                             break;
@@ -257,7 +258,8 @@ class OperationController implements ControllerProviderInterface
                         case 'cancelledBy':
                         case 'requestedBy':
                             $query->andWhere($query->expr()->in(
-                                $type.'.name', ':'.$var
+                                $type.'.name',
+                                ':'.$var
                             ));
                             $query->setParameter($var, $value);
                             break;
@@ -268,7 +270,9 @@ class OperationController implements ControllerProviderInterface
                             $startDate = new \DateTime($value['startDate']);
                             $endDate = new \DateTime($value['endDate']);
                             $query->andWhere($query->expr()->between(
-                                'operation.'.$type, ':start'.$var, ':end'.$var
+                                'operation.'.$type,
+                                ':start'.$var,
+                                ':end'.$var
                             ));
                             $query->setParameter(':start'.$var, $startDate->setTime(0, 0, 0)->format('Y-m-d H:i:s'));
                             $query->setParameter(':end'.$var, $endDate->setTime(23, 59, 59)->format('Y-m-d H:i:s'));
@@ -276,7 +280,8 @@ class OperationController implements ControllerProviderInterface
 
                         case 'type':
                             $query->andWhere($query->expr()->in(
-                                'type.name', ':'.$var
+                                'type.name',
+                                ':'.$var
                             ));
                             $query->setParameter($var, $value);
                             break;
@@ -302,7 +307,8 @@ class OperationController implements ControllerProviderInterface
                                 ->innerJoin('operation.batches', 'batches')
                                 ->innerJoin('batches.product', 'product')
                                 ->andWhere($query->expr()->in(
-                                    'product.sku', ':'.$var
+                                    'product.sku',
+                                    ':'.$var
                                 ));
                             $query->setParameter($var, $value);
                             break;

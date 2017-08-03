@@ -70,7 +70,9 @@ class RegexFilterHandler extends AbstractHandler
             array_map(function ($regex) use ($record) {
                 return preg_match($regex, $record['message']);
             }, $this->excludedRegexes),
-            function ($a, $b) {return $a || $b;},
+            function ($a, $b) {
+                return $a || $b;
+            },
             false
         );
 
@@ -102,7 +104,7 @@ class RegexFilterHandler extends AbstractHandler
      */
     public function handleBatch(array $records)
     {
-        $filtered = array();
+        $filtered = [];
         foreach ($records as $record) {
             if ($this->isHandling($record)) {
                 $filtered[] = $record;

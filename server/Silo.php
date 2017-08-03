@@ -30,7 +30,7 @@ class Silo extends \Silex\Application
     /**
      * {@inheritdoc}
      */
-    public function __construct(array $values = array())
+    public function __construct(array $values = [])
     {
         // @todo Should be a check
         // if (!ini_get('date.timezone')) {
