@@ -37,37 +37,16 @@ class Silo extends \Silex\Application
         //    ini_set('date.timezone', 'UTC');
         //}
 
-        if (isset($values['em']) && !$values['em'] instanceof EntityManager) {
-            throw new \Exception('em should be an EntityManager');
-        }
-        if (isset($values['productProvider']) && !$values['productProvider'] instanceof ProductProviderInterface) {
-            throw new \Exception('productProvider should be a ProductProviderInterface');
-        }
-        if (isset($values['current_user']) &&
-            is_object($values['current_user']) &&
-            !$values['current_user'] instanceof User) {
-            throw new \Exception('current_user should be an User');
-        }
-
-        $app = $this;
-
-        $app->register(new GarbageCollectorProvider());
-        $app->register(new MetricProvider());
+        $this->register(new GarbageCollectorProvider());
+        $this->register(new MetricProvider());
+        $this->register(new \Silo\Base\Provider\DoctrineProvider(), [
+            'em.paths' => [__DIR__.'/Inventory/Model'],
+        ]);
 
         parent::__construct($values);
 
-        if (!$app->offsetExists('em')) {
-            $app->register(new \Silo\Base\Provider\DoctrineProvider([
-                __DIR__.'/Inventory/Model',
-            ]));
-        } else {
-            $app['em_logger'] = function () use ($app) {
-                return new SQLLogger();
-            };
-            $app['em']->getConnection()
-                ->getConfiguration()
-                ->setSQLLogger($app['em_logger']);
-        }
+
+        $app = $this;
 
         // Shortcut for getting a Repository instance quick
         $app['re'] = $app->protect(function ($name) use ($app) {
@@ -102,7 +81,7 @@ class Silo extends \Silex\Application
         };
 
         if (class_exists('\\Sorien\\Provider\\PimpleDumpProvider')) {
-            $app->register(new \Sorien\Provider\PimpleDumpProvider());
+            //$app->register(new \Sorien\Provider\PimpleDumpProvider());
         }
 
         $app->mount('/silo/inventory/location', new \Silo\Inventory\LocationController());

@@ -16,53 +16,52 @@ use Silo\Base\Provider\DoctrineProvider\UTCDateTimeType;
  */
 class DoctrineProvider implements ServiceProviderInterface
 {
-    /** @var string[] */
-    private $modelPaths;
-
-    /**
-     * @param string[] $modelPaths Models path in the filesystem
-     */
-    public function __construct($modelPaths)
-    {
-        $this->modelPaths = $modelPaths;
-    }
-
     /**
      * {@inheritdoc}
      */
     public function register(\Pimple\Container $app)
     {
-        if (!isset($app['em.dsn'])) {
-            throw new \Exception('Please provide em.dsn');
-        }
-
-        // @todo implement a better cache selection mechanism
-        $cache = new ArrayCache(); //new FilesystemCache(sys_get_temp_dir());
-        $paths = $this->modelPaths;
+        $app['em.paths'] = [];
+        $app['em.cache'] = function() {
+            return new ArrayCache(); //new FilesystemCache(sys_get_temp_dir());
+        };
 
         // UTC for datetimes
         Type::overrideType('datetime', UTCDateTimeType::class);
         Type::overrideType('datetimetz', UTCDateTimeType::class);
 
-        $app['em_logger'] = function () use ($app) {
+        $app['em.logger'] = function () {
             return new SQLLogger();
         };
 
-        $app['em'] = function () use ($app, $cache, $paths) {
+        $app['em.config'] = function ($app) {
             $config = Setup::createAnnotationMetadataConfiguration(
-                $paths,
+                $app['em.paths'],
                 true,
                 null,
-                null,
+                $app['em.cache'],
                 false
             );
             $config->addEntityNamespace('Inventory', 'Silo\Inventory\Model');
-            $config->setSQLLogger($app['em_logger']);
+            $config->setSQLLogger($app['em.logger']);
 
+            return $config;
+        };
+
+        $app['em.evm'] = function () {
             $evm = new \Doctrine\Common\EventManager();
             $evm->addEventListener(\Doctrine\ORM\Events::loadClassMetadata, new TablePrefix('silo_'));
 
-            return EntityManager::create(['url' => $app['em.dsn']], $config, $evm);
+            return $evm;
+        };
+
+        $app['em'] = function ($app) {
+            $em = EntityManager::create(['url' => $app['em.dsn']], $app['em.config'], $app['em.evm']);
+
+            $platform = $em->getConnection()->getDatabasePlatform();
+            $platform->registerDoctrineTypeMapping('enum', 'string');
+
+            return $em;
         };
     }
 }

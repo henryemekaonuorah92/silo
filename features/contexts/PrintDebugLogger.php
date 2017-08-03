@@ -23,6 +23,7 @@ class PrintDebugLogger implements \Doctrine\DBAL\Logging\SQLLogger
             }
             if (is_null($p)) return "NULL";
             if ($t === "integer") return $p;
+            if (is_array($p)) {$p = var_export($p, true);}
             return "\"$p\"";
         }, $sql);
 
