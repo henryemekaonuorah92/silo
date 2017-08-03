@@ -6,8 +6,6 @@ const configuration = {
         'vendors': [
             "bootstrap",
             "fixed-data-table",
-            "jsbarcode",
-            "marked",
             "moment",
             "moment-timezone",
             "prop-types",

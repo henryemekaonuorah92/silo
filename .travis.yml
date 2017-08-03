@@ -6,14 +6,19 @@ php:
 #  - '7.1'
 #  - hhvm
 #  - nightly
-
+env:
+  - TRAVIS_NODE_VERSION="7.10"
+  
 before_install:
+  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION
   - composer install
   - npm install
 
 script:
   - ./vendor/behat/behat/bin/behat
   - ./node_modules/gulp/bin/gulp.js build
+  - node node_modules/.bin/webpack --config vendors.webpack.config.js
+  - node node_modules/.bin/webpack --config app.webpack.config.js
   - make release.zip
   - mv release.zip release-$TRAVIS_PHP_VERSION.zip
 
