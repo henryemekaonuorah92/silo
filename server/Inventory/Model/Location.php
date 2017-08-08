@@ -103,7 +103,7 @@ class Location
     public function apply(Operation $operation)
     {
         if ($this->isDeleted) {
-            throw new \LogicException("Cannt apply an Operation to a deleted Location");
+            throw new \LogicException("Cannot apply an Operation to a deleted Location");
         }
 
         $that = $this;

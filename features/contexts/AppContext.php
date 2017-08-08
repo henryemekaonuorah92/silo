@@ -30,6 +30,8 @@ class AppContext extends BehatContext
 
     private $providers;
 
+    private $parameters;
+
     public function getRef($name)
     {
         if (!isset($this->refs[$name])) {
@@ -54,6 +56,7 @@ class AppContext extends BehatContext
      */
     public function __construct(array $parameters)
     {
+        $this->parameters = $parameters;
         $this->dsn = isset($parameters['dsn']) ? $parameters['dsn'] : 'sqlite:///:memory:';
         $this->providers = isset($parameters['providers']) ? $parameters['providers'] : [];
     }
@@ -70,7 +73,11 @@ class AppContext extends BehatContext
 
         $this->app = $app = new \Silo\Silo([
             'em.dsn' => $this->dsn,
-            'logger' => $logger
+            'logger' => $logger,
+            'collector.type' => 'logger',
+            'collector.configuration' => [
+                'logger' => $logger
+            ]
         ]);
 
         foreach($this->providers as $provider) {

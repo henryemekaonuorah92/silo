@@ -48,10 +48,10 @@ class DoctrineProvider implements ServiceProviderInterface
             return $config;
         };
 
-        $app['em.evm'] = function () {
+        $app['em.evm'] = function ($app) {
             $evm = new \Doctrine\Common\EventManager();
             $evm->addEventListener(\Doctrine\ORM\Events::loadClassMetadata, new TablePrefix('silo_'));
-
+            $evm->addEventSubscriber(new OperationSubscriber($app['collector']));
             return $evm;
         };
 

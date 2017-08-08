@@ -302,6 +302,11 @@ class Operation
         return $this->location;
     }
 
+    public function isLocationOperation()
+    {
+        return !empty($this->location);
+    }
+
     public function __toString()
     {
         return sprintf(
@@ -317,7 +322,11 @@ class Operation
      */
     public function getBatches()
     {
-        return BatchCollection::fromCollection($this->batches)->copy();
+        if ($this->batches) {
+            return BatchCollection::fromCollection($this->batches)->copy();
+        } else {
+            return new BatchCollection();
+        }
     }
 
     /**
