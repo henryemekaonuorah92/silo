@@ -32,18 +32,7 @@ class OperationSubscriber implements \Doctrine\Common\EventSubscriber
             return;
         }
 
-        $quantity = $entity->getBatches()->getQuantity();
-
-        $type = strtr($entity->getType() ?: 'no_type', ' .','__');
-        $prefix = sprintf('operation.pending.%s.', $type);
-        $this->collector->increment($prefix.'count');
-        if ($quantity > 0) {
-            $this->collector->measure($prefix.'batchQuantity', $quantity);
-        }
-        if ($entity->isLocationOperation()) {
-            $this->collector->increment($prefix.'locationCount');
-        }
-        $this->gotStuff = true;
+        $this->dealWithOperation($entity);
     }
 
     public function postUpdate(LifecycleEventArgs $event)
@@ -53,21 +42,27 @@ class OperationSubscriber implements \Doctrine\Common\EventSubscriber
             return;
         }
 
-        $quantity = $entity->getBatches()->getQuantity();
+        $this->dealWithOperation($entity);
+    }
 
-        $type = strtr($entity->getType() ?: 'no_type', ' .','__');
-        $isCancelled = $entity->getStatus()->isCancelled();
-        $isExecuted = $entity->getStatus()->isDone();
-        if (! $isCancelled && ! $isExecuted) {
-            return;
+    private function dealWithOperation(Operation $op)
+    {
+        $quantity = $op->getBatches()->getQuantity();
+        $type = strtr($op->getType() ?: 'no_type', ' .','__');
+        $isCancelled = $op->getStatus()->isCancelled();
+        $isExecuted = $op->getStatus()->isDone();
+
+        $status = 'pending';
+        if ($isCancelled || $isExecuted) {
+            $status = $isExecuted ? 'executed' : 'cancelled';
         }
-        $status = $isExecuted ? 'executed' : 'cancelled';
+
         $prefix = sprintf('operation.%s.%s.', $status, $type);
         $this->collector->increment($prefix.'count');
         if ($quantity > 0) {
             $this->collector->measure($prefix.'batchQuantity', $quantity);
         }
-        if ($entity->isLocationOperation()) {
+        if ($op->isLocationOperation()) {
             $this->collector->increment($prefix.'locationCount');
         }
         $this->gotStuff = true;
