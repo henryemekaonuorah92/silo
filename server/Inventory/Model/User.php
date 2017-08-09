@@ -51,6 +51,14 @@ class User
         return $this->name;
     }
 
+    public function getIdString()
+    {
+        $name = filter_var($this->name, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
+        $name = strtolower($name);
+        $name = strtr($name, ' -_.','____');
+        return sprintf("%s_%s", $this->id, $name);
+    }
+
     /**
      * @return string
      */
