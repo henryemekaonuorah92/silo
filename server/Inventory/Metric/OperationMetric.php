@@ -9,7 +9,7 @@ use Silo\Base\MetricInterface;
 use Silo\Inventory\Model\Operation;
 
 /**
- * @metric operation.type.<type> Gauge Number of operations of given type
+ * @metric gauge operation.type.<type> Number of operations of given type
  */
 class OperationMetric implements MetricInterface
 {

@@ -21,9 +21,9 @@ class OperationSubscriber implements \Doctrine\Common\EventSubscriber
 
     /**
      * @param LifecycleEventArgs $event
-     * @metric increment operation.new.<type>.count
-     * @metric measure   operation.new.<type>.batchQuantity
-     * @metric increment operation.new.<type>.locationCount
+     * @metric increment operation.(pending,executed,cancelled).(type).count Count any Operation created/updated
+     * @metric measure   operation.(pending,executed,cancelled).(type).batchQuantity Count Batches moved by any Operation created/updated
+     * @metric increment operation.(pending,executed,cancelled).(type).locationCount Count Locations moved by any Operation created/updated
      */
     public function postPersist(LifecycleEventArgs $event)
     {

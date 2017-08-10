@@ -10,9 +10,8 @@ use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation;
 
 /**
- * @metric location.active Gauge Number of active Locations
- * @metric location.deleted Gauge Number of deleted Locations
- * @metric location.modifier.<modifier> Gauge Number of Locations with Modifier
+ * @metric gauge location.<active/deleted> Count of Locations in the database
+ * @metric gauge location.modifier.<modifier> Count of Locations with Modifier in the database
  */
 class LocationMetric implements MetricInterface
 {
