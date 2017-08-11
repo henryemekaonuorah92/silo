@@ -298,7 +298,7 @@ EOQ;
             foreach ($batches as $sku => $quantity) {
                 $response[] = [
                     'sku' => $sku,
-                    'name' => $nameMap[$sku],
+                    'name' => strtoupper($nameMap[$sku]),
                     'quantity' => $quantity
                 ];
             }
