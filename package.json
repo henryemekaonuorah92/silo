@@ -30,6 +30,7 @@
     "babel-plugin-transform-es2015-arrow-functions": "v6.22.0",
     "babel-plugin-transform-es2015-block-scoping": "v6.23.0",
     "babel-plugin-transform-es2015-destructuring": "^6.23.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
     "babel-plugin-transform-es2015-spread": "^6.22.0",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
 

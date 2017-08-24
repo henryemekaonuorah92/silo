@@ -1,36 +1,27 @@
 ;
 const React = require('react');
-const OperationEditor = require('../Editor/OperationEditor');
-const DataStore = require('../Editor/DataStore');
+const Api = require('silo-core').Api;
+const promisify = require('silo-core/client/Common/connectWithPromise');
+const OperationEditor = promisify(require('../Editor/OperationEditor'));
 
 module.exports = React.createClass({
-    getInitialState: function() {
+    getInitialState: function(){
         return {
             data: null,
-            operations: new DataStore([])
+            promise: Api.fetch("/silo/operationSet/"+this.props.id)
         };
     },
     componentDidMount: function(){
-        $.ajax(
-            "/silo/operationSet/"+this.props.id,
-            {
-                success: function(data){
-                    this.setState({
-                        data: data,
-                        operations: new DataStore(data.operations)
-                    });
-                }.bind(this),
-                headers: {'Accept': 'application/json'}
-            }
-        );
+        this.state.promise.then(d=>this.setState({data: d.data}));
     },
     render: function(){
+        let {data, promise} = this.state;
         return (
             <div>
                 <h3>OperationSet {this.props.id}{
-                    this.state.data && <span> ({this.state.data.type} {this.state.data.id})</span>
+                    data && <span> ({data.type} {data.id})</span>
                 }</h3>
-                <OperationEditor operations={this.state.operations} />
+                <OperationEditor promise={promise.then(d=>d.operations)} />
             </div>
         );
     }

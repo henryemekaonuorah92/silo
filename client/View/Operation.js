@@ -1,7 +1,6 @@
 ;
 const React = require('react');
 const BatchEditor = require('../Editor/BatchEditor');
-const DataStore = require('../Editor/DataStore');
 const Link = require('../Factory').Link;
 const request = require('superagent');
 
@@ -10,7 +9,7 @@ module.exports = React.createClass({
     getInitialState: function () {
         return {
             data: null,
-            batches: new DataStore([])
+            batches: null
         };
     },
 
@@ -27,7 +26,7 @@ module.exports = React.createClass({
             .onUpdate(function(value){
                 this.setState({
                     data: value,
-                    batches: new DataStore(value.batches)
+                    batches: value.batches
                 });
             }.bind(this))
             .refresh();
@@ -48,14 +47,17 @@ module.exports = React.createClass({
     },
 
     render: function(){
-        let data = this.state.data;
+        let {data} = this.state;
         return (
             <div>
                 <h3><span className="glyphicon glyphicon-transfer" /> Operation {this.props.id}
-                    {data && data.status.cancelledAt && <span className="label label-danger">Cancelled</span>}
-                    {data && data.status.doneAt && <span className="label label-success">Executed</span>}
+                    {data && (
+                        <span>
+                            {data.status.cancelledAt && <span className="label label-danger">Cancelled</span>}
+                            {data.status.doneAt && <span className="label label-success">Executed</span>}
+                        </span>
+                    )}
                 </h3>
-                {!data && (<span>Loading</span>)}
                 {data && <div>
                     {data.status.isPending && <div>
                         <button className="btn btn-success" onClick={this.handleAction.bind(this, 'execute')}>Execute</button>
@@ -76,16 +78,13 @@ module.exports = React.createClass({
                         {data.location &&
                         (<span><b>Moved location:</b>&nbsp;<Link route="location" code={data.location} /><br /></span>)
                         }
-                        {data.batches.length > 0 && (<div>
-                                <b>Batches:</b>
-                                <BatchEditor
-                                    exportFilename={'operation-'+this.props.id+'-batches.csv'}
-                                    batches={this.state.batches}
-                                    writable={false}
-                                    linkFactory={this.props.linkFactory} />
-                            </div>)
-                        }
                 </div>}
+                <div>
+                    <BatchEditor
+                        exportFilename={'operation-'+this.props.id+'-batches.csv'}
+                        data={this.state.batches}
+                        writable={false} />
+                </div>
             </div>
         );
     }

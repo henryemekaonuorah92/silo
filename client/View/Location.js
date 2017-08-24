@@ -1,10 +1,11 @@
 ;
 const React = require('react');
+
 const BatchEditor = require('../Editor/BatchEditor');
 const OperationEditor = require('../Editor/OperationEditor');
-const DataStore = require('../Editor/DataStore');
 const withLocationModifier = require('../Editor/withLocationModifier');
 const ModifierEditor = withLocationModifier(require('../Editor/ModifierEditor'));
+
 const Link = require('../Factory').Link;
 const Api = require('../Api');
 const DownloadDataLink = require('../Common/DownloadDataLink');
@@ -14,8 +15,8 @@ module.exports = React.createClass({
     getInitialState: function () {
         return {
             data: {},
-            batches: new DataStore([]),
-            operations: new DataStore([]),
+            batches: null,
+            operations: null,
         };
     },
 
@@ -61,7 +62,7 @@ module.exports = React.createClass({
             .onUpdate(value => {
                 this.setState({
                     data: value,
-                    operations: new DataStore(value.operations.sort((a,b)=>(b.id-a.id)))
+                    operations: value.operations.sort((a,b)=>(b.id-a.id))
                 });
             })
             .refresh();
@@ -69,7 +70,7 @@ module.exports = React.createClass({
         this.batchCache = this.props.cache
             .getFrom(replace.apply(this, [this.props.batchEndpoint]))
             .onUpdate(value => {
-                this.setState({batches: new DataStore(value)});
+                this.setState({batches: value});
             })
             .refresh();
     },
@@ -110,6 +111,30 @@ module.exports = React.createClass({
         let data = this.state.data;
         let uploadUrl = this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches';
         // <button className="btn btn-danger" onClick={this.handleDelete}>Delete</button>
+
+        /*
+        in BatchEditor
+        { this.props.writable &&
+                        <li>
+                            <a onClick={()=>this.setState({showModal: true})}>Open CSV...</a>
+                            <Modal
+                                show={this.state.showModal}
+                                onHide={()=>this.setState({showModal:false})}
+                                url={this.props.uploadUrl}
+                                onSuccess={()=>{
+                                    this.setState({ showModal: false });
+                                    this.props.onNeedRefresh();
+                                }} />
+                        </li>
+                        }
+
+
+
+
+
+
+         */
+
         return (
             <div>
                 <h3><span className="glyphicon glyphicon-map-marker" />Location {this.props.code}</h3>
@@ -122,20 +147,28 @@ module.exports = React.createClass({
                         </li>;})}</ul> : "No child"
                     }<br />
                     {this.props.children}
-                    <ModifierEditor cache={this.props.cache}
-                                    siloBasePath={this.props.siloBasePath}
-                                    location={this.props.code}
-                                    modifierFactory={this.props.modifierFactory}
-                                    writable={this.props.writable}
-                    />
-                    <BatchEditor
-                        exportFilename={'location-'+this.props.code+'-batches.csv'}
-                        batches={this.state.batches} uploadUrl={uploadUrl} onNeedRefresh={this.refresh} writable={this.props.writable}
-                        batchColumns={this.props.batchColumns}
-                        additionalMenu={menus} />
 
-                    <OperationEditor operations={this.state.operations} />
+
                 </div>) : "Loading data"}
+
+                <ModifierEditor cache={this.props.cache}
+                                siloBasePath={this.props.siloBasePath}
+                                location={this.props.code}
+                                modifierFactory={this.props.modifierFactory}
+                                writable={this.props.writable}
+                />
+
+                <BatchEditor
+                    exportFilename={'location-'+this.props.code+'-batches.csv'}
+                    data={this.state.batches}
+                    uploadUrl={uploadUrl}
+                    onNeedRefresh={this.refresh}
+                    writable={this.props.writable}
+                    batchColumns={this.props.batchColumns}
+                    additionalMenu={menus}
+                    error={null}/>
+
+                <OperationEditor data={this.state.operations} error={null} />
             </div>
         );
     }

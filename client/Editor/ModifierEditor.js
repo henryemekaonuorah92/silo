@@ -1,7 +1,6 @@
 ;
 const React = require('react');
-const {NavItem, Glyphicon} = require('react-bootstrap');
-const {Navbar} = require('./Editor');
+const {Navbar,Nav,NavDropdown,NavItem, Glyphicon} = require('react-bootstrap');
 const ModifierModal = require('../Modal/ModifierModal');
 const StringToColor = require('../Common/StringToColor');
 
@@ -50,12 +49,6 @@ module.exports = React.createClass({
     },
 
     render: function(){
-        let colorFn = function orderColorNugget(index) {
-            var val = index * 70;
-            var background = 'hsl(' + val + ', 100%, 50%)';
-            return <div className={'orderColorNugget'} style={{background}} key={val}>&nbsp;</div>;
-        };
-
         let {modifiers, onDelete, onSave, modifierFactory, ...rest} = this.props;
         const modifierNames = modifierFactory.listEditors();
         const usedModifiers = modifiers.map(m=>m.name);
@@ -75,10 +68,20 @@ module.exports = React.createClass({
                                modifierFactory={modifierFactory}
                                {...rest}/>
 
-                <Navbar title="ModifierEditor">
-                    {this.props.writable && canAdd &&
-                        <NavItem onClick={this.handleAdd}>Add</NavItem>
-                    }
+                <Navbar>
+                    <Navbar.Header>
+                        <Navbar.Brand>
+                            ModifierEditor
+                        </Navbar.Brand>
+                    </Navbar.Header>
+
+                        {this.props.writable && canAdd &&
+                        <Nav>
+                            <NavDropdown title="Action" id="basic-nav-dropdown">
+                                <NavItem onClick={this.handleAdd}>Add</NavItem>
+                            </NavDropdown>
+                        </Nav>
+                        }
                 </Navbar>
                 
                 <table className={"table "+ (this.props.writable ? "table-hover" : "")}>

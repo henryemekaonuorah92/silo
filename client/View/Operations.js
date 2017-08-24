@@ -1,22 +1,41 @@
 ;
 const React = require('react');
 const {Row, Col, Button, Glyphicon} = require('react-bootstrap');
-const OperationEditor = require('../Editor/OperationEditor');
 const Modal = require('../Modal/OperationUploadModal');
 const BatchModal = require('../Modal/BatchUploadModal');
+const promisify = require('silo-core/client/Common/connectWithPromise');
+const OperationEditor = promisify(require('../Editor/OperationEditor'));
+const Api = require('../Api');
 
 // @todo put some proofing in operation screen (no null loca)
 module.exports = React.createClass({
-    getInitialState: ()=>({
-        showModal: false,
-        showModalBis: false
-    }),
 
     propTypes: {
         siloBasePath: React.PropTypes.string.isRequired
     },
 
+    getInitialState: function(){
+        let filters = [];
+        if (this.props.router) {
+            filters = this.props.router.getParams();
+        }
+        return {
+            showModal: false,
+            showModalBis: false,
+            filters: filters
+        }
+    },
+
+    handleChangeFilter: function(filters){
+        this.props.router.setParams(filters);
+        this.setState({filters: filters});
+    },
+
     render: function(){
+        let promise = Api.fetch("/silo/inventory/operation/search", {
+            method: "POST",
+            body: JSON.stringify({filters: this.state.filters})
+        });
         return (
             <div>
                 <Row><Col xs={3}>
@@ -29,7 +48,7 @@ module.exports = React.createClass({
                         url={this.props.siloBasePath+"/inventory/operation/import"}
                         onSuccess={()=>{
                             this.setState({showModal: false});
-                            this.operationEditor.componentDidMount(); // refresh
+                            this.handleChangeFilter(this.state.filters);
                         }} />
                     <Button bsStyle="default" onClick={()=>{this.setState({showModalBis: true})}}><Glyphicon glyph="plus" /> Edit Batches</Button>
                     <BatchModal
@@ -39,12 +58,12 @@ module.exports = React.createClass({
                         url={this.props.siloBasePath+"/inventory/batch/import"}
                         onSuccess={()=>{
                             this.setState({showModalBis: false});
-                            this.operationEditor.componentDidMount(); // refresh
+                            this.handleChangeFilter(this.state.filters);
                         }}
                         />
                 </Col></Row>
 
-                <OperationEditor ref={(ref)=>{this.operationEditor = ref;}} router={this.props.router}/>
+                <OperationEditor promise={promise} onFilterChange={this.handleChangeFilter} filters={this.state.filters}/>
             </div>
         );
     }
