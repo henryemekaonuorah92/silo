@@ -28,7 +28,7 @@ module.exports = React.createClass({
 
     handleChangeFilter: function(filters){
         this.props.router.setParams(filters);
-        this.setState({filters: filters});
+        this.setState({filters: filters, showModal: false, showModalBis: false});
     },
 
     render: function(){
@@ -47,7 +47,6 @@ module.exports = React.createClass({
                         onHide={()=>this.setState({showModal:false})}
                         url={this.props.siloBasePath+"/inventory/operation/import"}
                         onSuccess={()=>{
-                            this.setState({showModal: false});
                             this.handleChangeFilter(this.state.filters);
                         }} />
                     <Button bsStyle="default" onClick={()=>{this.setState({showModalBis: true})}}><Glyphicon glyph="plus" /> Edit Batches</Button>
@@ -57,7 +56,6 @@ module.exports = React.createClass({
                         onHide={()=>this.setState({showModalBis:false})}
                         url={this.props.siloBasePath+"/inventory/batch/import"}
                         onSuccess={()=>{
-                            this.setState({showModalBis: false});
                             this.handleChangeFilter(this.state.filters);
                         }}
                         />

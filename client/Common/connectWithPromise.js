@@ -15,6 +15,9 @@ module.exports = (WrappedComponent)=>{
         },
 
         componentWillReceiveProps: function (nextProps) {
+            if (nextProps.promise === this.props.promise) {
+                return;
+            }
             this.setState(this.getInitialState());
             nextProps.promise.then(data=>this.setState({data, error: null}), error=>this.setState({data: null, error}));
         },

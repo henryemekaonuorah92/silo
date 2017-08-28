@@ -5,7 +5,7 @@ const BatchEditor = require('../Editor/BatchEditor');
 const OperationEditor = require('../Editor/OperationEditor');
 const withLocationModifier = require('../Editor/withLocationModifier');
 const ModifierEditor = withLocationModifier(require('../Editor/ModifierEditor'));
-
+const Modal = require('../Modal/BatchUploadModal');
 const Link = require('../Factory').Link;
 const Api = require('../Api');
 const DownloadDataLink = require('../Common/DownloadDataLink');
@@ -27,7 +27,7 @@ module.exports = React.createClass({
             writable: false,
             endpoint: '%siloBasePath%/inventory/location/%code%',
             batchEndpoint: '%siloBasePath%/inventory/location/%code%/batches',
-            batchEditorAdditionalMenu: ()=>null
+            menu: ()=>null
         };
     },
 
@@ -48,7 +48,7 @@ module.exports = React.createClass({
 
         batchEndpoint: React.PropTypes.string,
 
-        batchEditorAdditionalMenu: React.PropTypes.any,
+        menu: React.PropTypes.any,
 
         modifierFactory: React.PropTypes.any.isRequired
     },
@@ -79,9 +79,9 @@ module.exports = React.createClass({
         this.batchCache.refresh();
     },
 
-    handleDelete: function(){
-        Api.fetch(this.props.siloBasePath+"/inventory/location/"+this.props.code, {method: "DELETE"});
-    },
+    // handleDelete: function(){
+    //     Api.fetch(this.props.siloBasePath+"/inventory/location/"+this.props.code, {method: "DELETE"});
+    // },
 
     componentWillUnmount : function () {
         this.locationCache.cleanup();
@@ -89,8 +89,8 @@ module.exports = React.createClass({
     },
 
     render: function(){
-
-        let menus = [this.props.batchEditorAdditionalMenu];
+        let data = this.state.data;
+        let menus = [this.props.menu];
         menus.push(
             <li>
                 <DownloadDataLink
@@ -107,33 +107,21 @@ module.exports = React.createClass({
                 </DownloadDataLink>
             </li>
         );
+        if (this.props.writable) {
+            menus.push(<li>
+                <a onClick={()=>this.setState({showModal: true})}>Open CSV...</a>
+                <Modal
+                    show={this.state.showModal}
+                    onHide={()=>this.setState({showModal:false})}
+                    url={this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches'}
+                    onSuccess={()=>{
+                        this.setState({ showModal: false });
+                        this.refresh();
+                    }} />
+            </li>);
+        }
 
-        let data = this.state.data;
-        let uploadUrl = this.props.siloBasePath+"/inventory/location/"+this.props.code+'/batches';
         // <button className="btn btn-danger" onClick={this.handleDelete}>Delete</button>
-
-        /*
-        in BatchEditor
-        { this.props.writable &&
-                        <li>
-                            <a onClick={()=>this.setState({showModal: true})}>Open CSV...</a>
-                            <Modal
-                                show={this.state.showModal}
-                                onHide={()=>this.setState({showModal:false})}
-                                url={this.props.uploadUrl}
-                                onSuccess={()=>{
-                                    this.setState({ showModal: false });
-                                    this.props.onNeedRefresh();
-                                }} />
-                        </li>
-                        }
-
-
-
-
-
-
-         */
 
         return (
             <div>
@@ -161,11 +149,7 @@ module.exports = React.createClass({
                 <BatchEditor
                     exportFilename={'location-'+this.props.code+'-batches.csv'}
                     data={this.state.batches}
-                    uploadUrl={uploadUrl}
-                    onNeedRefresh={this.refresh}
-                    writable={this.props.writable}
-                    batchColumns={this.props.batchColumns}
-                    additionalMenu={menus}
+                    menu={menus}
                     error={null}/>
 
                 <OperationEditor data={this.state.operations} error={null} />

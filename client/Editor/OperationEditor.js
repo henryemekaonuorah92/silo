@@ -18,33 +18,12 @@ const DataStore = require('./DataStore');
 
 const DownloadDataLink = require('../Common/DownloadDataLink');
 
-
-
 /**
  * Edit a set of Operations
  * @type {*}
  */
 module.exports = React.createClass({
 
-/*
-    isStatic : function(){
-        return false;
-    },
-
-    componentDidMount: function () {
-        this.props.operationsPromise
-            .then(d=>this.setState({operations: new DataStore(d)}))
-            .catch(d=>this.setState({error:d}))
-    },
-
-    handleFilterChange: function(filters){
-        if (this.props.router) {
-            this.props.router.setParams(filters);
-        }
-
-        this.setState({filters:filters}, this.componentDidMount);
-    },
-*/
     prepareExport: function(){
         let process = operations => {
             let header = [
@@ -108,12 +87,6 @@ module.exports = React.createClass({
             </DownloadDataLink></li>;
         }
 
-        // <NavItem onClick={()=>{this.setState({showFilter: !this.state.showFilter});}}>Filter</NavItem>
-/*
-
-         111120-303-L
-
-        */
         let store = new DataStore(data ? data : []);
         return (
             <Editor title="OperationEditor" menu={menu}>

@@ -19,16 +19,15 @@ module.exports = React.createClass({
     displayName: "BatchEditor",
 
     getDefaultProps: () => ({
-        batchColumns: ()=>null,
-        additionalMenu: ()=>null // {.concat(this.props.batchColumns(batches))}
+        menu: [],
+        exportFilename: "batches.csv"
     }),
 
     render: function(){
-        let {data} = this.props;
-        let menu = null;
+        let {data, menu} = this.props;
 
         if (data) {
-            menu = <li><DownloadDataLink
+            menu.push(<li><DownloadDataLink
                 filename={this.props.exportFilename}
                 exportFile={()=>("product,sku,quantity\n" +
                     data.map(function(d){
@@ -36,7 +35,7 @@ module.exports = React.createClass({
                     }).join()
                 )}>
                 Save as CSV
-            </DownloadDataLink></li>;
+            </DownloadDataLink></li>);
         }
 
         let store = new DataStore(data ? data : []);

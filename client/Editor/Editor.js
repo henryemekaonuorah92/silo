@@ -47,7 +47,7 @@ const Editor = React.createClass({
                         </Navbar.Brand>
                     </Navbar.Header>
                     <Nav>
-                        {menu &&
+                        {menu && menu.length > 0 &&
                         <NavDropdown title="Action" id="basic-nav-dropdown">
                             {menu}
                         </NavDropdown>
