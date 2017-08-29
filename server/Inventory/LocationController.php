@@ -370,6 +370,15 @@ EOQ;
                 return new JsonResponse(['errors' => ["File should start with \"$shouldStartWith\""]]);
             }
 
+            $finder = new OperationFinder($app['em']);
+            $pendingOperationCount = $finder->manipulating($location)
+                ->isPending()
+                ->count();
+
+            if ($pendingOperationCount > 0) {
+                throw new \Exception("Cannot edit batches for $location, it has pending Operations");
+            }
+
             // Create a BatchCollection out of a CSV file
             $batches = $app['BatchCollectionFactory']->makeFromArray($csv->data);
 

@@ -8,6 +8,8 @@ const AlertStore = require('../Store/AlertStore');
  */
 module.exports = React.createClass({
 
+    displayName: "Alerts",
+
     getInitialState: function() {
         return AlertStore.getState();
     },

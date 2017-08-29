@@ -111,7 +111,7 @@ A-04-A,14-231-21,-2`
                         onSuccess={this.props.onSuccess}
                         url={this.props.url}
                         disabled={this.state.file === null}
-                        onError={(err)=>{this.setState({errors:err});}}>
+                        onError={(err)=>{this.setState({errors:[err]});}}>
                         Upload
                     </AjaxButton>
                 </Modal.Footer>

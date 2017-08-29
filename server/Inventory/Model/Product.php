@@ -74,7 +74,7 @@ class Product
 
     public function __toString()
     {
-        return $this->sku;
+        return $this->sku ?: "no-sku";
     }
 
     /**

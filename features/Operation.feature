@@ -36,4 +36,5 @@ Feature: Basic and special Operation actions
 
   Scenario: Operation can transfer Batches between two Locations
   Scenario: Operation can be rollbacked
+  Scenario: Operation cannot be rollbacked if its empty
   Scenario: Operation can be cancelled

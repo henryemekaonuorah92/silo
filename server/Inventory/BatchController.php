@@ -5,6 +5,7 @@ namespace Silo\Inventory;
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Silo\Base\JsonRequest;
+use Silo\Inventory\Finder\OperationFinder;
 use Silo\Inventory\Model\Batch;
 use Silo\Inventory\Collection\BatchCollection;
 use Silo\Inventory\Model\Context;
@@ -117,6 +118,15 @@ class BatchController implements ControllerProviderInterface
             foreach ($batchMap as $locationCode => $batches) {
                 $location = $app['em']->getRepository('Inventory:Location')->forceFindOneByCode($locationCode);
 
+                $finder = new OperationFinder($app['em']);
+                            $pendingOperationCount = $finder->manipulating($location)
+                                ->isPending()
+                                ->count();
+
+                if ($pendingOperationCount > 0) {
+                    throw new \Exception("Cannot edit batches for $location, it has pending Operations");
+                }
+                
                 switch ($request->request->get('type')) {
                     case 'merge': // Merge the uploaded batch into the location
                         $operation = new Operation($app['current_user'], null, $location, $batches);

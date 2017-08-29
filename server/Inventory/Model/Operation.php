@@ -234,6 +234,10 @@ class Operation
             throw new \Exception("Cannot rollback $this, it is still pending");
         }
 
+        if (!$this->location && $this->getBatches()->isEmpty()) {
+            throw new \Exception("Cannot rollback $this, it is empty");
+        }
+
         // @todo evaluate rollbacking with the same Batch instead of copying it
         $rollbackingOperation = new Operation(
             $rollbackUser,

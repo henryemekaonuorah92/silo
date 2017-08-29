@@ -2,63 +2,51 @@
 const React = require('react');
 const BatchEditor = require('../Editor/BatchEditor');
 const Link = require('../Factory').Link;
-const request = require('superagent');
+const Api = require('../Api');
+const Alerts = require('../Common/Alerts');
+const AlertStore = require('../Store/AlertStore');
 
 module.exports = React.createClass({
 
-    getInitialState: function () {
-        return {
-            data: null,
+    getInitialState: ()=>({
+        data: {
             batches: null
-        };
-    },
-
-    getDefaultProps: function() {
-        return {
-            siloBasePath: null,
-            id: null
-        };
-    },
+        }
+    }),
 
     componentDidMount: function () {
-        this.props.cache.get('operation/'+this.props.id)
-            .from(this.props.siloBasePath+"/inventory/operation/"+this.props.id)
-            .onUpdate(function(value){
-                this.setState({
-                    data: value,
-                    batches: value.batches
-                });
-            }.bind(this))
-            .refresh();
-    },
-
-    componentWillUnmount : function () {
-        this.props.cache.cleanup('operation/'+this.props.id);
+        AlertStore.clear();
+        Api.fetch(this.props.siloBasePath+"/inventory/operation/"+this.props.id)
+            .then(data=>this.setState({data: data}))
+            .catch(msg=>AlertStore.error(msg.message))
     },
 
     handleAction: function (action) {
-        request
-            .post(this.props.siloBasePath+"/inventory/operation/"+this.props.id+"/"+action)
-            .send({})
-            .end(()=>{
-                // @todo if jqXHR.status != 201 then do something
-                this.props.cache.refresh('operation/'+this.props.id);
-            });
+        AlertStore.clear();
+        Api.fetch(
+            this.props.siloBasePath+"/inventory/operation/"+this.props.id+"/"+action,
+            {method: "POST", body:"null"}
+        )
+            .then(this.componentDidMount)
+            .catch(msg=>AlertStore.error(msg.message))
     },
 
     render: function(){
         let {data} = this.state;
         return (
             <div>
+                <Alerts />
                 <h3><span className="glyphicon glyphicon-transfer" /> Operation {this.props.id}
-                    {data && (
+                    {data.status && (
                         <span>
                             {data.status.cancelledAt && <span className="label label-danger">Cancelled</span>}
-                            {data.status.doneAt && <span className="label label-success">Executed</span>}
+                            {data.status.doneAt && (
+                                data.rollback ? <span className="label label-warning">Rollbacked</span>: <span className="label label-success">Executed</span>
+                            )}
                         </span>
                     )}
                 </h3>
-                {data && <div>
+                {data.status && <div>
                     {data.status.isPending && <div>
                         <button className="btn btn-success" onClick={this.handleAction.bind(this, 'execute')}>Execute</button>
                         <button className="btn btn-danger" onClick={this.handleAction.bind(this, 'cancel')}>Cancel</button>
@@ -82,8 +70,7 @@ module.exports = React.createClass({
                 <div>
                     <BatchEditor
                         exportFilename={'operation-'+this.props.id+'-batches.csv'}
-                        data={this.state.batches}
-                        writable={false} />
+                        data={data.batches} />
                 </div>
             </div>
         );
