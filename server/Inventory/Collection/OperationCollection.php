@@ -2,13 +2,15 @@
 
 namespace Silo\Inventory\Collection;
 
+use Silo\Inventory\Model\MarshallableInterface;
 use Silo\Inventory\Model\Batch;
 use Silo\Inventory\Model\Operation;
+use Silo\Inventory\Model\OperationSet;
 
 /**
  * Advanced operations on Operations ArrayCollection.
  */
-class OperationCollection extends ArrayCollection
+class OperationCollection extends ArrayCollection implements MarshallableInterface
 {
     public function getTypes()
     {
@@ -67,5 +69,30 @@ class OperationCollection extends ArrayCollection
         return $this->filter(function (Operation $operation) {
             return $operation->getStatus()->isDone();
         });
+    }
+
+    public function marshall()
+    {
+        return array_map(
+            function (Operation $op) {
+                return [
+                    'id' => $op->getId(),
+                    'source' => $op->getSource() ? $op->getSource()->getCode() : null,
+                    'target' => $op->getTarget() ? $op->getTarget()->getCode() : null,
+                    'type' => $op->getType(),
+                    'status' => $op->getStatus()->toArray(),
+
+                    'location' => $op->getLocation() ? $op->getLocation()->getCode() : null,
+                    'contexts' => array_map(function (OperationSet $context) {
+                        return [
+                            'id' => $context->getId(),
+                            'value' => $context->getValue()
+                        ];
+                    }, $op->getOperationSets()),
+                    'batches' => $op->getBatches()->toRawArray()
+                ];
+            },
+            $this->toArray()
+        );
     }
 }

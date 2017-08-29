@@ -3,13 +3,14 @@
 namespace Silo\Inventory\Collection;
 
 use Doctrine\Common\Collections\Collection;
+use Silo\Inventory\Model\MarshallableInterface;
 use Silo\Inventory\Model\Batch;
 use Silo\Inventory\Model\Product;
 
 /**
  * Advanced operations on Batches ArrayCollection.
  */
-class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
+class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection implements MarshallableInterface
 {
     /**
      * Create a new BatchCollection out of a Collection.
@@ -229,6 +230,9 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
         return array_values(parent::toArray());
     }
 
+    /**
+     * @deprecated use marshall() instead
+     */
     public function toRawArray()
     {
         return array_map(
@@ -242,6 +246,12 @@ class BatchCollection extends \Doctrine\Common\Collections\ArrayCollection
             $this->toArray()
         );
     }
+
+    public function marshall()
+    {
+        return $this->toRawArray();
+    }
+
 
     public function __toString()
     {
