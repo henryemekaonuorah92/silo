@@ -176,6 +176,11 @@ class OperationFinder extends \Silo\Inventory\Finder\AbstractFinder
             ->select('COUNT(o)')
             ->from('Inventory:Operation', 'o');
 
+        if ($this->loadBatches) {
+            $this->getQuery()
+                ->innerJoin('o.batches', 'batches');
+        }
+
         return $this->getQuery()->getQuery()->getResult(Query::HYDRATE_SINGLE_SCALAR);
     }
 

@@ -23,3 +23,4 @@ Silo uses Behat for testing. Run it with:
 
 ## TODO
 - import/export data page (backup)
+- make operation batches immutable

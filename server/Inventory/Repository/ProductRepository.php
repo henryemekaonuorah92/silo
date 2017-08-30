@@ -30,7 +30,7 @@ class ProductRepository extends EntityRepository
             foreach ($map as $sku => $qty) {
                 $product = $this->cachedFindOneBySku($sku);
                 if (!$product) {
-                    throw new Exception("No such Product:$sku");
+                    throw new \Exception("No such Product:$sku");
                 }
                 $batches->addProduct($product, $qty);
             }

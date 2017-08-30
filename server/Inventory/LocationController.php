@@ -373,6 +373,7 @@ EOQ;
             $finder = new OperationFinder($app['em']);
             $pendingOperationCount = $finder->manipulating($location)
                 ->isPending()
+                ->withBatches()
                 ->count();
 
             if ($pendingOperationCount > 0) {

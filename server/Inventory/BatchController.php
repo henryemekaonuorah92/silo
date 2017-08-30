@@ -121,6 +121,7 @@ class BatchController implements ControllerProviderInterface
                 $finder = new OperationFinder($app['em']);
                             $pendingOperationCount = $finder->manipulating($location)
                                 ->isPending()
+                                ->withBatches() // only operation that moves batches are taken into account
                                 ->count();
 
                 if ($pendingOperationCount > 0) {
