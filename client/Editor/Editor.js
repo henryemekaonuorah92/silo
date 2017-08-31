@@ -3,12 +3,8 @@ const React = require('react');
 const {Navbar,Nav,NavDropdown} = require('react-bootstrap');
 const inPanel = require('../Common/inPanel');
 const autosizeFromData = require('../Common/autosizeFromData');
-const Hits = require('./Hits').default;
+const wrapHits = require('./Hits').wrapHits;
 const {Table} = require('fixed-data-table');
-
-const wrapHits = (WrappedComponent) => (({children, data, error,...props})=>(
-    <Hits data={data} error={error}><WrappedComponent data={data} {...props}>{children}</WrappedComponent></Hits>
-));
 
 /**
  * An Editor is a specialized Panel that receives data and displays it in an understandable way
