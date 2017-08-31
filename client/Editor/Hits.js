@@ -24,6 +24,10 @@ class Hits extends Component {
     }
 }
 
+const withHits = (WrappedComponent) => (({children, data, error,...props})=> (
+    <Hits data={data} error={error}><WrappedComponent data={data} {...props}>{children}</WrappedComponent></Hits>
+));
+
 Hits.propTypes = {
     data: PropTypes.any,
     error: PropTypes.any,
@@ -32,3 +36,4 @@ Hits.propTypes = {
 Hits.defaultProps = {};
 
 export default Hits;
+export {withHits};
