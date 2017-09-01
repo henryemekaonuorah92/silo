@@ -10,8 +10,8 @@ module.exports = React.createClass({
 
     propTypes: {
         onChange: React.PropTypes.func,
-        startDate: React.PropTypes.object,
-        endDate: React.PropTypes.object
+        startDate: React.PropTypes.any,
+        endDate: React.PropTypes.any
     },
 
     getDefaultProps: () => ({
@@ -30,18 +30,26 @@ module.exports = React.createClass({
         //Object.assign({}, this.props);
         //Object.getOwnPropertyNames(this.propTypes).map((name)=>{delete rest[name];});
 
-        let start = this.props.startDate.format('YYYY-MM-DD');
-        let end = this.props.endDate.format('YYYY-MM-DD');
+        let {startDate, endDate, title} = this.props;
+        if (typeof(startDate) === "string") {
+            startDate = moment(startDate);
+        }
+        if (typeof(endDate) === "string") {
+            endDate = moment(endDate);
+        }
+
+        let start = startDate.format('YYYY-MM-DD');
+        let end = endDate.format('YYYY-MM-DD');
         let label = start + ' - ' + end;
         if (start === end) {
             label = start;
         }
 
         const popover = (
-            <Popover id="popover" title={this.props.title} style={{maxWidth: '90%'}}>
+            <Popover id="popover" title={title} style={{maxWidth: '90%'}}>
                 <DateRange
-                    startDate={this.props.startDate}
-                    endDate={this.props.endDate}
+                    startDate={startDate}
+                    endDate={endDate}
                     linkedCalendars={ true }
                     ranges={ defaultRanges }
                     onChange={this.handleChange}
@@ -53,6 +61,7 @@ module.exports = React.createClass({
                 />
             </Popover>
         );
+
         return (
             <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
                 <Button className="selected-date-range-btn">

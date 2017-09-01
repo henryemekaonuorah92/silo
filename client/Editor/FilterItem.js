@@ -3,7 +3,6 @@ const React = require('react');
 const {Form,FormGroup,FormControl,Glyphicon} = require('react-bootstrap');
 const OperationTypeSelect = require('../Form/OperationTypeSelect');
 const AsyncSimpleSelect = require('../Form/AsyncSimpleSelect');
-// const Switch = require('react-bootstrap-switch').default;
 const DateRange = require('../Form/DateRange');
 
 /**
@@ -91,10 +90,7 @@ module.exports = React.createClass({
                                                 selected={value || []} />;
                 break;
         }
-        // <option value="status">status</option>
-        //
-        //
-        //
+
         return <li className="list-group-item">
                 <button type="button" className="close" aria-label="Close" onClick={this.props.onRemove}><span aria-hidden="true">&times;</span></button>
                 <Form inline>

@@ -1,7 +1,6 @@
 ;
 const React = require('react');
 const {Button,Form, FormGroup,FormControl, ControlLabel,Glyphicon} = require('react-bootstrap');
-const FilterItem = require('./FilterItem');
 
 /**
  * Holds the filter state
@@ -29,7 +28,7 @@ module.exports = React.createClass({
     },
     handleAdd: function(){
         let w = this.state.filters;
-        w.push({type:"cancelledAt", value:null});
+        w.push({type:this.props.default, value:null});
         this.setState({filters: w});
     },
     handleApply: function(){
@@ -38,18 +37,21 @@ module.exports = React.createClass({
 
     render: function(){
         const filters = this.state.filters;
+        const item = this.props.item;
         return <ul className="list-group">
             {filters.length === 0 &&
             <li className="list-group-item">No filter</li>
                 }
-            {filters.length > 0 && filters.map((filter, i)=>(
-                <FilterItem key={i}
-                            onChange={this.handleChange.bind(this, i)}
-                            onTypeChange={this.handleTypeChange.bind(this, i)}
-                            onRemove={this.handleRemove.bind(this, i)}
-                            type={filter.type}
-                            value={filter.value} />
-            ))}
+            {
+                filters.length > 0 && filters.map((filter, i)=>(React.createElement(this.props.item, {
+                    key:i,
+                    onChange:this.handleChange.bind(this, i),
+                    onTypeChange:this.handleTypeChange.bind(this, i),
+                    onRemove:this.handleRemove.bind(this, i),
+                    type:filter.type,
+                    value:filter.value
+                })))
+            }
             <li className="list-group-item">
                 <Button bsStyle="default" bsSize="xs" onClick={this.handleAdd}>Add filter</Button>&nbsp;
                 <Button bsStyle="success" bsSize="xs" onClick={this.handleApply}>Apply</Button>
