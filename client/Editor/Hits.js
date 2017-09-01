@@ -24,11 +24,6 @@ class Hits extends Component {
     }
 }
 
-const withHits = (WrappedComponent) => (({children, data, error,...props})=> (
-    <Hits data={data} error={error}><WrappedComponent data={data} {...props}>{children}</
-        pedComponent></Hits>
-));
-
 Hits.propTypes = {
     data: PropTypes.any,
     error: PropTypes.any,
@@ -41,5 +36,4 @@ const wrapHits = (WrappedComponent) => (({children, data, error,...props})=>(
 ));
 
 export default Hits;
-export {withHits};
 export {wrapHits as wrapHits};
