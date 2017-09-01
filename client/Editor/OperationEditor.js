@@ -17,7 +17,7 @@ const {Editor, PanelTable} = require('./Editor');
 const DataStore = require('./DataStore');
 
 const DownloadDataLink = require('../Common/DownloadDataLink');
-
+const FilterItem = require('./FilterItem');
 /**
  * Edit a set of Operations
  * @type {*}
@@ -91,7 +91,7 @@ module.exports = React.createClass({
         return (
             <Editor title="OperationEditor" menu={menu}>
                 {onFilterChange &&
-                    <FilterList onFilterChange={onFilterChange} filters={filters} />
+                    <FilterList onFilterChange={onFilterChange} filters={filters} item={FilterItem} default="cancelledAt"/>
                 }
                 <PanelTable data={data}>
                     <Column
