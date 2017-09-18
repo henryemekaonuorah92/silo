@@ -27,7 +27,7 @@ module.exports = React.createClass({
             this.props.siloBasePath+"/inventory/operation/"+this.props.id+"/"+action,
             {method: "POST", body:"null"}
         )
-            .then(this.componentDidMount)
+            .then(this.componentDidMount.bind(this))
             .catch(msg=>AlertStore.error(msg.message))
     },
 

@@ -3,7 +3,7 @@ const React = require('react');
 const {Row, Col, Button, Glyphicon} = require('react-bootstrap');
 const Modal = require('../Modal/OperationUploadModal');
 const BatchModal = require('../Modal/BatchUploadModal');
-const promisify = require('silo-core/client/Common/connectWithPromise');
+const promisify = require('../Common/connectWithPromise');
 const OperationEditor = promisify(require('../Editor/OperationEditor'));
 const Api = require('../Api');
 
