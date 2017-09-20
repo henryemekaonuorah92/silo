@@ -1,9 +1,6 @@
 # Meta
 .PHONY: build
 
-# Include standard makefile
--include vendor/dav-m85/std-makefile/trusty-deploy.mk
-
 # Variables
 CD=$(shell pwd)
 
@@ -11,7 +8,7 @@ CD=$(shell pwd)
 # Standard targets
 #
 help:
-	@echo "Please visit ... for help"
+	@echo "Please visit github.com/frankandoak/silo for help"
 
 build:
 	composer install
@@ -28,7 +25,7 @@ mrproper: clean
 
 test: reports
 	rm -rf reports/*
-	php bin/behat -f progress,junit --out ,reports
+	php vendor/behat/behat/bin/behat -f progress,junit --out ,reports
 
 release.zip:
 	zip release.zip bin client features less public server vendor composer.json composer.lock gulpfile.js LICENSE makefile package.json README.md
