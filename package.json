@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "David Moreau",
   "main": "client/silo.js",
   "dependencies": {
     "ampersand-router": "^4.0.0",
@@ -26,20 +26,15 @@
     "superagent": "^3.5.2"
   },
   "devDependencies": {
+    "babel-core": "^6.26.0",
     "babel-loader": "^7.0.0",
-    "babel-plugin-transform-es2015-arrow-functions": "v6.22.0",
-    "babel-plugin-transform-es2015-block-scoping": "v6.23.0",
-    "babel-plugin-transform-es2015-destructuring": "^6.23.0",
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
-    "babel-plugin-transform-es2015-spread": "^6.22.0",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
-    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-env": "^1.6.0",
     "babel-preset-react": "^6.16.0",
-    "babelify": "^7.3.0",
-    "browserify": "~10.2.4",
-    "gulp": "^3.9.1",
-    "gulp-less": "^3.3.0",
-    "vinyl-source-stream": "^1.1.0",
+    "css-loader": "^0.28.7",
+    "less": "^2.7.2",
+    "less-loader": "^4.0.5",
+    "style-loader": "^0.18.2",
     "webpack": "^2.6.1"
   }
 }

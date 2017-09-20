@@ -9,6 +9,8 @@ const Sidebar = require('./Hud/Sidebar');
 const Factory = require('./Factory');
 const ModifierFactory = require('./Common/ModifierFactory');
 
+require('../less/base.less');
+
 const App = React.createClass({
     getInitialState: () => ({
         currentRoute: 'home',

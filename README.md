@@ -19,7 +19,7 @@ Proudly built in Montréal with:
 ## Testing
 Silo uses Behat for testing. Run it with:
 
-    php bin/behat
+    make test
 
 ## TODO
 - import/export data page (backup)

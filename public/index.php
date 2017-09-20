@@ -1,7 +1,7 @@
 <?php
 
 if (preg_match('/\.(?:png|jpg|jpeg|gif|js|css)$/', $_SERVER["REQUEST_URI"])) {
-    return false;    // retourne la requête telle quelle.
+    return false;    // return the request as is
 }
 
 require_once __DIR__.'/../vendor/autoload.php';
@@ -15,7 +15,6 @@ $app->get('/', function(){
 <html>
     <head>
         <title>Silo</title>
-        <link href="base.css" rel="stylesheet" type="text/css" />
     </head>
     <body>
     <div id="ReactMount"></div>
