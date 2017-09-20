@@ -39,8 +39,9 @@ class ExportController implements ControllerProviderInterface
             $em = $app['em'];
 
             $sql = <<<EOQ
-            select location.code as code, product.sku as s, SUM(batch.quantity) as q
+            select location.code as code, parent.code as parent, product.sku as s, SUM(batch.quantity) as q
             from silo_location location
+            left join silo_location parent on location.parent = parent.location_id
             inner join silo_batch batch on location.location_id = batch.location_id
             inner join silo_product product on batch.product_id = product.product_id
             where batch.quantity != 0
@@ -55,7 +56,7 @@ EOQ;
                 array_push($rows, implode(',', $row));
             }
 
-            array_unshift($rows, "location,product,quantity");
+            array_unshift($rows, "location,parent,product,quantity");
             $content = implode(PHP_EOL, $rows);
 
             // Generate response

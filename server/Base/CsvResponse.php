@@ -13,7 +13,6 @@ class CsvResponse extends Response
         $this->headers->set('Cache-Control', 'private');
         $this->headers->set('Content-type', 'text/csv' );
         $this->headers->set('Content-Disposition', 'attachment; filename="'.$filename.'";');
-        $this->headers->set('Content-length',  strlen($content));
 
         $this->setContent($content);
     }
