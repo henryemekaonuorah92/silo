@@ -1,21 +1,14 @@
 {
   "name": "frankandoak/silo",
-  "repositories": [
-    {
-        "type": "vcs",
-        "url": "https://github.com/dav-m85/std-makefile"
-    }
-  ],
   "require": {
-    "silex/silex": "^2.0",
-    "monolog/monolog": "v1.19.0",
-    "symfony/console":"v2.7.5",
-    "doctrine/orm": "v2.5.4",
-    "parsecsv/php-parsecsv": "0.4.5",
+    "beberlei/metrics": "^2.5",
     "doctrine/migrations": "*",
-    "symfony/validator": "^3.1",
-    "dav-m85/std-makefile":"dev-master",
-    "beberlei/metrics": "^2.5"
+    "doctrine/orm": "v2.5.4",
+    "monolog/monolog": "v1.19.0",
+    "parsecsv/php-parsecsv": "0.4.5",
+    "silex/silex": "^2.0",
+    "symfony/console":"v2.7.5",
+    "symfony/validator": "^3.1"
   },
   "require-dev": {
     "behat/behat": "v2.5.5",
@@ -25,9 +18,6 @@
   },
   "suggest": {
     "sorien/silex-pimple-dumper": "In case your IDE supports silex container auto completion"
-  },
-  "config": {
-    "bin-dir": "bin/"
   },
   "autoload": {
     "psr-4": {
