@@ -6,10 +6,11 @@ if (preg_match('/\.(?:png|jpg|jpeg|gif|js|css)$/', $_SERVER["REQUEST_URI"])) {
 
 require_once __DIR__.'/../vendor/autoload.php';
 
-$app = new Silo\Silo([
-    //'em.dsn' => 'sqlite:///silo.sqlite'
-    'em.dsn' => 'mysql://root@127.0.0.1:3306/projectx'
-]);
+// Load configuration
+$configFile = getenv('SILO_CONFIG', true) ?: getenv('SILO_CONFIG');
+$config = include($configFile ?: __DIR__.'/../config.php') ?: [];
+
+$app = new Silo\Silo($config);
 $app->get('/', function(){
     return <<<EOS
 <html>

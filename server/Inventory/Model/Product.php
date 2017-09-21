@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     @ORM\UniqueConstraint(name="product_idx", columns={"sku"})
  * })
  */
-class Product
+class Product implements MarshallableInterface
 {
     /**
      * @var int
@@ -83,5 +83,16 @@ class Product
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function marshall()
+    {
+        return [
+            'product' => $this->sku,
+            'name' => $this->name
+        ];
     }
 }

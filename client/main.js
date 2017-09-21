@@ -5,7 +5,6 @@ const AmpersandRouter = require('ampersand-router');
 const Cache = require('./Cache');
 
 const Navbar = require('./Hud/Navbar');
-const Sidebar = require('./Hud/Sidebar');
 const Factory = require('./Factory');
 const ModifierFactory = require('./Common/ModifierFactory');
 
@@ -74,11 +73,10 @@ const App = React.createClass({
         const Handler = this.handlers[this.state.currentRoute];
         const id = this.state.currentParams ? this.state.currentParams[0] : null
         return <div>
-            <Navbar />
+            <Navbar onNavigate={this.onNavigate} route={this.state.currentRoute} />
             <div className="container-fluid">
                 <div className="row">
-                    <Sidebar onNavigate={this.onNavigate} route={this.state.currentRoute} />
-                    <div className="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+                    <div className="col-sm-12 main">
                         <Handler siloBasePath="/silo"
                                  route={this.state.currentRoute}
                                  cache={this.state.cache}
