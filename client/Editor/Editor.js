@@ -18,6 +18,7 @@ const Editor = React.createClass({
     getDefaultProps: ()=>({
         menu: null,
         title: "Editor",
+        filters : []
     }),
 
     /*

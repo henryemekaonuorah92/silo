@@ -28,10 +28,7 @@ module.exports = React.createClass({
     }),
 
     handleChangeSku(event) {
-        this.setState({sku: event.target.value, filteredData: this.filteredData(event.target.value)});
-    },
-
-    filteredData(sku) {
+        const sku = event.target.value
         let data = this.props.data;
         if(sku.length > 0) {
             data = [];
@@ -41,7 +38,7 @@ module.exports = React.createClass({
                 }
             }
         }
-        return data;
+        this.setState({sku: sku, filteredData: data});
     },
 
     render: function() {
