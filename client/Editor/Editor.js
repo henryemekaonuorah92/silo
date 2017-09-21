@@ -1,6 +1,6 @@
 ;
 const React = require('react');
-const {Navbar,Nav,NavDropdown} = require('react-bootstrap');
+const {Navbar,Nav,NavDropdown,NavItem} = require('react-bootstrap');
 const inPanel = require('../Common/inPanel');
 const autosizeFromData = require('../Common/autosizeFromData');
 const wrapHits = require('./Hits').wrapHits;
@@ -18,6 +18,7 @@ const Editor = React.createClass({
     getDefaultProps: ()=>({
         menu: null,
         title: "Editor",
+        filters : []
     }),
 
     /*
@@ -33,7 +34,7 @@ const Editor = React.createClass({
      */
 
     render: function(){
-        let {children,menu,title} = this.props;
+        let {children,menu,filters,title} = this.props;
         return (
             <div className="panel panel-default">
                 <Navbar>
@@ -48,6 +49,7 @@ const Editor = React.createClass({
                             {menu}
                         </NavDropdown>
                         }
+                        {filters.map((filter) => <NavItem>{filter}</NavItem>)}
                     </Nav>
                 </Navbar>
                 {children}
