@@ -12,6 +12,7 @@ let AlertStore = {
     clear: function(){
         this._state.alerts = [];
         this.onChange();
+        return this;
     },
 
     onChange: function() {}
@@ -21,6 +22,7 @@ const push = function(level, message) {
     this._state.alerts = [];
     this._state.alerts.push({level:level, message: message});
     this.onChange();
+    return this;
 };
 
 AlertStore.success = push.bind(AlertStore, "success");
