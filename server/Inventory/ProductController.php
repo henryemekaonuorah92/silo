@@ -28,8 +28,8 @@ class ProductController implements ControllerProviderInterface
     {
         $controllers = $app['controllers_factory'];
 
-        $products = $app['em']->getRepository('Inventory:Product');
-        $productProvider = function ($sku) use ($products, $app) {
+        $productProvider = function ($sku) use ($app) {
+            $products = $app['em']->getRepository('Inventory:Product');
             $product = $products->findOneBySku($sku);
             if (!$product && $app['productProvider']) {
                 $product = $app['productProvider']->getProduct($sku);

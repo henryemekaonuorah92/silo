@@ -34,19 +34,25 @@ class DoctrineProvider implements ServiceProviderInterface
             return new SQLLogger();
         };
 
-        $app['em.config'] = function ($app) {
-            $config = Setup::createAnnotationMetadataConfiguration(
-                $app['em.paths'],
-                true,
-                null,
-                $app['em.cache'],
-                false
-            );
-            $config->addEntityNamespace('Inventory', 'Silo\Inventory\Model');
-            $config->setSQLLogger($app['em.logger']);
+        if (!isset($app['em.dsn'])) {
+            throw new \Exception("em.dsn should be set");
+        }
 
-            return $config;
-        };
+        if (!isset($app['em.config'])) {
+            $app['em.config'] = function ($app) {
+                $config = Setup::createAnnotationMetadataConfiguration(
+                    $app['em.paths'],
+                    true,
+                    null,
+                    $app['em.cache'],
+                    false
+                );
+                $config->addEntityNamespace('Inventory', 'Silo\Inventory\Model');
+                $config->setSQLLogger($app['em.logger']);
+
+                return $config;
+            };
+        }
 
         $app['em.evm'] = function ($app) {
             $evm = new \Doctrine\Common\EventManager();

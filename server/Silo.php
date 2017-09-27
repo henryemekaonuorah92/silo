@@ -3,6 +3,7 @@
 namespace Silo;
 
 use Doctrine\ORM\EntityManager;
+use Silo\Base\ConfigurationProvider;
 use Silo\Base\ConstraintValidatorFactory;
 use Silo\Base\Provider\DoctrineProvider\SQLLogger;
 use Silo\Base\Provider\MetricProvider;
@@ -37,13 +38,16 @@ class Silo extends \Silex\Application
         //    ini_set('date.timezone', 'UTC');
         //}
 
-        $this->register(new GarbageCollectorProvider());
-        $this->register(new MetricProvider());
-        $this->register(new \Silo\Base\Provider\DoctrineProvider(), [
+        parent::__construct($values);
+
+
+        $this->register(new ConfigurationProvider($this));
+        $this->register(new GarbageCollectorProvider);
+        $this->register(new MetricProvider);
+        $this->register(new \Silo\Base\Provider\DoctrineProvider, [
             'em.paths' => [__DIR__.'/Inventory/Model'],
         ]);
 
-        parent::__construct($values);
 
 
         $app = $this;
