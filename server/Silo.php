@@ -2,25 +2,21 @@
 
 namespace Silo;
 
-use Doctrine\ORM\EntityManager;
+use Silex\Application;
 use Silo\Base\ConfigurationProvider;
 use Silo\Base\ConstraintValidatorFactory;
-use Silo\Base\Provider\DoctrineProvider\SQLLogger;
+use Silo\Base\Provider\DoctrineProvider;
 use Silo\Base\Provider\MetricProvider;
 use Silo\Base\ValidationException;
 use Silo\Inventory\BatchCollectionFactory;
-use Silo\Inventory\GC\BatchGarbageCollector;
 use Silo\Inventory\GC\GarbageCollectorProvider;
-use Silo\Inventory\Model\User;
+use Silo\Inventory\Model\Location;
+use Silo\Inventory\Model\Operation;
 use Silo\Inventory\OperationValidator;
-use Silo\Inventory\ProductProviderInterface;
-use Silo\Inventory\UserController;
 use Silo\Inventory\Playbacker;
 use Symfony\Component\Debug\ErrorHandler;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -40,13 +36,44 @@ class Silo extends \Silex\Application
 
         parent::__construct($values);
 
+        $this->register(new ConfigurationProvider);
+        $this['config']->has('configured', false);
 
-        $this->register(new ConfigurationProvider($this));
-        $this->register(new GarbageCollectorProvider);
-        $this->register(new MetricProvider);
-        $this->register(new \Silo\Base\Provider\DoctrineProvider, [
-            'em.paths' => [__DIR__.'/Inventory/Model'],
-        ]);
+        if ($this['configured']) {
+            $this->register(new GarbageCollectorProvider);
+            $this->register(new MetricProvider);
+            $this->register(new DoctrineProvider, [
+                'em.paths' => [__DIR__.'/Inventory/Model'],
+            ]);
+        }
+
+        $this->get('/silo/configured', function(Application $app){
+            return new JsonResponse($app['configured']);
+        });
+
+        $this['location.provider'] = function($app){
+            return function ($code) use ($app) {
+
+                $location = $app['em']->getRepository(Location::class)->findOneByCode($code);
+                if (!$location || $location->isDeleted()) {
+                    throw new NotFoundHttpException("Location $code cannot be found");
+                }
+
+                return $location;
+            };
+        };
+
+        $this['operation.provider'] = function($app){
+            return function ($id) use ($app) {
+                $operation = $app['em']->getRepository(Operation::class)->find($id);
+                if (!$operation) {
+                    throw new NotFoundHttpException("Operation $id cannot be found");
+                }
+                return $operation;
+            };
+        };
+
+
 
 
 
@@ -88,12 +115,12 @@ class Silo extends \Silex\Application
             //$app->register(new \Sorien\Provider\PimpleDumpProvider());
         }
 
-        $app->mount('/silo/inventory/location', new \Silo\Inventory\LocationController());
-        $app->mount('/silo/inventory/operation', new \Silo\Inventory\OperationController());
-        $app->mount('/silo/inventory/product', new \Silo\Inventory\ProductController());
-        $app->mount('/silo/inventory/batch', new \Silo\Inventory\BatchController());
-        $app->mount('/silo/inventory/user', new \Silo\Inventory\UserController());
-        $app->mount('/silo/inventory/export', new \Silo\Inventory\ExportController());
+        $app->mount('/silo/inventory/location', new \Silo\Inventory\LocationController);
+        $app->mount('/silo/inventory/operation', new \Silo\Inventory\OperationController);
+        $app->mount('/silo/inventory/product', new \Silo\Inventory\ProductController);
+        $app->mount('/silo/inventory/batch', new \Silo\Inventory\BatchController);
+        $app->mount('/silo/inventory/user', new \Silo\Inventory\UserController);
+        $app->mount('/silo/inventory/export', new \Silo\Inventory\ExportController);
 
         // Deal with exceptions
         ErrorHandler::register();

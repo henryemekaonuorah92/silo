@@ -36,9 +36,6 @@ class LocationController implements ControllerProviderInterface
     {
         $controllers = $app['controllers_factory'];
 
-        /** @var LocationRepository $locations */
-        $locations = $app['em']->getRepository(Location::class);
-
         $controllers->post('/search', function (Request $request) use ($app) {
             $code = $request->query->get('query');
             /** @var QueryBuilder $query */
@@ -103,7 +100,7 @@ class LocationController implements ControllerProviderInterface
                     ];
                 }, $operations)
             ]);
-        })->convert('location', $locations->getProvider());
+        })->convert('location', $app['location.provider']);
 
         /*
          * Delete a Location
@@ -167,7 +164,7 @@ class LocationController implements ControllerProviderInterface
 
             return new JsonResponse([]);
         })
-            ->convert('location', $locations->getProvider())
+            ->convert('location', $app['location.provider'])
             ->before(new JsonRequest());
 
         /*
@@ -350,7 +347,7 @@ EOQ;
 
             // Is it merge or adjust ?
             return new JsonResponse(null, JsonResponse::HTTP_ACCEPTED);
-        })->method('PATCH|PUT')->convert('location', $locations->getProvider());
+        })->method('PATCH|PUT')->convert('location', $app['location.provider']);
         
         
         /*
@@ -421,7 +418,7 @@ EOQ;
             $app['em']->flush();
 
             return new Response('', Response::HTTP_ACCEPTED);
-        })->convert('location', $locations->getProvider());
+        })->convert('location', $app['location.provider']);
 
         /**
          * Get assigned modifiers to a specific Location
@@ -460,7 +457,7 @@ EOQ;
 
             return new JsonResponse([], Response::HTTP_ACCEPTED);
         })
-            ->convert('location', $locations->getProvider())
+            ->convert('location', $app['location.provider'])
             ->before(new JsonRequest())
         ;
 

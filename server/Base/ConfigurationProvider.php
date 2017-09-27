@@ -56,7 +56,5 @@ class ConfigurationProvider implements \Pimple\ServiceProviderInterface
 
             return new JsonResponse(null);
         })->before(new JsonRequest);
-
-
     }
 }

@@ -30,14 +30,6 @@ class OperationController implements ControllerProviderInterface
     public function connect(Application $app)
     {
         $controllers = $app['controllers_factory'];
-        $operations = $app['em']->getRepository('Inventory:Operation');
-        $operationProvider = function ($id) use ($operations) {
-            $operation = $operations->find($id);
-            if (!$operation) {
-                throw new NotFoundHttpException("Operation $id cannot be found");
-            }
-            return $operation;
-        };
 
         /*
          * Fetch all modified Location
@@ -343,17 +335,12 @@ class OperationController implements ControllerProviderInterface
             );
         })->before(new JsonRequest());
 
-        $controllers->get('/{id}', function ($id, Application $app) {
-            $operations = $app['em']->getRepository('Inventory:Operation');
+        $controllers->get('/{operation}', function (Operation $operation, Application $app) {
             /** @var Operation $operation */
-            $op = $operations->find($id);
-
-            if (!$op) {
-                throw new \Exception("Operation $id does not exist");
-            }
+            $op = $operation;
 
             return new JsonResponse([
-                'id' => (int) $id,
+                'id' => (int) $op->getId(),
                 'batches' => $op->getBatches()->toRawArray(),
                 'location' => $op->getLocation() ? $op->getLocation()->getCode() : null,
                 'source' => $op->getSource() ? $op->getSource()->getCode() : null,
@@ -368,7 +355,7 @@ class OperationController implements ControllerProviderInterface
                     ];
                 }, $op->getOperationSets())
             ]);
-        });
+        })->convert('operation', $app['operation.provider']);
 
         $controllers->post('/{operation}/{action}', function (
             Operation $operation,
@@ -401,7 +388,7 @@ class OperationController implements ControllerProviderInterface
         })
             ->assert('action', 'rollback|cancel|execute')
             ->before(new JsonRequest())
-            ->convert('operation', $operationProvider)
+            ->convert('operation', $app['operation.provider'])
         ;
 
         return $controllers;

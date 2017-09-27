@@ -8,9 +8,11 @@ require_once __DIR__.'/../vendor/autoload.php';
 
 // Load configuration
 $configFile = getenv('SILO_CONFIG', true) ?: getenv('SILO_CONFIG');
-$config = include($configFile ?: __DIR__.'/../config.php') ?: [];
+$configFile = $configFile?: __DIR__.'/../config.php';
 
-$app = new Silo\Silo($config);
+$app = new Silo\Silo([
+    'config.cache' => new \Silo\Base\SinglePhpFileCache($configFile, \Silo\Base\Configuration::CACHE_KEY)
+]);
 $app->get('/', function(){
     return <<<EOS
 <html>
