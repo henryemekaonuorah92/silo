@@ -99,7 +99,7 @@ class ProductController implements ControllerProviderInterface
                     ];
                 }, $batches)
             ]);
-        })->convert('product', $productProvider);
+        })->convert('product', $productProvider)->bind('product');
 
         return $controllers;
     }

@@ -100,7 +100,8 @@ class LocationController implements ControllerProviderInterface
                     ];
                 }, $operations)
             ]);
-        })->convert('location', $app['location.provider']);
+        })->convert('location', $app['location.provider'])
+        ->bind('location');
 
         /*
          * Delete a Location

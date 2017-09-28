@@ -355,7 +355,8 @@ class OperationController implements ControllerProviderInterface
                     ];
                 }, $op->getOperationSets())
             ]);
-        })->convert('operation', $app['operation.provider']);
+        })->convert('operation', $app['operation.provider'])
+        ->bind('operation');
 
         $controllers->post('/{operation}/{action}', function (
             Operation $operation,

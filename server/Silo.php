@@ -14,6 +14,7 @@ use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation;
 use Silo\Inventory\OperationValidator;
 use Silo\Inventory\Playbacker;
+use Silo\Search\SearchProvider;
 use Symfony\Component\Debug\ErrorHandler;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -45,6 +46,7 @@ class Silo extends \Silex\Application
             $this->register(new DoctrineProvider, [
                 'em.paths' => [__DIR__.'/Inventory/Model'],
             ]);
+            $this->register(new SearchProvider());
         }
 
         $this->get('/silo/configured', function(Application $app){
@@ -72,10 +74,6 @@ class Silo extends \Silex\Application
                 return $operation;
             };
         };
-
-
-
-
 
         $app = $this;
 
