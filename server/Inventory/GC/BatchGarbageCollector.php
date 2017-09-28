@@ -2,29 +2,25 @@
 
 namespace Silo\Inventory\GC;
 
-use Psr\Log\LoggerAwareTrait;
 use Silo\Base\EntityManagerAwareTrait;
+use Silo\Base\EntityManagerAware;
 
-class BatchGarbageCollector
+class BatchGarbageCollector implements GarbageCollectorInterface, EntityManagerAware
 {
     use EntityManagerAwareTrait;
-    use LoggerAwareTrait;
 
-    // @todo add some probe reporting here
-    public function collect()
+    /**
+     * {@inheritdoc}
+     */
+    public function collect(\DateTime $horizon)
     {
         $q = $this->em->createQuery(
             <<<EOQ
-        DELETE FROM Inventory:Batch b
+        DELETE Inventory:Batch b
         WHERE b.quantity = 0
 EOQ
         );
 
-        $deletedCount = $q->execute();
-        if ($deletedCount > 0) {
-            $this->logger->info(sprintf("%s garbage collected %s", self::class, $deletedCount));
-        } else {
-            $this->logger->debug(sprintf("%s garbage collected nothing", self::class));
-        }
+        return $q->execute();
     }
 }
