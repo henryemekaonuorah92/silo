@@ -15,8 +15,12 @@ class MetricProvider implements ServiceProviderInterface, EventListenerProviderI
      */
     public function register(\Pimple\Container $app)
     {
-        $app['collector.type'] = 'null';
-        $app['collector.configuration'] = [];
+        if (!isset($app['collector.type'])) {
+            $app['collector.type'] = 'null';
+        }
+        if (!isset($app['collector.configuration'])) {
+            $app['collector.configuration'] = [];
+        }
 
         $app['collector'] = function ($app) {
             return \Beberlei\Metrics\Factory::create(
