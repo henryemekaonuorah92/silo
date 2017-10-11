@@ -69,5 +69,10 @@ class DoctrineProvider implements ServiceProviderInterface
 
             return $em;
         };
+
+        // Shortcut for getting a Repository instance quick
+        $app['re'] = $app->protect(function ($name) use ($app) {
+            return $app['em']->getRepository($name);
+        });
     }
 }

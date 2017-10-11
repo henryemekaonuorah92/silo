@@ -37,19 +37,19 @@ class Silo extends \Silex\Application
         parent::__construct($values);
 
         $this->register(new ConfigurationProvider);
-        $this['config']->has('configured', false);
+        $this['config']->has('configured', true); // @todo should be false in a not so distant future
 
         if ($this['configured']) {
-            $this->register(new GarbageCollectorProvider);
+
             $this->register(new MetricProvider);
             $this->register(new DoctrineProvider, [
                 'em.paths' => [__DIR__.'/Inventory/Model'],
             ]);
         }
 
-        $this->get('/silo/configured', function(Application $app){
-            return new JsonResponse($app['configured']);
-        });
+        if (class_exists('\\Sorien\\Provider\\PimpleDumpProvider')) {
+            //$app->register(new \Sorien\Provider\PimpleDumpProvider());
+        }
 
         $this['location.provider'] = function($app){
             return function ($code) use ($app) {
@@ -73,16 +73,7 @@ class Silo extends \Silex\Application
             };
         };
 
-
-
-
-
         $app = $this;
-
-        // Shortcut for getting a Repository instance quick
-        $app['re'] = $app->protect(function ($name) use ($app) {
-            return $app['em']->getRepository($name);
-        });
 
         $app['validator'] = function () use ($app) {
             return Validation::createValidatorBuilder()
@@ -90,6 +81,8 @@ class Silo extends \Silex\Application
                 ->setConstraintValidatorFactory(new ConstraintValidatorFactory($app))
                 ->getValidator();
         };
+
+        $this->register(new GarbageCollectorProvider);
 
         if (!$app->offsetExists('OperationValidator')) {
             $app['OperationValidator'] = function () use ($app) {
@@ -110,10 +103,6 @@ class Silo extends \Silex\Application
             $s->setEntityManager($app['em']);
             return $s;
         };
-
-        if (class_exists('\\Sorien\\Provider\\PimpleDumpProvider')) {
-            //$app->register(new \Sorien\Provider\PimpleDumpProvider());
-        }
 
         $app->mount('/silo/inventory/location', new \Silo\Inventory\LocationController);
         $app->mount('/silo/inventory/operation', new \Silo\Inventory\OperationController);
