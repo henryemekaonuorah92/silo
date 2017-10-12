@@ -7,14 +7,14 @@
     "monolog/monolog": "v1.19.0",
     "parsecsv/php-parsecsv": "0.4.5",
     "silex/silex": "^2.0",
-    "symfony/console":"v2.7.5",
-    "symfony/validator": "^3.1"
+    "symfony/console":"~2.0",
+    "symfony/validator": "~2.0"
   },
   "require-dev": {
     "behat/behat": "v2.5.5",
     "phpunit/php-code-coverage": "^2.2",
-    "symfony/browser-kit": "^3.2",
-    "symfony/css-selector": "^3.2"
+    "symfony/browser-kit": "~2.0",
+    "symfony/css-selector": "~2.0"
   },
   "suggest": {
     "sorien/silex-pimple-dumper": "In case your IDE supports silex container auto completion"
