@@ -11,7 +11,8 @@ $configFile = getenv('SILO_CONFIG', true) ?: getenv('SILO_CONFIG');
 $configFile = $configFile?: __DIR__.'/../config.php';
 
 $app = new Silo\Silo([
-    'config.cache' => new \Silo\Base\SinglePhpFileCache($configFile, \Silo\Base\Configuration::CACHE_KEY)
+    'config.cache' => new \Silo\Base\SinglePhpFileCache($configFile, \Silo\Base\Configuration::CACHE_KEY),
+    'defaultErrorHandler' => true
 ]);
 $app->get('/', function(){
     return <<<EOS

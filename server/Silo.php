@@ -113,24 +113,27 @@ class Silo extends \Silex\Application
 
         // Deal with exceptions
         ErrorHandler::register();
-        $app->error(function (\Exception $e, $request) use ($app) {
-            if ($e instanceof NotFoundHttpException) {
-                return new JsonResponse($e->getMessage(), JsonResponse::HTTP_NOT_FOUND);
-            }
-            if ($e instanceof ValidationException) {
-                return new JsonResponse(['errors' => array_map(function ($violation) {
-                    return (string) $violation;
-                }, iterator_to_array($e->getViolations()->getIterator()))], JsonResponse::HTTP_BAD_REQUEST);
-            }
 
-            if ($app['logger']) {
-                $app['logger']->error($e);
-            }
-            return new JsonResponse([
-                'message' => $e->getMessage(),
-                'trace' => $e->getTrace(),
-                'file' => $e->getFile().':'.$e->getLine()
-            ], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
-        });
+        if (isset($app['defaultErrorHandler']) && $app['defaultErrorHandler']) {
+            $app->error(function (\Exception $e, $request) use ($app) {
+                if ($e instanceof NotFoundHttpException) {
+                    return new JsonResponse($e->getMessage(), JsonResponse::HTTP_NOT_FOUND);
+                }
+                if ($e instanceof ValidationException) {
+                    return new JsonResponse(['errors' => array_map(function ($violation) {
+                        return (string) $violation;
+                    }, iterator_to_array($e->getViolations()->getIterator()))], JsonResponse::HTTP_BAD_REQUEST);
+                }
+
+                if ($app['logger']) {
+                    $app['logger']->error($e);
+                }
+                return new JsonResponse([
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTrace(),
+                    'file' => $e->getFile().':'.$e->getLine()
+                ], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+            });
+        }
     }
 }
