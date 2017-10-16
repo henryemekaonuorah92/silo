@@ -1,7 +1,7 @@
 ;
 const React = require('react');
-const Api = require('silo-core').Api;
-const promisify = require('silo-core/client/Common/connectWithPromise');
+const Api = require('../Api');
+const promisify = require('../Common/connectWithPromise');
 const OperationEditor = promisify(require('../Editor/OperationEditor'));
 
 module.exports = React.createClass({

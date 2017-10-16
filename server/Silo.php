@@ -40,7 +40,6 @@ class Silo extends \Silex\Application
         $this['config']->has('configured', true); // @todo should be false in a not so distant future
 
         if ($this['configured']) {
-
             $this->register(new MetricProvider);
             $this->register(new DoctrineProvider, [
                 'em.paths' => [__DIR__.'/Inventory/Model'],
@@ -117,7 +116,18 @@ class Silo extends \Silex\Application
         if (isset($app['defaultErrorHandler']) && $app['defaultErrorHandler']) {
             $app->error(function (\Exception $e, $request) use ($app) {
                 if ($e instanceof NotFoundHttpException) {
-                    return new JsonResponse($e->getMessage(), JsonResponse::HTTP_NOT_FOUND);
+                    return <<<EOS
+<html>
+    <head>
+        <title>Silo</title>
+    </head>
+    <body>
+    <div id="ReactMount"></div>
+    <script src="vendors.js"></script>
+    <script src="app.js"></script>
+    </body>
+</html>
+EOS;
                 }
                 if ($e instanceof ValidationException) {
                     return new JsonResponse(['errors' => array_map(function ($violation) {
