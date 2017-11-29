@@ -6,6 +6,7 @@ use Silex\Application;
 use Silo\Base\ConfigurationProvider;
 use Silo\Base\ConstraintValidatorFactory;
 use Silo\Base\Provider\DoctrineProvider;
+use Silo\Base\Provider\IndexProvider;
 use Silo\Base\Provider\MetricProvider;
 use Silo\Base\ValidationException;
 use Silo\Inventory\BatchCollectionFactory;
@@ -82,6 +83,7 @@ class Silo extends \Silex\Application
         };
 
         $this->register(new GarbageCollectorProvider);
+        $this->register(new IndexProvider);
 
         if (!$app->offsetExists('OperationValidator')) {
             $app['OperationValidator'] = function () use ($app) {
@@ -110,24 +112,29 @@ class Silo extends \Silex\Application
         $app->mount('/silo/inventory/user', new \Silo\Inventory\UserController);
         $app->mount('/silo/inventory/export', new \Silo\Inventory\ExportController);
 
+        $app['version'] = function(){
+            $filename = __DIR__.'/../../VERSION';
+            if (file_exists($filename) && is_readable($filename))  {
+                $data = file_get_contents($filename);
+                foreach(explode("\n", $data) as $line) {
+                    if (preg_match('/^([^=]+)=(.*)/', $line, $matches)) {
+                        if ($matches[1] == 'release') {
+                            return $matches[2];
+                        }
+                    }
+                }
+            }
+            return null;
+        };
+
         // Deal with exceptions
         ErrorHandler::register();
 
         if (isset($app['defaultErrorHandler']) && $app['defaultErrorHandler']) {
             $app->error(function (\Exception $e, $request) use ($app) {
                 if ($e instanceof NotFoundHttpException) {
-                    return <<<EOS
-<html>
-    <head>
-        <title>Silo</title>
-    </head>
-    <body>
-    <div id="ReactMount"></div>
-    <script src="vendors.js"></script>
-    <script src="app.js"></script>
-    </body>
-</html>
-EOS;
+                    $subRequest = Request::create('/');
+                    return $app->handle($subRequest, HttpKernelInterface::SUB_REQUEST, false);
                 }
                 if ($e instanceof ValidationException) {
                     return new JsonResponse(['errors' => array_map(function ($violation) {

@@ -8,12 +8,13 @@ import Product from './View/Product'
 import OperationSet from './View/OperationSet'
 
 // match.params.id
-const routes = [
-    <Route path="/operations" component={Operations} />,
-    <Route path="/operation/:id" component={Operation} />,
-    <Route path="/location/:id" component={Location} />,
-    <Route path="/product/:id" component={Product} />,
-    <Route path="/operation-set/:id" component={OperationSet} />
+let key = 0;
+const routes = (RouteCp = Route) => [
+    <RouteCp key={key++} path="/operations"  component={Operations} />,
+    <RouteCp key={key++} path="/operation/:id" component={Operation} />,
+    <RouteCp key={key++} path="/location/:id" component={Location} />,
+    <RouteCp key={key++} path="/product/:id" component={Product} />,
+    <RouteCp key={key++} path="/operation-set/:id" component={OperationSet} />
 ];
 
 export default routes
