@@ -55,7 +55,7 @@ class IndexProvider implements \Pimple\ServiceProviderInterface, ControllerProvi
 </body>
 </html>
 HTML
-            );
+            , 200, ['X-Status-Code' => 200]);
         });
     }
 
