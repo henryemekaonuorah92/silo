@@ -19,7 +19,8 @@ use Symfony\Component\Debug\ErrorHandler;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Validator\Validation;
-
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 /**
  * Main Silo entry point, exposed as a Container.
  */
@@ -38,8 +39,14 @@ class Silo extends \Silex\Application
         parent::__construct($values);
 
         $this->register(new ConfigurationProvider);
-        $this['config']->has('configured', true); // @todo should be false in a not so distant future
+        $this['config']
+            ->has('configured', false) // @todo should be false in a not so distant future
+            ->has('route.base', '/silo/inventory')
+            ->has('em.dsn', null);
 
+        //$this['config']->save();
+
+        $this['debug'] = true;
         if ($this['configured']) {
             $this->register(new MetricProvider);
             $this->register(new DoctrineProvider, [
@@ -105,12 +112,12 @@ class Silo extends \Silex\Application
             return $s;
         };
 
-        $app->mount('/silo/inventory/location', new \Silo\Inventory\LocationController);
-        $app->mount('/silo/inventory/operation', new \Silo\Inventory\OperationController);
-        $app->mount('/silo/inventory/product', new \Silo\Inventory\ProductController);
-        $app->mount('/silo/inventory/batch', new \Silo\Inventory\BatchController);
-        $app->mount('/silo/inventory/user', new \Silo\Inventory\UserController);
-        $app->mount('/silo/inventory/export', new \Silo\Inventory\ExportController);
+        $app->mount($app['route.base'].'/location', new \Silo\Inventory\LocationController);
+        $app->mount($app['route.base'].'/operation', new \Silo\Inventory\OperationController);
+        $app->mount($app['route.base'].'/product', new \Silo\Inventory\ProductController);
+        $app->mount($app['route.base'].'/batch', new \Silo\Inventory\BatchController);
+        $app->mount($app['route.base'].'/user', new \Silo\Inventory\UserController);
+        $app->mount($app['route.base'].'/export', new \Silo\Inventory\ExportController);
 
         $app['version'] = function(){
             $filename = __DIR__.'/../../VERSION';
@@ -129,7 +136,6 @@ class Silo extends \Silex\Application
 
         // Deal with exceptions
         ErrorHandler::register();
-
         if (isset($app['defaultErrorHandler']) && $app['defaultErrorHandler']) {
             $app->error(function (\Exception $e, $request) use ($app) {
                 if ($e instanceof NotFoundHttpException) {

@@ -15,17 +15,14 @@ class IndexProvider implements \Pimple\ServiceProviderInterface, ControllerProvi
 {
     public function register(Container $app)
     {
-        $app['index.css'] = [
-            '/master.css',
-            '/static/default/default/css/chosen.css',
-            '/static/default/default/css/jquery.switchButton.css'
-        ];
+        $app['index.css'] = [];
 
         $app['index.js'] = [
-            '/legacy.js',
             '/vendors.js',
             '/app.js'
         ];
+
+        $app['title'] = 'silo';
 
         $app['index.response'] = $app->factory(function()use($app){
 
@@ -44,7 +41,7 @@ class IndexProvider implements \Pimple\ServiceProviderInterface, ControllerProvi
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>silo</title>
+    <title>{$app['title']}</title>
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
@@ -67,7 +64,7 @@ HTML
     {
         $c = $app['controllers_factory'];
 
-        $c->get('/', $app['index.response']);
+        $c->get('/', function()use($app){return $app['index.response'];});
 
         return $c;
     }

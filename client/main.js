@@ -33,7 +33,7 @@ const App = React.createClass({
                         <div className="col-sm-12 main">
                             <Switch>
                                 <Route exact path="/" component={Home} />
-                                {Routes}
+                                {Routes()}
                                 <Route path="*" render={(props)=>(<div>Not found</div>)} />
                             </Switch>
                         </div>
@@ -44,4 +44,4 @@ const App = React.createClass({
     }
 });
 
-ReactDOM.render(<App />, document.getElementById('ReactMount'));
+ReactDOM.render(<App />, document.getElementById('container'));

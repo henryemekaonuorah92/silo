@@ -9,6 +9,24 @@ module.exports = React.createClass({
         return <LinkContainer to={route}><MenuItem eventKey={key}>{title}</MenuItem></LinkContainer>
     },
 
+    /*
+    <Nav>
+        <NavDropdown eventKey={1} title="Inventory" id="main-nav-dropdown">
+            {this.menu("/operations", "Operations", 1.1)}
+        </NavDropdown>
+        <NavItem eventKey={2} href="#">Work</NavItem>
+    </Nav>
+    <Nav pullRight>
+        <NavDropdown eventKey={3} title="An" id="user-nav-dropdown">
+            <MenuItem eventKey={3.1}>Administration</MenuItem>
+            <MenuItem eventKey={3.2}>Help</MenuItem>
+            <MenuItem eventKey={3.3}>About Silo</MenuItem>
+            <MenuItem divider />
+            <MenuItem eventKey={3.4}>Log out</MenuItem>
+        </NavDropdown>
+    </Nav>
+     */
+
     render: function(){
         return (
             <Navbar fixedTop fluid>
@@ -17,22 +35,6 @@ module.exports = React.createClass({
                         <Link to="/">Silo</Link>
                     </Navbar.Brand>
                 </Navbar.Header>
-                <Nav>
-                    <NavDropdown eventKey={1} title="Inventory" id="main-nav-dropdown">
-                        {this.menu("/operations", "Operations", 1.1)}
-                    </NavDropdown>
-                    <NavItem eventKey={2} href="#">Work</NavItem>
-                </Nav>
-                <Nav pullRight>
-                    <NavDropdown eventKey={3} title="An" id="user-nav-dropdown">
-                        <MenuItem eventKey={3.1}>Administration</MenuItem>
-                        <MenuItem eventKey={3.2}>Help</MenuItem>
-                        <MenuItem eventKey={3.3}>About Silo</MenuItem>
-                        <MenuItem divider />
-                        <MenuItem eventKey={3.4}>Log out</MenuItem>
-                    </NavDropdown>
-                </Nav>
-
             </Navbar>
         );
     }

@@ -14,4 +14,7 @@ $app = new Silo\Silo([
     'config.cache' => new \Silo\Base\SinglePhpFileCache($configFile, \Silo\Base\Configuration::CACHE_KEY),
     'defaultErrorHandler' => true
 ]);
+$indexProvider = new \Silo\Base\Provider\IndexProvider();
+$app->register($indexProvider)->mount('/', $indexProvider);
+
 $app->run();
