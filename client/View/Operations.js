@@ -27,7 +27,8 @@ module.exports = React.createClass({
     },
 
     handleChangeFilter: function(filters){
-        this.props.router.setParams(filters);
+        console.warn("this.props.router.setParams(filters)");
+        //this.props.router.setParams(filters);
         this.setState({filters: filters, showModal: false, showModalBis: false});
     },
 
