@@ -1,9 +1,11 @@
 <?php
 namespace Silo\Base\Provider;
 
+use Beberlei\Metrics\Collector\Logger;
 use Pimple\Container;
 use Silex\Api\EventListenerProviderInterface;
 use Pimple\ServiceProviderInterface;
+use Silo\Base\Provider\MetricProvider\ChainCollector;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -23,10 +25,13 @@ class MetricProvider implements ServiceProviderInterface, EventListenerProviderI
         }
 
         $app['collector'] = function ($app) {
-            return \Beberlei\Metrics\Factory::create(
-                $app['collector.type'],
-                $app['collector.configuration']
-            );
+            return new ChainCollector([
+                \Beberlei\Metrics\Factory::create(
+                    $app['collector.type'],
+                    $app['collector.configuration']
+                ),
+                new Logger($app['logger'])
+            ]);
         };
     }
 
