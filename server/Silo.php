@@ -90,7 +90,6 @@ class Silo extends \Silex\Application
         };
 
         $this->register(new GarbageCollectorProvider);
-        $this->register(new IndexProvider);
 
         if (!$app->offsetExists('OperationValidator')) {
             $app['OperationValidator'] = function () use ($app) {
@@ -102,7 +101,7 @@ class Silo extends \Silex\Application
             return new BatchCollectionFactory(
                 $app['em'],
                 $app['validator'],
-                isset($app['skuTransformer']) ? $app['skuTransformer'] : null
+                isset($app['SkuTransformer']) ? $app['SkuTransformer'] : null
             );
         };
 
