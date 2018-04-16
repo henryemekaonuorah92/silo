@@ -49,7 +49,7 @@ module.exports = React.createClass({
     },
 
     render: function(){
-        const {modifierFactory, modifier, availableModifiers, edit, ...rest} = this.props;
+        const {modifierFactory, modifier, availableModifiers, edit, onSave, onDelete, location, writable, siloBasePath, ...rest} = this.props;
         const modifierNames = modifierFactory.listEditors();
         const name = (modifier && modifier.name) || this.state.name;
 
