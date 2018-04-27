@@ -127,7 +127,7 @@ module.exports = React.createClass({
             :
 
             <li className="list-group-item">
-                {type + ' = ' + value}
+                <Glyphicon glyph="lock"/> {type + ' = ' + value}
             </li>
 
     }

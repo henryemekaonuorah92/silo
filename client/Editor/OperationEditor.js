@@ -15,7 +15,7 @@ const ContextCell = require('./Cell/ContextCell')
 const {Editor, PanelTable} = require('./Editor');
 
 const DataStore = require('./DataStore');
-
+const {Glyphicon} = require('react-bootstrap')
 const DownloadDataLink = require('../Common/DownloadDataLink');
 const FilterItem = require('./FilterItem');
 /**
@@ -99,14 +99,14 @@ module.exports = React.createClass({
     },
 
     render: function(){
-        let {data,onFilterChange, filters} = this.props;
+        let {data, onFilterChange, filters} = this.props;
 
         let menu = [
             <li><DownloadDataLink
                 filename="operationExport.csv"
                 exportFile={this.prepareExport}
                 style={{cursor: "pointer"}}>
-                {data ? 'Save as CSV' : 'Save All as CSV'}
+                {filters && filters.length > 0 ? <span>Save All as CSV <Glyphicon glyph='hourglass' /></span> : 'Save as CSV'}
             </DownloadDataLink></li>
         ];
 

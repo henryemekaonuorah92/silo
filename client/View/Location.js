@@ -142,7 +142,7 @@ module.exports = React.createClass({
             method: "POST",
             body: JSON.stringify({filters: this.state.filters})
         });
-        
+
         return (
             <div>
                 <h3><span className="glyphicon glyphicon-map-marker" />Location {this.props.code}</h3>
