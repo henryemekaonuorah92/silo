@@ -26,7 +26,7 @@ module.exports = React.createClass({
 
     prepareExport: function(){
         let process = operations => {
-            let header = [
+            let data = [
                 "operationId",
                 "type",
                 "source",
@@ -40,33 +40,58 @@ module.exports = React.createClass({
                 "cancelledBy",
                 "doneAt",
                 "doneBy",
-                "contextId"
+                "contextId",
+                "contextDescription"
             ].join(',')+"\n";
-            return header + operations.map(function(op){
-                let batch = op.batches && op.batches.pop()
-                return [
-                    op.id,
-                    op.type,
-                    op.source,
-                    op.target,
-                    op.location,
-                    batch && batch.product,
-                    batch && batch.quantity,
-                    op.status.requestedAt,
-                    op.status.requestedBy,
-                    op.status.cancelledAt,
-                    op.status.cancelledBy,
-                    op.status.doneAt,
-                    op.status.doneBy,
-                    op.contexts.map(ctx=>ctx.id).join(' ')
-                ].join(',')
-            }).join("\n")
+
+            operations.map(op => {
+                if (op.batches && op.batches.length > 0) {
+                    op.batches.map(b => {
+                        data += [
+                            op.id,
+                            op.type,
+                            op.source,
+                            op.target,
+                            op.location,
+                            b.product,
+                            b.quantity,
+                            op.status.requestedAt,
+                            op.status.requestedBy,
+                            op.status.cancelledAt,
+                            op.status.cancelledBy,
+                            op.status.doneAt,
+                            op.status.doneBy,
+                            op.contexts.map(ctx=>ctx.id).join(' '),
+                            op.contexts.map(ctx=>ctx.value && ctx.value.description).join(' ')
+                        ].join(',') + "\n"
+                    })
+                } else {
+                    data += [
+                        op.id,
+                        op.type,
+                        op.source,
+                        op.target,
+                        op.location,
+                        '',
+                        '',
+                        op.status.requestedAt,
+                        op.status.requestedBy,
+                        op.status.cancelledAt,
+                        op.status.cancelledBy,
+                        op.status.doneAt,
+                        op.status.doneBy,
+                        op.contexts.map(ctx=>ctx.id).join(' '),
+                        op.contexts.map(ctx=>ctx.value && ctx.value.description).join(' ')
+                    ].join(',') + "\n"
+                }
+            })
+            return data
         };
 
         if (this.props.filters && this.props.filters.length > 0) {
             return fetch(
                 "/silo/inventory/operation/search",
-                {method: "POST", body: JSON.stringify({filters: this.props.filters, limit: -1})}
+                {method: "POST", body: JSON.stringify({filters: this.props.filters, limit: -1, forceBatches: 1})}
             ).then(process)
         } else {
             return process(this.props.data)
@@ -76,16 +101,14 @@ module.exports = React.createClass({
     render: function(){
         let {data,onFilterChange, filters} = this.props;
 
-        let menu = null;
-
-        if (data) {
-            menu = <li><DownloadDataLink
+        let menu = [
+            <li><DownloadDataLink
                 filename="operationExport.csv"
                 exportFile={this.prepareExport}
                 style={{cursor: "pointer"}}>
-                Save as CSV
-            </DownloadDataLink></li>;
-        }
+                {data ? 'Save as CSV' : 'Save All as CSV'}
+            </DownloadDataLink></li>
+        ];
 
         let store = new DataStore(data ? data : []);
         return (

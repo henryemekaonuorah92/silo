@@ -14,7 +14,8 @@ module.exports = React.createClass({
         onChange: ()=>null,
         onTypeChange: ()=>null,
         type: 'cancelledAt',
-        value: null
+        value: null,
+        editable: true
     }),
 
     handleChange: function(event){
@@ -28,8 +29,7 @@ module.exports = React.createClass({
     },
 
     render: function(){
-        const value = this.props.value;
-        const type = this.props.type;
+        const {value, type, editable} = this.props;
 
         // Type decides which kind of form we display
         let valuePartial = null;
@@ -91,8 +91,9 @@ module.exports = React.createClass({
                 break;
         }
 
-        return <li className="list-group-item">
+        return editable ? <li className="list-group-item">
                 <button type="button" className="close" aria-label="Close" onClick={this.props.onRemove}><span aria-hidden="true">&times;</span></button>
+
                 <Form inline>
                     <Glyphicon glyph="filter"/>
                     &nbsp;
@@ -121,6 +122,12 @@ module.exports = React.createClass({
                         {valuePartial}
                     </FormGroup>
                 </Form>
+            </li>
+
+            :
+
+            <li className="list-group-item">
+                {type + ' = ' + value}
             </li>
 
     }

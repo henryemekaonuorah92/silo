@@ -2,7 +2,8 @@
 const React = require('react');
 
 const BatchEditor = require('../Editor/BatchEditor');
-const OperationEditor = require('../Editor/OperationEditor');
+const promisify = require('../Common/connectWithPromise');
+const OperationEditor = promisify(require('../Editor/OperationEditor'));
 const withLocationModifier = require('../Editor/withLocationModifier');
 const ModifierEditor = withLocationModifier(require('../Editor/ModifierEditor'));
 const Modal = require('../Modal/BatchUploadModal');
@@ -13,11 +14,27 @@ const DownloadDataLink = require('../Common/DownloadDataLink');
 module.exports = React.createClass({
 
     getInitialState: function () {
+        let filters = [];
+        if (this.props.router) {
+            filters = this.props.router.getParams();
+            if (!filters) {filters = []}
+        }
+        filters.push({
+            type:"location",
+            value:[this.props.code],
+            editable: false
+        })
         return {
             data: {},
             batches: null,
-            operations: null,
+            filters: filters
         };
+    },
+
+    handleChangeFilter: function(filters){
+        const fil = filters.filter(a => a.type !== 'location')
+        this.props.router.setParams(fil);
+        this.setState({filters: filters});
     },
 
     getDefaultProps: function() {
@@ -61,8 +78,7 @@ module.exports = React.createClass({
             .getFrom(replace.apply(this, [this.props.endpoint]))
             .onUpdate(value => {
                 this.setState({
-                    data: value,
-                    operations: value.operations.sort((a,b)=>(b.id-a.id))
+                    data: value
                 });
             })
             .refresh();
@@ -122,7 +138,11 @@ module.exports = React.createClass({
         }
 
         // <button className="btn btn-danger" onClick={this.handleDelete}>Delete</button>
-
+        let promise = Api.fetch("/silo/inventory/operation/search", {
+            method: "POST",
+            body: JSON.stringify({filters: this.state.filters})
+        });
+        
         return (
             <div>
                 <h3><span className="glyphicon glyphicon-map-marker" />Location {this.props.code}</h3>
@@ -152,7 +172,7 @@ module.exports = React.createClass({
                     menu={menus}
                     error={null}/>
 
-                <OperationEditor data={this.state.operations} error={null} />
+                <OperationEditor promise={promise} onFilterChange={this.handleChangeFilter} filters={this.state.filters} />
             </div>
         );
     }

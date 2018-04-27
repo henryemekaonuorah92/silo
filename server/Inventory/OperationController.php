@@ -194,9 +194,9 @@ class OperationController implements ControllerProviderInterface
          */
         // @todo test This
         $controllers->post('/search', function (Request $request) use ($app) {
-            //$finder = new OperationFinder($app['em']);
-            $withBatches = false;
 
+            $forceBatches = (bool) $request->get('forceBatches', 0);
+            $withBatches = false;
             $maxResults = $request->get('limit', 100);
 
             /** @var QueryBuilder $query */
@@ -314,6 +314,13 @@ class OperationController implements ControllerProviderInterface
                             break;
                     }
                 }
+            }
+
+            if ($forceBatches && !$withBatches) {
+                $query->addSelect('batches,product')
+                    ->innerJoin('operation.batches', 'batches')
+                    ->innerJoin('batches.product', 'product');
+                $withBatches = true;
             }
 
             $result = $query->getQuery()->execute();
