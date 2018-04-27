@@ -62,6 +62,17 @@ class OperationCollection extends ArrayCollection implements MarshallableInterfa
     }
 
     /**
+     * @param $type
+     * @return static
+     */
+    public function filterTypes(array $types)
+    {
+        return $this->filter(function (Operation $operation) use ($types) {
+            return in_array($operation->getType(), $types);
+        });
+    }
+
+    /**
      * @return static
      */
     public function filterDone()
