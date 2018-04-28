@@ -58,14 +58,14 @@ const App = React.createClass({
     },
 
     createLink: function(props){
-        let frag = '/'+props.route+'/'+props.code;
+        let frag = '/'+props.route+'/'+encodeURIComponent(props.code);
         return (
             <a onClick={(e)=>{
                 e.stopPropagation();
                 this.onNavigate(frag);
             }} style={{cursor: 'pointer'}}
                href={'/#'+frag}>
-                {props.children || props.code}
+                {props.children || encodeURIComponent(props.code)}
             </a>
         );
     },
