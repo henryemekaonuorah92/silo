@@ -62,7 +62,9 @@ module.exports = React.createClass({
                             op.status.doneAt,
                             op.status.doneBy,
                             op.contexts.map(ctx=>ctx.id).join(' '),
-                            op.contexts.map(ctx=>ctx.value && ctx.value.description).join(' ')
+                            op.contexts.map(ctx=>ctx.value ?
+                                (ctx.value.description || ctx.value.magentoOrderId) : ''
+                            ).join(' ')
                         ].join(',') + "\n"
                     })
                 } else {
@@ -81,7 +83,9 @@ module.exports = React.createClass({
                         op.status.doneAt,
                         op.status.doneBy,
                         op.contexts.map(ctx=>ctx.id).join(' '),
-                        op.contexts.map(ctx=>ctx.value && ctx.value.description).join(' ')
+                        op.contexts.map(ctx=>ctx.value ?
+                            (ctx.value.description || ctx.value.magentoOrderId) : ''
+                        ).join(' ')
                     ].join(',') + "\n"
                 }
             })
