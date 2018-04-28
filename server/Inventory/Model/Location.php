@@ -118,6 +118,8 @@ class Location
                 $this->isDeleted = false;
             } elseif (is_null($operation->getTarget())) {  // Deletion
                 $this->isDeleted = true;
+            } elseif ($this->isDeleted) {
+                throw new \LogicException("Cannot move a deleted Location, respawn it first");
             }
             $this->parent = $operation->getTarget();
         } elseif (self::compare($operation->getSource(), $this)) {
