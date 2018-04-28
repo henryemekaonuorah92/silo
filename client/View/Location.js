@@ -2,22 +2,41 @@
 const React = require('react');
 
 const BatchEditor = require('../Editor/BatchEditor');
-const OperationEditor = require('../Editor/OperationEditor');
+const promisify = require('../Common/connectWithPromise');
+const OperationEditor = promisify(require('../Editor/OperationEditor'));
 const withLocationModifier = require('../Editor/withLocationModifier');
 const ModifierEditor = withLocationModifier(require('../Editor/ModifierEditor'));
 const Modal = require('../Modal/BatchUploadModal');
 const Link = require('../Factory').Link;
 const Api = require('../Api');
 const DownloadDataLink = require('../Common/DownloadDataLink');
+const {Label} = require('react-bootstrap')
+const AjaxButton = require('../Common/AjaxButton');
 
 module.exports = React.createClass({
 
     getInitialState: function () {
+        let filters = [];
+        if (this.props.router) {
+            filters = this.props.router.getParams();
+            if (!filters) {filters = []}
+        }
+        filters.push({
+            type:"location",
+            value:[this.props.code],
+            editable: false
+        })
         return {
             data: {},
             batches: null,
-            operations: null,
+            filters: filters
         };
+    },
+
+    handleChangeFilter: function(filters){
+        const fil = filters.filter(a => a.type !== 'location')
+        this.props.router.setParams(fil);
+        this.setState({filters: filters});
     },
 
     getDefaultProps: function() {
@@ -61,8 +80,7 @@ module.exports = React.createClass({
             .getFrom(replace.apply(this, [this.props.endpoint]))
             .onUpdate(value => {
                 this.setState({
-                    data: value,
-                    operations: value.operations.sort((a,b)=>(b.id-a.id))
+                    data: value
                 });
             })
             .refresh();
@@ -122,10 +140,21 @@ module.exports = React.createClass({
         }
 
         // <button className="btn btn-danger" onClick={this.handleDelete}>Delete</button>
+        let promise = Api.fetch("/silo/inventory/operation/search", {
+            method: "POST",
+            body: JSON.stringify({filters: this.state.filters})
+        });
+
+        let isDeleted = data && data.isDeleted
+
+        let h3Style = {
+            textDecoration: isDeleted ? 'line-through' : ''
+        }
 
         return (
             <div>
-                <h3><span className="glyphicon glyphicon-map-marker" />Location {this.props.code}</h3>
+                <h3><span className="glyphicon glyphicon-map-marker" />
+                    <span style={h3Style}>Location {this.props.code}</span> {isDeleted && <Label bsStyle="danger">DELETED</Label>}</h3>
 
                 {data ? (<div>
                     <b>Parent:</b>&nbsp;{data.parent ? <Link route="location" code={data.parent} /> : "No parent"}<br />
@@ -138,6 +167,19 @@ module.exports = React.createClass({
 
 
                 </div>) : "Loading data"}
+
+                {isDeleted && <AjaxButton
+                    url={this.props.siloBasePath + "/inventory/location/" + this.props.code + "/respawn"}
+                    type="POST"
+                    onSuccess={() => {
+                        this.refresh()
+                    }}
+                    onError={(msg) => {
+                        window.alert(msg)
+                    }}
+                    className="btn btn-warning">
+                    Respawn Location
+                </AjaxButton>}
 
                 <ModifierEditor cache={this.props.cache}
                                 siloBasePath={this.props.siloBasePath}
@@ -152,7 +194,7 @@ module.exports = React.createClass({
                     menu={menus}
                     error={null}/>
 
-                <OperationEditor data={this.state.operations} error={null} />
+                <OperationEditor promise={promise} onFilterChange={this.handleChangeFilter} filters={this.state.filters} />
             </div>
         );
     }

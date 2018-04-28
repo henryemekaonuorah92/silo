@@ -78,6 +78,7 @@ class LocationController implements ControllerProviderInterface
             $operations = $query->getQuery()->getResult();
 
             return new JsonResponse([
+                'isDeleted' => $location->isDeleted(),
                 'code' => $location->getCode(),
                 'parent' => $parent ? $parent->getCode() : null,
                 'childs' => array_map(function (Location $l) {
@@ -100,7 +101,7 @@ class LocationController implements ControllerProviderInterface
                     ];
                 }, $operations)
             ]);
-        })->convert('location', $app['location.provider']);
+        })->convert('location', $app['location.provider'](false));
 
         /*
          * Delete a Location
@@ -109,6 +110,14 @@ class LocationController implements ControllerProviderInterface
             $locations = $app['re'](Location::class);
             $location = $locations->forceFindOneByCode($code);
             $locations->delete($location, $app['current_user']);
+
+            return new JsonResponse([], Response::HTTP_ACCEPTED);
+        });
+
+        $controllers->post('/{code}/respawn', function ($code, Application $app, Request $request) {
+            $locations = $app['re'](Location::class);
+            $location = $locations->forceFindOneByCode($code);
+            $locations->respawn($location, $app['current_user']);
 
             return new JsonResponse([], Response::HTTP_ACCEPTED);
         });
@@ -164,7 +173,7 @@ class LocationController implements ControllerProviderInterface
 
             return new JsonResponse([]);
         })
-            ->convert('location', $app['location.provider'])
+            ->convert('location', $app['location.provider']())
             ->before(new JsonRequest());
 
         /*
@@ -347,7 +356,7 @@ EOQ;
 
             // Is it merge or adjust ?
             return new JsonResponse(null, JsonResponse::HTTP_ACCEPTED);
-        })->method('PATCH|PUT')->convert('location', $app['location.provider']);
+        })->method('PATCH|PUT')->convert('location', $app['location.provider']());
         
         
         /*
@@ -418,7 +427,7 @@ EOQ;
             $app['em']->flush();
 
             return new Response('', Response::HTTP_ACCEPTED);
-        })->convert('location', $app['location.provider']);
+        })->convert('location', $app['location.provider']());
 
         /**
          * Get assigned modifiers to a specific Location
@@ -457,7 +466,7 @@ EOQ;
 
             return new JsonResponse([], Response::HTTP_ACCEPTED);
         })
-            ->convert('location', $app['location.provider'])
+            ->convert('location', $app['location.provider']())
             ->before(new JsonRequest())
         ;
 

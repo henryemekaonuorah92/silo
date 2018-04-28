@@ -186,9 +186,9 @@ class OperationController implements ControllerProviderInterface
          */
         // @todo test This
         $controllers->post('/search', function (Request $request) use ($app) {
-            //$finder = new OperationFinder($app['em']);
-            $withBatches = false;
 
+            $forceBatches = (bool) $request->get('forceBatches', 0);
+            $withBatches = false;
             $maxResults = $request->get('limit', 100);
 
             /** @var QueryBuilder $query */
@@ -308,6 +308,13 @@ class OperationController implements ControllerProviderInterface
                 }
             }
 
+            if ($forceBatches && !$withBatches) {
+                $query->addSelect('batches,product')
+                    ->innerJoin('operation.batches', 'batches')
+                    ->innerJoin('batches.product', 'product');
+                $withBatches = true;
+            }
+
             $result = $query->getQuery()->execute();
 
             return new JsonResponse(
@@ -365,10 +372,20 @@ class OperationController implements ControllerProviderInterface
             $user = $app['current_user'];
             switch ($action) {
                 case 'rollback':
+                    $type = $app['em']->getRepository('Inventory:OperationType')->getByName('rollback');
+
+                    $description = $request->request->get('description');
+                    if ($description === "") {
+                        throw new \Exception("You should provide a small description");
+                    }
                     $rollbackOp = $operation->createRollback($user);
                     $app['em']->persist($rollbackOp);
-                    $app['em']->flush();
                     $rollbackOp->execute($user);
+                    $rollbackOp->setType($type);
+
+                    $set = new OperationSet($user, ['description' => $description]);
+                    $set->add($rollbackOp);
+                    $app['em']->persist($set);
                     break;
                 case 'execute':
                     $override = null;

@@ -99,7 +99,8 @@ class ProductController implements ControllerProviderInterface
                     ];
                 }, $batches)
             ]);
-        })->convert('product', $productProvider);
+        })->convert('product', $productProvider)
+            ->assert('product', '[\/\w\d-\._%]+');
 
         return $controllers;
     }

@@ -57,18 +57,18 @@ class Silo extends \Silex\Application
         if (class_exists('\\Sorien\\Provider\\PimpleDumpProvider')) {
             //$app->register(new \Sorien\Provider\PimpleDumpProvider());
         }
-
-        $this['location.provider'] = function($app){
-            return function ($code) use ($app) {
+        $app = $this;
+        $this['location.provider'] = $app->protect(function($notDeleted = true)use($app){
+            return function ($code) use ($app, $notDeleted) {
 
                 $location = $app['em']->getRepository(Location::class)->findOneByCode($code);
-                if (!$location || $location->isDeleted()) {
+                if (!$location || ($location->isDeleted() && $notDeleted)) {
                     throw new NotFoundHttpException("Location $code cannot be found");
                 }
 
                 return $location;
             };
-        };
+        });
 
         $this['operation.provider'] = function($app){
             return function ($id) use ($app) {

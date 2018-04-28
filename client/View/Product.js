@@ -18,8 +18,8 @@ module.exports = React.createClass({
     },
 
     componentDidMount: function () {
-        this.props.cache.get('product/'+this.props.id)
-            .from(this.props.siloBasePath+"/inventory/product/"+this.props.id)
+        this.props.cache.get('product/'+encodeURIComponent(this.props.id))
+            .from(this.props.siloBasePath+"/inventory/product/"+encodeURIComponent(this.props.id))
             .onUpdate(function(value){
                 this.setState({
                     data: value
@@ -29,7 +29,7 @@ module.exports = React.createClass({
     },
 
     componentWillUnmount : function () {
-        this.props.cache.cleanup('product/'+this.props.id);
+        this.props.cache.cleanup('product/'+encodeURIComponent(this.props.id));
     },
 
     render: function(){

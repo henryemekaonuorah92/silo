@@ -49,7 +49,8 @@ module.exports = React.createClass({
                     onTypeChange:this.handleTypeChange.bind(this, i),
                     onRemove:this.handleRemove.bind(this, i),
                     type:filter.type,
-                    value:filter.value
+                    value:filter.value,
+                    editable: filter.editable
                 })))
             }
             <li className="list-group-item">

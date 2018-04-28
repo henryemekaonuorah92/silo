@@ -5,13 +5,16 @@ const Link = require('../Factory').Link;
 const Api = require('../Api');
 const Alerts = require('../Common/Alerts');
 const AlertStore = require('../Store/AlertStore');
-
+const Modal = require('../Modal/OperationRollbackModal')
+const {Row, Col, Button, Glyphicon} = require('react-bootstrap');
+const Emoji = require('react-emoji')
 module.exports = React.createClass({
 
     getInitialState: ()=>({
         data: {
             batches: null
-        }
+        },
+        showModal: false
     }),
 
     componentDidMount: function () {
@@ -52,16 +55,38 @@ module.exports = React.createClass({
                         <button className="btn btn-danger" onClick={this.handleAction.bind(this, 'cancel')}>Cancel</button>
                     </div>}
 
-                    {data.status.isRollbackable &&<div>
-                        <button className="btn btn-warning" onClick={this.handleAction.bind(this, 'rollback')}>Rollback</button>
-                    </div>
+                    {data.status.isRollbackable &&
+                        <div>
+                            <Button bsStyle="warning" onClick={()=>{this.setState({showModal: true})}}>Rollback</Button>
+                            <Modal
+                                show={this.state.showModal}
+                                onHide={()=>this.setState({showModal:false})}
+                                url={this.props.siloBasePath+"/inventory/operation/"+this.props.id+"/rollback"}
+                                onSuccess={()=>{
+                                    this.componentDidMount()
+                                }} />
+                        </div>
                     }
-
+                        <b>Type:</b>&nbsp;{data.type}<br />
                         <b>Source:</b>&nbsp;{data.source ? <Link route="location" code={data.source} /> : "No source"}<br />
                         <b>Target:</b>&nbsp;{data.target ? <Link route="location" code={data.target} /> : "No target"}<br />
                         <b>Rollback:</b>&nbsp;{data.rollback ? <Link route="operation" code={data.rollback} /> : "Not rollbacked"}<br />
                         <b>Contexts:</b>&nbsp;{data.contexts && data.contexts.length > 0 ? data.contexts.map(function(context, key){
-                            return <Link key={key} route="operationSet" code={context.id} />;
+                            let value = context.value
+                            return <div key={key}>
+                        <Link route="operationSet" code={context.id} />
+                        {value && typeof(value) === "object" && "description" in value &&
+                        <div>
+                            Comment {Emoji.emojify(value.description)}
+                        </div>
+                        }
+
+                        {value && typeof(value) === "object" && "magentoOrderId" in value &&
+                        <div>
+                            Order {value.magentoOrderId} {"incrementId" in value && ' #'+value.incrementId}
+                        </div>
+                        }
+                    </div>;
                         }) : "No context"}<br />
                         {data.location &&
                         (<span><b>Moved location:</b>&nbsp;<Link route="location" code={data.location} /><br /></span>)
