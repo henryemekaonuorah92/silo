@@ -10,6 +10,8 @@ const Modal = require('../Modal/BatchUploadModal');
 const Link = require('../Factory').Link;
 const Api = require('../Api');
 const DownloadDataLink = require('../Common/DownloadDataLink');
+const {Label} = require('react-bootstrap')
+const AjaxButton = require('../Common/AjaxButton');
 
 module.exports = React.createClass({
 
@@ -143,9 +145,16 @@ module.exports = React.createClass({
             body: JSON.stringify({filters: this.state.filters})
         });
 
+        let isDeleted = data && data.isDeleted
+
+        let h3Style = {
+            textDecoration: isDeleted ? 'line-through' : ''
+        }
+
         return (
             <div>
-                <h3><span className="glyphicon glyphicon-map-marker" />Location {this.props.code}</h3>
+                <h3><span className="glyphicon glyphicon-map-marker" />
+                    <span style={h3Style}>Location {this.props.code}</span> {isDeleted && <Label bsStyle="danger">DELETED</Label>}</h3>
 
                 {data ? (<div>
                     <b>Parent:</b>&nbsp;{data.parent ? <Link route="location" code={data.parent} /> : "No parent"}<br />
@@ -158,6 +167,19 @@ module.exports = React.createClass({
 
 
                 </div>) : "Loading data"}
+
+                {isDeleted && <AjaxButton
+                    url={this.props.siloBasePath + "/inventory/location/" + this.props.code + "/respawn"}
+                    type="POST"
+                    onSuccess={() => {
+                        this.refresh()
+                    }}
+                    onError={(msg) => {
+                        window.alert(msg)
+                    }}
+                    className="btn btn-warning">
+                    Respawn Location
+                </AjaxButton>}
 
                 <ModifierEditor cache={this.props.cache}
                                 siloBasePath={this.props.siloBasePath}

@@ -12,6 +12,7 @@ use Silo\Inventory\Model\Modifier;
 use Silo\Inventory\Model\Operation as OperationModel;
 use Silo\Inventory\Model\User as UserModel;
 use Silo\Inventory\Model\User;
+use SiloLink\SiloBridge;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class LocationRepository extends EntityRepository
@@ -168,12 +169,36 @@ class LocationRepository extends EntityRepository
         $this->_em->flush();
     }
 
-    public function getProvider()
+    public function respawn(Location $location, User $user)
+    {
+        if (!$location->isDeleted()) {
+            throw new \LogicException("$location is not deleted");
+        }
+
+        // Get the latest deletion operation
+        // Cancel all pending operations
+        $finder = new OperationFinder($this->_em);
+        $operations = $finder->manipulating($location)->isDone()->isType('delete location')->find();
+
+        if (count($operations) < 1) {
+            throw new \LogicException("$location cannot be brought back");
+        }
+
+        $lastDelOp = array_pop($operations);
+
+        // Undelete location
+        $this->_em->getRepository(\Silo\Inventory\Model\Operation::class)
+            ->executeOperation($user, null, $lastDelOp->getSource(), 'respawn location', $location);
+
+        $this->_em->flush();
+    }
+
+    public function getProvider($noDelete = true)
     {
         $locations = $this;
-        return function ($code) use ($locations) {
+        return function ($code) use ($locations, $noDelete) {
             $location = $locations->findOneByCode($code);
-            if (!$location || $location->isDeleted()) {
+            if (!$location || ($location->isDeleted() && $noDelete)) {
                 throw new NotFoundHttpException("Location $code cannot be found");
             }
 

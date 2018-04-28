@@ -81,6 +81,7 @@ class LocationController implements ControllerProviderInterface
             $operations = $query->getQuery()->getResult();
 
             return new JsonResponse([
+                'isDeleted' => $location->isDeleted(),
                 'code' => $location->getCode(),
                 'parent' => $parent ? $parent->getCode() : null,
                 'childs' => array_map(function (Location $l) {
@@ -103,7 +104,7 @@ class LocationController implements ControllerProviderInterface
                     ];
                 }, $operations)
             ]);
-        })->convert('location', $locations->getProvider());
+        })->convert('location', $locations->getProvider(false));
 
         /*
          * Delete a Location
@@ -112,6 +113,14 @@ class LocationController implements ControllerProviderInterface
             $locations = $app['re'](Location::class);
             $location = $locations->forceFindOneByCode($code);
             $locations->delete($location, $app['current_user']);
+
+            return new JsonResponse([], Response::HTTP_ACCEPTED);
+        });
+
+        $controllers->post('/{code}/respawn', function ($code, Application $app, Request $request) {
+            $locations = $app['re'](Location::class);
+            $location = $locations->forceFindOneByCode($code);
+            $locations->respawn($location, $app['current_user']);
 
             return new JsonResponse([], Response::HTTP_ACCEPTED);
         });
