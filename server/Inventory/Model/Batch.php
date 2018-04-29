@@ -53,6 +53,13 @@ class Batch
     private $location;
 
     /**
+     * @var BatchSet
+     * @ORM\ManyToOne(targetEntity="BatchSet", inversedBy="batches")
+     * @ORM\JoinColumn(name="batch_set_id", referencedColumnName="batch_set_id")
+     */
+    private $batchSet;
+
+    /**
      * @param Product $product  What
      * @param int     $quantity How much of it
      *
