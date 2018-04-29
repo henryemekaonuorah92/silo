@@ -11,7 +11,7 @@ module.exports = React.createClass({
         return (
             <FormGroup controlId={this.props.id}>
                 <ControlLabel>{this.props.label}</ControlLabel>
-                <FormControl {...rest} />
+                {this.props.children || <FormControl {...rest} />}
                 {this.props.help && <HelpBlock>{this.props.help}</HelpBlock>}
             </FormGroup>
         );
