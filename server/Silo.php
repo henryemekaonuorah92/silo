@@ -49,9 +49,7 @@ class Silo extends \Silex\Application
         $this['debug'] = true;
         if ($this['configured']) {
             $this->register(new MetricProvider);
-            $this->register(new DoctrineProvider, [
-                'em.paths' => [__DIR__.'/Inventory/Model'],
-            ]);
+            $this->register(new DoctrineProvider);
         }
 
         if (class_exists('\\Sorien\\Provider\\PimpleDumpProvider')) {

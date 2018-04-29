@@ -3,6 +3,7 @@
 namespace Silo\Base\Provider;
 
 use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Collections\ArrayCollection;
 use Silo\Base\Provider\DoctrineProvider\SQLLogger;
 use Silo\Base\Provider\DoctrineProvider\TablePrefix;
 use Pimple\ServiceProviderInterface;
@@ -21,7 +22,14 @@ class DoctrineProvider implements ServiceProviderInterface
      */
     public function register(\Pimple\Container $app)
     {
-        $app['em.paths'] = [];
+        $app['em.paths'] = $paths = new ArrayCollection([
+            __DIR__.'/../../Inventory/Model'
+        ]);
+        $app['em.namespaces'] = new ArrayCollection();
+        $app['em.namespaces']->set('Inventory', 'Silo\Inventory\Model');
+
+        $app['em.schemaRegex'] = null;
+
         $app['em.cache'] = function() {
             return new ArrayCache(); //new FilesystemCache(sys_get_temp_dir());
         };
@@ -41,13 +49,19 @@ class DoctrineProvider implements ServiceProviderInterface
         if (!isset($app['em.config'])) {
             $app['em.config'] = function ($app) {
                 $config = Setup::createAnnotationMetadataConfiguration(
-                    $app['em.paths'],
+                    $app['em.paths']->toArray(),
                     true,
                     null,
                     $app['em.cache'],
                     false
                 );
-                $config->addEntityNamespace('Inventory', 'Silo\Inventory\Model');
+                foreach($app['em.namespaces']->toArray() as $alias => $namespace) {
+                    $config->addEntityNamespace($alias, $namespace);
+                }
+                if ($regex = $app['em.schemaRegex']) {
+                    $config->setFilterSchemaAssetsExpression($regex);
+                }
+
                 $config->setSQLLogger($app['em.logger']);
 
                 return $config;
