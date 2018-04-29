@@ -29,9 +29,9 @@ class BatchSet
      */
     private $batches;
 
-    public function __construct()
+    public function __construct(BatchCollection $batches)
     {
-        $this->batches = new ArrayCollection();
+        $this->batches = $batches;
     }
 
     /**
@@ -41,6 +41,16 @@ class BatchSet
     {
         return BatchCollection::fromCollection($this->batches)->copy();
     }
+
+//    public static function fromBatchCollection(BatchCollection $batches)
+//    {
+//        $instance = new self();
+//        $instance->batches = $batches->copy();
+//        foreach($batches as /** @var Batch $b */$b) {
+//            $b->setBatchSet($instance);
+//        }
+//        return $instance;
+//    }
 
     /**
      * @return bool True if the location contain exclusively Product. Does not count children

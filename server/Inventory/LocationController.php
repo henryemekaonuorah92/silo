@@ -12,6 +12,7 @@ use Silo\Inventory\Model\Batch;
 use Silo\Inventory\Collection\BatchCollection;
 use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Modifier;
+use Silo\Inventory\Model\ModifierType;
 use Silo\Inventory\Model\Operation;
 use Silo\Inventory\Model\OperationSet;
 use Silo\Inventory\Repository\LocationRepository;
@@ -35,6 +36,13 @@ class LocationController implements ControllerProviderInterface
     public function connect(Application $app)
     {
         $controllers = $app['controllers_factory'];
+
+        $controllers->get('/types', function () use ($app) {
+            $types = $app['em']->getRepository('Inventory:ModifierType')->findAll();
+            return new JsonResponse(array_map(function (ModifierType $type) {
+                return $type->getName();
+            }, $types));
+        });
 
         $controllers->post('/search', function (Request $request) use ($app) {
             $code = $request->query->get('query');

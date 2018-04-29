@@ -113,6 +113,9 @@ class Batch
      */
     public function setOperation(Operation $operation)
     {
+        if ($this->batchSet) {
+            throw new \LogicException('You cannot assign an Operation to a Batch with a BatchSet');
+        }
         if ($this->location) {
             throw new \LogicException('You cannot assign an Operation to a Batch with a Location');
         }
@@ -127,6 +130,9 @@ class Batch
      */
     public function setLocation(Location $location)
     {
+        if ($this->batchSet) {
+            throw new \LogicException('You cannot assign a Location to a Batch with a BatchSet');
+        }
         if ($this->operation) {
             throw new \LogicException('You cannot assign a Location to a Batch with an Operation');
         }
@@ -134,6 +140,23 @@ class Batch
             throw new \LogicException('You cannot change the Location of a Batch');
         }
         $this->location = $location;
+    }
+
+    /**
+     * @param mixed $location
+     */
+    public function setBatchSet(BatchSet $batchSet)
+    {
+        if ($this->operation) {
+            throw new \LogicException('You cannot assign a BatchSet to a Batch with an Operation');
+        }
+        if ($this->location) {
+            throw new \LogicException('You cannot assign a BatchSet to a Batch with an Location');
+        }
+        if ($this->batchSet && $this->batchSet != $batchSet) {
+            throw new \LogicException('You cannot change the BatchSet of a Batch');
+        }
+        $this->batchSet = $batchSet;
     }
 
     /**
