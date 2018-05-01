@@ -11,7 +11,7 @@ use Silo\Inventory\Collection\ModifierCollection;
  * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\BatchSetRepository")
  * @ORM\Table(name="batch_set")
  */
-class BatchSet
+class BatchSet implements MarshallableInterface
 {
     /**
      * @var int
@@ -32,6 +32,10 @@ class BatchSet
     public function __construct(BatchCollection $batches)
     {
         $this->batches = $batches;
+        foreach ($batches as $b) {
+            // Update owning side
+            $b->setBatchSet($this);
+        }
     }
 
     /**
@@ -40,6 +44,12 @@ class BatchSet
     public function getBatches()
     {
         return BatchCollection::fromCollection($this->batches)->copy();
+    }
+
+    public function marshall() {
+        return $this->batches->map(function(Batch $b){
+            return $b->marshall();
+        })->toArray();
     }
 
 //    public static function fromBatchCollection(BatchCollection $batches)

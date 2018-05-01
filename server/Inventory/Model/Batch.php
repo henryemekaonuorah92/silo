@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     }
  * )
  */
-class Batch
+class Batch implements MarshallableInterface
 {
     /**
      * @var int
@@ -233,6 +233,18 @@ class Batch
         return $this->quantity == 0;
     }
 
+    public function marshall()
+    {
+        return [
+            'product' => $this->getProduct()->marshall(),
+            'quantity' => $this->getQuantity()
+        ];
+    }
+
+    /**
+     * @return array
+     * @deprecated use marshall instead
+     */
     public function toArray()
     {
         return [
