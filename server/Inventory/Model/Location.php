@@ -16,6 +16,7 @@ use Silo\Inventory\Collection\ModifierCollection;
 class Location
 {
     const CODE_ROOT = 'root';
+    const CODE_REGEX = '/^[\w\d-_]+$/';
 
     /**
      * @var int
@@ -69,9 +70,8 @@ class Location
      */
     public function __construct($code)
     {
-        $regex = '/^[\w\d-_]+$/';
-        if (!preg_match($regex, $code)) {
-            throw new \LogicException("Location name should follow $regex, got $code");
+        if (!preg_match(self::CODE_REGEX, $code)) {
+            throw new \LogicException("Location name should follow ".self::CODE_REGEX.", got $code");
         }
 
         $this->code = $code;

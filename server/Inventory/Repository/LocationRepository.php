@@ -84,6 +84,7 @@ class LocationRepository extends EntityRepository
 
     /**
      * @todo move elsewhere
+     * @deprecated Use something else
      */
     public function spawnLocation($code, $parentCode, UserModel $user, $operationTypeName)
     {
@@ -115,6 +116,35 @@ class LocationRepository extends EntityRepository
 
         $operation->execute($user);
         $this->_em->flush();
+
+        return $location;
+    }
+
+    public function spawnLocationNoFlush($code, $parentCode, UserModel $user, $operationTypeName)
+    {
+        $type = $this->_em->getRepository('Inventory:OperationType')->getByName($operationTypeName);
+
+        $location = $this->findOneByCode($code);
+        if ($location) {
+            return $location;
+        }
+
+        if (!$parentCode instanceof Location) {
+            $parentLocation = $this->findOneByCode($parentCode);
+            if (!$parentLocation) {
+                throw new \Exception("Parent Location:$parentCode does not exist");
+            }
+        } else {
+            $parentLocation = $parentCode;
+        }
+
+        $location = new \Silo\Inventory\Model\Location($code);
+        $this->_em->persist($location);
+
+        $operation = new OperationModel($user, null, $parentLocation, $location);
+        $operation->setType($type);
+        $operation->execute($user);
+        $this->_em->persist($operation);
 
         return $location;
     }

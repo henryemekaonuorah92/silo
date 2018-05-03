@@ -83,7 +83,7 @@ class Operation
 
     /**
      * @var Location If set, this is a Location movement, or else this is a product movement
-     * @ORM\ManyToOne(targetEntity="Location")
+     * @ORM\ManyToOne(targetEntity="Location", cascade={"persist"})
      * @ORM\JoinColumn(name="location", referencedColumnName="location_id", nullable=true)
      */
     private $location;
@@ -339,6 +339,8 @@ class Operation
     public function setType(OperationType $type)
     {
         $this->operationType = $type;
+
+        return $this;
     }
 
     /**
