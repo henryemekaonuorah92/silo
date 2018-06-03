@@ -91,13 +91,13 @@ class InventoryContext extends BehatContext implements AppAwareContextInterface,
         $this->assertSuccessful($response);
     }
 
-    private function transformBatch(TableNode $table)
+    private function transformBatch(TableNode $table, $productKey = 'productSku')
     {
-        return array_map(function($row){
+        return array_map(function($row) use ($productKey){
             if (count($row) != 2) {throw new \Exception("Cannot parse batch");}
             $qtyFirst = is_numeric($row[0]);
             return [
-                'product' => $qtyFirst ? $row[1] : $row[0],
+                $productKey => $qtyFirst ? $row[1] : $row[0],
                 'quantity' => $qtyFirst ? $row[0] : $row[1]
             ];
         }, $table->getRows());
@@ -229,7 +229,7 @@ class InventoryContext extends BehatContext implements AppAwareContextInterface,
      */
     public function operationContains($opRef, TableNode $table)
     {
-        $expected = $this->transformBatch($table);
+        $expected = $this->transformBatch($table, 'product');
         $id = $this->getMainContext()->getRef($opRef);
 
         $this->client->request(
