@@ -11,20 +11,10 @@ $configFile = getenv('SILO_CONFIG', true) ?: getenv('SILO_CONFIG');
 $configFile = $configFile?: __DIR__.'/../config.php';
 
 $app = new Silo\Silo([
-    'config.cache' => new \Silo\Base\SinglePhpFileCache($configFile, \Silo\Base\Configuration::CACHE_KEY)
+    'config.cache' => new \Silo\Base\SinglePhpFileCache($configFile, \Silo\Base\Configuration::CACHE_KEY),
+    'defaultErrorHandler' => true
 ]);
-$app->get('/', function(){
-    return <<<EOS
-<html>
-    <head>
-        <title>Silo</title>
-    </head>
-    <body>
-    <div id="ReactMount"></div>
-    <script src="vendors.js"></script>
-    <script src="app.js"></script>
-    </body>
-</html>
-EOS;
-});
+$indexProvider = new \Silo\Base\Provider\IndexProvider();
+$app->register($indexProvider)->mount('/', $indexProvider);
+
 $app->run();

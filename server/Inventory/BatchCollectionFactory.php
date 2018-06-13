@@ -25,14 +25,18 @@ class BatchCollectionFactory
     // @todo implement an interface for this
     private $skuTransformer;
 
+    private $productKey;
+
     public function __construct(
         EntityManager $em,
         ValidatorInterface $validator,
-        $transformer = null
+        $transformer = null,
+        $productKey = 'productSku'
     ) {
         $this->em = $em;
         $this->validator = $validator;
         $this->skuTransformer = $transformer;
+        $this->productKey = $productKey;
     }
 
     public function makeFromArray($array)
@@ -41,23 +45,26 @@ class BatchCollectionFactory
 
         foreach ($array as $line) {
             ++$line;
-            if ($this->skuTransformer && isset($line['product'])) {
-                $line['product'] = $this->skuTransformer->transform($line['product']);
+            if ($this->skuTransformer && isset($line[$this->productKey])) {
+                $line[$this->productKey] = $this->skuTransformer->transform($line[$this->productKey]);
             }
             /** @var ConstraintViolationList $violations */
             $violations = $this->validator->validate($line, [
                 new Constraint\Collection([
-                    'product' => [new Constraint\Required(), new SkuExists()],
-                    // Negatives ?
-                    'quantity' => new Constraint\Required(), //new Constraint\Range(['min' => -100, 'max' => 100]),
-                ]),
+                    'fields' => [
+                        $this->productKey => [new Constraint\Required(), new SkuExists()],
+                        // Negatives ?
+                        'quantity' => new Constraint\Required(), //new Constraint\Range(['min' => -100, 'max' => 100]),
+                    ],
+                    'allowExtraFields' => true
+                   ]),
             ]);
 
             if ($violations->count() > 0) {
                 throw new ValidationException($violations);
             }
 
-            $product = $this->em->getRepository('Inventory:Product')->findOneBy(['sku' => $line['product']]);
+            $product = $this->em->getRepository('Inventory:Product')->findOneBy(['sku' => $line[$this->productKey]]);
             $batch = new Batch($product, $line['quantity']);
 
             $batches->addBatch($batch);

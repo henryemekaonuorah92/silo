@@ -62,6 +62,27 @@ class OperationCollection extends ArrayCollection implements MarshallableInterfa
     }
 
     /**
+     * @return \Doctrine\Common\Collections\ArrayCollection
+     */
+    public function filterNotRollback()
+    {
+        return $this->filter(function (Operation $operation) {
+            return !$operation->isRollbackPart();
+        });
+    }
+
+    /**
+     * @param $type
+     * @return static
+     */
+    public function filterTypes(array $types)
+    {
+        return $this->filter(function (Operation $operation) use ($types) {
+            return in_array($operation->getType(), $types);
+        });
+    }
+
+    /**
      * @return static
      */
     public function filterDone()
@@ -81,7 +102,6 @@ class OperationCollection extends ArrayCollection implements MarshallableInterfa
                     'target' => $op->getTarget() ? $op->getTarget()->getCode() : null,
                     'type' => $op->getType(),
                     'status' => $op->getStatus()->toArray(),
-
                     'location' => $op->getLocation() ? $op->getLocation()->getCode() : null,
                     'contexts' => array_map(function (OperationSet $context) {
                         return [

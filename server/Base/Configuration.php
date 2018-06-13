@@ -69,6 +69,8 @@ class Configuration extends \SplObjectStorage
             $this->validate($defaultValue, $validation);
             $this->app[$name] = $defaultValue;
         }
+
+        return $this;
     }
 
     public function set($name, $value)
@@ -79,11 +81,15 @@ class Configuration extends \SplObjectStorage
         }
         $this->validate($value, $configKey->getValidation());
         $this->app[$name] = $value;
+
+        return $this;
     }
 
     public function save()
     {
         $this->cache->save($this->key, $this->getAll());
+
+        return $this;
     }
 
     private function getConfigurationKeyByName($name)
@@ -111,6 +117,7 @@ class Configuration extends \SplObjectStorage
             $name = $config->getName();
             $result[$name] = $app[$name];
         });
+
         return $result;
     }
 
@@ -125,6 +132,5 @@ class Configuration extends \SplObjectStorage
                 }
             }
         }
-
     }
 }

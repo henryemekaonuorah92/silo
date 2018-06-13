@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     }
  * )
  */
-class Batch
+class Batch implements MarshallableInterface
 {
     /**
      * @var int
@@ -51,6 +51,13 @@ class Batch
      * @ORM\JoinColumn(name="location_id", referencedColumnName="location_id")
      */
     private $location;
+
+    /**
+     * @var BatchSet
+     * @ORM\ManyToOne(targetEntity="BatchSet", inversedBy="batches")
+     * @ORM\JoinColumn(name="batch_set_id", referencedColumnName="batch_set_id")
+     */
+    private $batchSet;
 
     /**
      * @param Product $product  What
@@ -106,6 +113,9 @@ class Batch
      */
     public function setOperation(Operation $operation)
     {
+        if ($this->batchSet) {
+            throw new \LogicException('You cannot assign an Operation to a Batch with a BatchSet');
+        }
         if ($this->location) {
             throw new \LogicException('You cannot assign an Operation to a Batch with a Location');
         }
@@ -120,6 +130,9 @@ class Batch
      */
     public function setLocation(Location $location)
     {
+        if ($this->batchSet) {
+            throw new \LogicException('You cannot assign a Location to a Batch with a BatchSet');
+        }
         if ($this->operation) {
             throw new \LogicException('You cannot assign a Location to a Batch with an Operation');
         }
@@ -127,6 +140,23 @@ class Batch
             throw new \LogicException('You cannot change the Location of a Batch');
         }
         $this->location = $location;
+    }
+
+    /**
+     * @param mixed $location
+     */
+    public function setBatchSet(BatchSet $batchSet)
+    {
+        if ($this->operation) {
+            throw new \LogicException('You cannot assign a BatchSet to a Batch with an Operation');
+        }
+        if ($this->location) {
+            throw new \LogicException('You cannot assign a BatchSet to a Batch with an Location');
+        }
+        if ($this->batchSet && $this->batchSet != $batchSet) {
+            throw new \LogicException('You cannot change the BatchSet of a Batch');
+        }
+        $this->batchSet = $batchSet;
     }
 
     /**
@@ -203,6 +233,18 @@ class Batch
         return $this->quantity == 0;
     }
 
+    public function marshall()
+    {
+        return [
+            'product' => $this->getProduct()->marshall(),
+            'quantity' => $this->getQuantity()
+        ];
+    }
+
+    /**
+     * @return array
+     * @deprecated use marshall instead
+     */
     public function toArray()
     {
         return [

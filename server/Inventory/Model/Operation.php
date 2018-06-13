@@ -17,7 +17,7 @@ use Silo\Inventory\Collection\BatchCollection;
  * @ORM\Table(name="operation")
  * @ORM\Entity(repositoryClass="Silo\Inventory\Repository\OperationRepository")
  */
-class Operation
+class Operation implements MarshallableInterface
 {
     /**
      * @var int
@@ -83,7 +83,7 @@ class Operation
 
     /**
      * @var Location If set, this is a Location movement, or else this is a product movement
-     * @ORM\ManyToOne(targetEntity="Location")
+     * @ORM\ManyToOne(targetEntity="Location", cascade={"persist"})
      * @ORM\JoinColumn(name="location", referencedColumnName="location_id", nullable=true)
      */
     private $location;
@@ -107,6 +107,12 @@ class Operation
      * @ORM\JoinColumn(name="rollback", referencedColumnName="operation_id", nullable=true)
      */
     private $rollbackOperation;
+
+    /**
+     * @var bool If this operation is a rollbacking one (aka cancel the rollbacked)
+     * @ORM\Column(name="rollback_count", type="integer", nullable=false)
+     */
+    private $rollbackCount = 0;
 
     /**
      * @ORM\ManyToMany(targetEntity="OperationSet", mappedBy="operations")
@@ -246,6 +252,14 @@ class Operation
             $this->location ?: BatchCollection::fromCollection($this->batches)->copy()
         );
 
+        // Rollback tracks if the rollback chain is canceling or restablishing the first operation
+        // first op: rollback_count=0 rollback=id
+        // secon op: rollback_count=1 rollback=id
+        // third op: rollback_count=2 rollback=null ...
+        // So if rollback_count is even and rollback null, then the action counts
+        // if rollback_count is odd and rollback is null, then the action does not count
+
+        $rollbackingOperation->rollbackCount = $this->rollbackCount + 1;
         $this->rollbackOperation = $rollbackingOperation;
 
         return $rollbackingOperation;
@@ -339,6 +353,8 @@ class Operation
     public function setType(OperationType $type)
     {
         $this->operationType = $type;
+
+        return $this;
     }
 
     /**
@@ -374,6 +390,18 @@ class Operation
         return $this->rollbackOperation;
     }
 
+    public function isRollbackPart()
+    {
+        // Rollback tracks if the rollback chain is canceling or restablishing the first operation
+        // first op: rollback_count=0 rollback=id
+        // secon op: rollback_count=1 rollback=id
+        // third op: rollback_count=2 rollback=null ...
+        // So if rollback_count is even and rollback null, then the action counts
+        // if rollback_count is odd and rollback is null, then the action does not count
+
+        return $this->rollbackOperation || (!$this->rollbackOperation && ($this->rollbackCount % 2 === 1));
+    }
+
     public function addOperationSet(OperationSet $set)
     {
         return $this->operationSets->add($set);
@@ -386,9 +414,27 @@ class Operation
 
     /**
      * @return OperationSet[]
+     * @todo do not return an array please
      */
     public function getOperationSets()
     {
         return $this->operationSets->toArray();
+    }
+
+    public function marshall()
+    {
+        return [
+            'id' => $op->getId(),
+            'source' => $op->getSource() ? $op->getSource()->getCode() : null,
+            'target' => $op->getTarget() ? $op->getTarget()->getCode() : null,
+            'type' => $op->getType(),
+            'status' => $op->getStatus()->toArray(),
+            'location' => $op->getLocation() ? $op->getLocation()->getCode() : null,
+            'contexts' => array_map(function (OperationSet $context) {
+                return $context->marshall();
+            }, $op->getOperationSets()),
+            'batches' => $op->getBatches()->toRawArray(),
+            'isRollbackPart' => $this->isRollbackPart()
+        ];
     }
 }

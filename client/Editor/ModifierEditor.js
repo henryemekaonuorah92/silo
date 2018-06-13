@@ -49,18 +49,19 @@ module.exports = React.createClass({
     },
 
     render: function(){
-        let {modifiers, onDelete, onSave, modifierFactory, ...rest} = this.props;
+        const {modifiers, onDelete, onSave, modifierFactory, ...rest} = this.props;
         const modifierNames = modifierFactory.listEditors();
         const usedModifiers = modifiers.map(m=>m.name);
         const canAdd = usedModifiers.length < modifierNames.length;
         const availableModifiers = modifierNames.filter(function(n) {
             return usedModifiers.indexOf(n) === -1;
         });
+        const modifier = this.state.modifier;
         return (
             <div className="panel panel-default">
-                <ModifierModal show={!!this.state.modifier}
+                <ModifierModal show={!!modifier}
                                onHide={()=>this.setState(this.getInitialState())}
-                               modifier={this.state.modifier}
+                               modifier={modifier}
                                availableModifiers={availableModifiers}
                                onSave={this.handleSave}
                                onDelete={this.handleDelete}
@@ -93,7 +94,7 @@ module.exports = React.createClass({
                     </thead>
                     <tbody>
                             {modifiers.length ? modifiers.map((modifier)=>{
-                                let partial = this.props.modifierFactory.getView(modifier.name);
+                                let partial = modifierFactory.getView(modifier.name);
                                 return <tr key={modifier.name} onClick={this.handleEdit.bind(this, modifier)}>
                                     <td style={{backgroundColor: StringToColor(modifier.name)}}>
                                         {modifier.name}

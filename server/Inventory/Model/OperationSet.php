@@ -10,7 +10,7 @@ use Silo\Inventory\Collection\OperationCollection;
  * @ORM\Entity
  * @ORM\Table(name="operation_set")
  */
-class OperationSet
+class OperationSet implements MarshallableInterface
 {
     /**
      * @var int
@@ -155,5 +155,13 @@ class OperationSet
     public function getValue()
     {
         return $this->value;
+    }
+
+    public function marshall()
+    {
+        return [
+            'id' => $this->getId(),
+            'value' => $this->getValue()
+        ];
     }
 }

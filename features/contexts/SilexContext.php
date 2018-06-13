@@ -85,11 +85,14 @@ class SilexContext extends BehatContext implements AppAwareContextInterface, Cli
     {
         $this->getClient()->request('GET', "/silo/inventory/location/$code");
         $response = $this->getClient()->getResponse();
+        $this->assertSuccessful($response);
+        $response = $this->getClient()->getResponse();
+        $data = json_decode($response->getContent(), true);
         switch($what){
             case 'exists':
-                $this->assertSuccessful($response); break;
+                $this->assertTrue(!$data['isDeleted']); break;
             case 'does not exist':
-                $this->assertClientError($response); break;
+                $this->assertTrue($data['isDeleted']); break;
         }
     }
 

@@ -12,6 +12,7 @@ use Silo\Inventory\Model\Modifier;
 use Silo\Inventory\Model\Operation as OperationModel;
 use Silo\Inventory\Model\User as UserModel;
 use Silo\Inventory\Model\User;
+use SiloLink\SiloBridge;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class LocationRepository extends EntityRepository
@@ -83,6 +84,7 @@ class LocationRepository extends EntityRepository
 
     /**
      * @todo move elsewhere
+     * @deprecated Use something else
      */
     public function spawnLocation($code, $parentCode, UserModel $user, $operationTypeName)
     {
@@ -114,6 +116,35 @@ class LocationRepository extends EntityRepository
 
         $operation->execute($user);
         $this->_em->flush();
+
+        return $location;
+    }
+
+    public function spawnLocationNoFlush($code, $parentCode, UserModel $user, $operationTypeName)
+    {
+        $type = $this->_em->getRepository('Inventory:OperationType')->getByName($operationTypeName);
+
+        $location = $this->findOneByCode($code);
+        if ($location) {
+            return $location;
+        }
+
+        if (!$parentCode instanceof Location) {
+            $parentLocation = $this->findOneByCode($parentCode);
+            if (!$parentLocation) {
+                throw new \Exception("Parent Location:$parentCode does not exist");
+            }
+        } else {
+            $parentLocation = $parentCode;
+        }
+
+        $location = new \Silo\Inventory\Model\Location($code);
+        $this->_em->persist($location);
+
+        $operation = new OperationModel($user, null, $parentLocation, $location);
+        $operation->setType($type);
+        $operation->execute($user);
+        $this->_em->persist($operation);
 
         return $location;
     }
@@ -168,12 +199,36 @@ class LocationRepository extends EntityRepository
         $this->_em->flush();
     }
 
-    public function getProvider()
+    public function respawn(Location $location, User $user)
+    {
+        if (!$location->isDeleted()) {
+            throw new \LogicException("$location is not deleted");
+        }
+
+        // Get the latest deletion operation
+        // Cancel all pending operations
+        $finder = new OperationFinder($this->_em);
+        $operations = $finder->manipulating($location)->isDone()->isType('delete location')->find();
+
+        if (count($operations) < 1) {
+            throw new \LogicException("$location cannot be brought back");
+        }
+
+        $lastDelOp = array_pop($operations);
+
+        // Undelete location
+        $this->_em->getRepository(\Silo\Inventory\Model\Operation::class)
+            ->executeOperation($user, null, $lastDelOp->getSource(), 'respawn location', $location);
+
+        $this->_em->flush();
+    }
+
+    public function getProvider($noDelete = true)
     {
         $locations = $this;
-        return function ($code) use ($locations) {
+        return function ($code) use ($locations, $noDelete) {
             $location = $locations->findOneByCode($code);
-            if (!$location || $location->isDeleted()) {
+            if (!$location || ($location->isDeleted() && $noDelete)) {
                 throw new NotFoundHttpException("Location $code cannot be found");
             }
 

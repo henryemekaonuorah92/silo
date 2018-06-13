@@ -1,12 +1,12 @@
 ;
 const React = require('react');
-const HandheldScanner = require('../Common/HandheldScanner');
 const AjaxButton = require('../Common/AjaxButton');
 const Success = require('../Common/Success');
 const Error = require('../Common/Error');
 const Pending = require('../Common/Pending');
 const CloseButton = require('../Common/CloseButton');
 const {Row, Col, Well} = require('react-bootstrap');
+const MountHandheldScanner = require('../Common/Scanner')
 
 module.exports = React.createClass({
 
@@ -86,6 +86,7 @@ module.exports = React.createClass({
     render: function(){
         return (
             <div>
+                <MountHandheldScanner onScan={this.handleScan} />
                 {this.state.confirmation &&
                     <Success title="Parent assigned" onAck={this.clearConfirmation} />
                 }
@@ -94,8 +95,6 @@ module.exports = React.createClass({
                 }
                 {!this.state.confirmation && !this.state.error &&
                     <div>
-                        <div className="text-center"><HandheldScanner onScan={this.handleScan} /></div>
-
                         <Row><Col xs={6}>
                             <Well bsSize="sm">
                                 <b>SOURCE:</b>

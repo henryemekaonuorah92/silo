@@ -77,7 +77,8 @@ class AppContext extends BehatContext
             'collector.type' => 'logger',
             'collector.configuration' => [
                 'logger' => $logger
-            ]
+            ],
+            'configured' => true
         ]);
 
         foreach($this->providers as $provider) {

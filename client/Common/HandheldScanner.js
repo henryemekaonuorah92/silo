@@ -54,39 +54,40 @@ module.exports = React.createClass({
     },
 
     componentDidMount: function(){
-        $(document.body)
-            .on({
-                'keypress': function(e){
-                    // Ignore keypresses happening on something else than body
-                    if (e.target.tagName !== 'BODY') {
-                        return;
-                    }
-                    let charCode = (typeof e.which === "number") ? e.which : e.keyCode;
-                    this._inputString += String.fromCharCode(charCode);
-
-                    if (this._timeoutHandler) {
-                        clearTimeout(this._timeoutHandler);
-                    }
-                    this._timeoutHandler = setTimeout(function () {
-                        if (this._inputString.length <= 3) {
-                            if (this._inputString == '/') {
-                                this.toggle();
-                            }
-
-                            this._inputString = '';
-                            return;
-                        }
-
-                        this.props.onScan(this._inputString.trim());
-                        this._inputString = '';
-                    }.bind(this), 100)
-                }.bind(this)
+        let handler = (e) => {
+            // Ignore keypresses happening on something else than body
+            if (e.target.tagName !== 'BODY') {
+                return;
             }
-        );
+            let charCode = (typeof e.which === "number") ? e.which : e.keyCode;
+            this._inputString += String.fromCharCode(charCode);
+
+            if (this._timeoutHandler) {
+                clearTimeout(this._timeoutHandler);
+            }
+            this._timeoutHandler = setTimeout(() => {
+                if (this._inputString.length <= 3) {
+                    if (this._inputString == '/') {
+                        this.toggle();
+                    }
+
+                    this._inputString = '';
+                    return;
+                }
+
+                this.props.onScan(this._inputString.trim());
+                this._inputString = '';
+            }, 100)
+        }
+
+        document.addEventListener("keypress", handler, false);
+        this.removeEventListener = () => {
+            document.removeEventListener("keypress", handler, false);
+        }
     },
 
     componentWillUnmount: function(){
-        $(document.body).off('keypress');
+        this.removeEventListener();
         this._timeoutHandler = null;
     },
 

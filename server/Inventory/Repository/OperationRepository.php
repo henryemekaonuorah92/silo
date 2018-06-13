@@ -4,10 +4,25 @@ namespace Silo\Inventory\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Silo\Inventory\Model\Location;
+use Silo\Inventory\Model\ModifierType;
 use Silo\Inventory\Model\Operation as Model;
+use Silo\Inventory\Model\Operation;
+use Silo\Inventory\Model\User;
 
 class OperationRepository extends EntityRepository
 {
+    public function createLocationAt(User $user, Location $parent, Location $location, ModifierType $type = null)
+    {
+        $operation = new Model($user, null, $parent, $location);
+        if ($type) {
+            $operation->setType($type);
+        }
+        $operation->execute($user);
+        $this->_em->persist($operation);
+
+        return $operation;
+    }
+
     public function executeOperation($user, $from, $to, $type, $content)
     {
         $locations = $this->_em->getRepository('Inventory:Location');

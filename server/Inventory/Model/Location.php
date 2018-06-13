@@ -16,6 +16,7 @@ use Silo\Inventory\Collection\ModifierCollection;
 class Location
 {
     const CODE_ROOT = 'root';
+    const CODE_REGEX = '/^[\w\d-_]+$/';
 
     /**
      * @var int
@@ -69,9 +70,8 @@ class Location
      */
     public function __construct($code)
     {
-        $regex = '/^[\w\d-_]+$/';
-        if (!preg_match($regex, $code)) {
-            throw new \LogicException("Location name should follow $regex, got $code");
+        if (!preg_match(self::CODE_REGEX, $code)) {
+            throw new \LogicException("Location name should follow ".self::CODE_REGEX.", got $code");
         }
 
         $this->code = $code;
@@ -102,10 +102,6 @@ class Location
      */
     public function apply(Operation $operation)
     {
-        if ($this->isDeleted) {
-            throw new \LogicException("Cannot apply an Operation to a deleted Location");
-        }
-
         $that = $this;
         if (self::compare($operation->getLocation(), $this)) { // $this is the moved Location
             $currentParent = $this->getParent();
@@ -122,13 +118,21 @@ class Location
                 $this->isDeleted = false;
             } elseif (is_null($operation->getTarget())) {  // Deletion
                 $this->isDeleted = true;
+            } elseif ($this->isDeleted) {
+                throw new \LogicException("Cannot move a deleted Location, respawn it first");
             }
             $this->parent = $operation->getTarget();
         } elseif (self::compare($operation->getSource(), $this)) {
+            if ($this->isDeleted) {
+                throw new \LogicException("Cannot apply an Operation to a deleted Location");
+            }
             // $this is the source Location, we substract the Operation Batches
             $this->batches = BatchCollection::fromCollection($this->batches);
             $this->batches->merge($operation->getBatches()->opposite());
         } elseif (self::compare($operation->getTarget(), $this)) {
+            if ($this->isDeleted) {
+                throw new \LogicException("Cannot apply an Operation to a deleted Location");
+            }
             // $this is the target Location, we add the Operation Batches
             $this->batches = BatchCollection::fromCollection($this->batches);
             $this->batches->merge($operation->getBatches()->copy());
