@@ -37,7 +37,7 @@ class BatchController implements ControllerProviderInterface
          * and decrements as negatives...
          */
         $controllers->post('/import', function (Request $request) use ($app) {
-            $skuTransformer = $app['skuTransformer'];
+            $skuTransformer = $app['SkuTransformer'];
 
             /** @var \Symfony\Component\HttpFoundation\File\UploadedFile $file */
             $file = $request->files->get('file');
