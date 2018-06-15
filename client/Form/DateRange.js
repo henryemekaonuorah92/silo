@@ -21,7 +21,6 @@ module.exports = React.createClass({
     }),
 
     handleChange: function(newRange){
-        console.log("handleChange", newRange)
         this.props.onChange(newRange);
     },
 
@@ -64,7 +63,7 @@ module.exports = React.createClass({
 
         return (
             <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
-                <Button className="selected-date-range-btn">
+                <Button className="selected-date-range-btn btn-sm">
                     <div className="pull-left"><Glyphicon glyph="calendar" /></div>
                     <div className="pull-right">
                         <span>{label}</span>
