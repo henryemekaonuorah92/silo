@@ -37,6 +37,11 @@ class LocationFinder extends \Silo\Inventory\Finder\AbstractFinder
         return $this;
     }
 
+    public function withModifiers()
+    {
+        return $this->joinModifier();
+    }
+
     public function excluding(self $exclude)
     {
         $q = $this->getQuery();
@@ -73,6 +78,16 @@ class LocationFinder extends \Silo\Inventory\Finder\AbstractFinder
         ;
 
         return $this->getQuery()->getQuery()->getResult();
+    }
+
+    public function hasCode($code)
+    {
+        $this->getQuery()
+            ->andWhere('l'.$this->suffix.'.code = :code'.$this->suffix)
+            ->setParameter('code'.$this->suffix, $code)
+        ;
+
+        return $this;
     }
 
     /**

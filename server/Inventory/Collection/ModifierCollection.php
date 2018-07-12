@@ -2,12 +2,13 @@
 
 namespace Silo\Inventory\Collection;
 
+use Silo\Inventory\Model\MarshallableInterface;
 use Silo\Inventory\Model\Modifier;
 
 /**
  * Advanced operations on Operations ArrayCollection.
  */
-class ModifierCollection extends ArrayCollection
+class ModifierCollection extends ArrayCollection implements MarshallableInterface
 {
     public function containsName($name)
     {
@@ -18,6 +19,11 @@ class ModifierCollection extends ArrayCollection
         }
 
         return false;
+    }
+
+    public function marshall()
+    {
+        return $this->map(function($modifier){return $modifier->getName();})->toArray();
     }
 
     /**

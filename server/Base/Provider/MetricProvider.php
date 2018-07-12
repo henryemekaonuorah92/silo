@@ -30,7 +30,7 @@ class MetricProvider implements ServiceProviderInterface, EventListenerProviderI
                     $app['collector.type'],
                     $app['collector.configuration']
                 ),
-                new Logger($app['logger'])
+                // new Logger($app['logger'])
             ]);
         };
     }
@@ -42,10 +42,11 @@ class MetricProvider implements ServiceProviderInterface, EventListenerProviderI
             $app['collector']->flush();
         };
 
-        $dispatcher->addListener(KernelEvents::TERMINATE, $onTerminate);
-
-        if (class_exists('Symfony\Component\Console\ConsoleEvents')) {
+        if (php_sapi_name() === 'cli' &&
+            class_exists('Symfony\Component\Console\ConsoleEvents')) {
             $dispatcher->addListener(ConsoleEvents::TERMINATE, $onTerminate);
+        } else {
+            $dispatcher->addListener(KernelEvents::TERMINATE, $onTerminate);
         }
     }
 }
