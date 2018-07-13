@@ -35,7 +35,9 @@ module.exports = React.createClass({
 
     handleChangeFilter: function(filters){
         const fil = filters.filter(a => a.type !== 'location')
-        this.props.router.setParams(fil);
+        if (this.props.router) {
+            this.props.router.setParams(fil);
+        }
         this.setState({filters: filters});
     },
 
