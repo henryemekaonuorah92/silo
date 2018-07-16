@@ -80,6 +80,14 @@ class Location
         $this->children = new ArrayCollection();
     }
 
+    public function setCode($code)
+    {
+        if (!preg_match(self::CODE_REGEX, $code)) {
+            throw new \LogicException("Location name should follow ".self::CODE_REGEX.", got $code");
+        }
+        $this->code = $code;
+    }
+
     /**
      * @return BatchCollection Deep copy of the contained Batches
      */
