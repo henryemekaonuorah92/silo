@@ -310,8 +310,8 @@ class OperationController implements ControllerProviderInterface
 
             if ($forceBatches && !$withBatches) {
                 $query->addSelect('batches,product')
-                    ->innerJoin('operation.batches', 'batches')
-                    ->innerJoin('batches.product', 'product');
+                    ->leftJoin('operation.batches', 'batches')
+                    ->leftJoin('batches.product', 'product');
                 $withBatches = true;
             }
 
