@@ -51,11 +51,14 @@ class OperationCollection extends ArrayCollection implements MarshallableInterfa
     }
 
     /**
-     * @param $type
+     * @param string $type
      * @return static
      */
     public function filterType($type)
     {
+        if (!is_string($type)) {
+            throw new \Exception('Expect string');
+        }
         return $this->filter(function (Operation $operation) use ($type) {
             return $operation->getType() === $type;
         });
