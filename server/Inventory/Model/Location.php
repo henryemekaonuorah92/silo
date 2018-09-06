@@ -256,11 +256,6 @@ class Location implements MarshallableInterface
         return $this->id;
     }
 
-    public function isStore()
-    {
-        return !empty($this->getModifiers()->getByName('store'));
-    }
-
     public function marshall()
     {
         return [
