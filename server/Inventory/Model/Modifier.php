@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping\Index;
  *     }
  * )
  */
-class Modifier
+class Modifier implements MarshallableInterface
 {
     /**
      * @var int
@@ -90,5 +90,14 @@ class Modifier
     public function getLocation()
     {
         return $this->location;
+    }
+
+    public function marshall() 
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->type->getName(),
+            'value' => $this->value
+        ];
     }
 }

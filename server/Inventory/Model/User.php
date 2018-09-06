@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     @ORM\UniqueConstraint(name="email_idx", columns={"email"})
  * })
  */
-class User
+class User implements MarshallableInterface
 {
     const NAME_BOT = 'bot';
 
@@ -70,5 +70,13 @@ class User
     public function __toString()
     {
         return 'User:'.$this->name;
+    }
+
+    public function marshall() {
+        return [
+            'id' => $this->id,
+            'email' => $this->email,
+            'name' => $this->name
+        ];
     }
 }

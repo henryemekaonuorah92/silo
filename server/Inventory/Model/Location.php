@@ -13,7 +13,7 @@ use Silo\Inventory\Collection\ModifierCollection;
  *     @ORM\UniqueConstraint(name="location_idx", columns={"code"})
  * })
  */
-class Location
+class Location implements MarshallableInterface
 {
     const CODE_ROOT = 'root';
     const CODE_REGEX = '/^[\w\d-_]+$/';
@@ -254,5 +254,17 @@ class Location
     public function getId()
     {
         return $this->id;
+    }
+
+    public function marshall()
+    {
+        return [
+            'id' => $this->id,
+            'code' => $this->code,
+            'modifiers' => $this->getModifiers()->map(function(Modifier $modifier) {
+                return $modifier->marshall();
+            })->toArray(),
+            'parent' => $this->parent ? $this->parent->getCode() : null,            
+        ];
     }
 }
