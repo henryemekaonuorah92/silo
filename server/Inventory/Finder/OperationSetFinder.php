@@ -19,8 +19,11 @@ class OperationSetFinder extends \Silo\Inventory\Finder\AbstractFinder
 
     public function isType($type)
     {
+        if(!is_array($type)) {
+            $type = [$type];
+        }
         $this->getQuery()
-            ->andWhere('type.name = :type')
+            ->andWhere('type.name in (:type)')
             ->setParameter('type', $type)
         ;
 

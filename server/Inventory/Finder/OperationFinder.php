@@ -141,8 +141,11 @@ class OperationFinder extends \Silo\Inventory\Finder\AbstractFinder
      */
     public function isType($type)
     {
+        if(!is_array($type)) {
+            $type = [$type];
+        }
         $this->getQuery()
-            ->andWhere('type.name = :type')
+            ->andWhere('type in (:type)')
             ->setParameter('type', $type)
         ;
 
@@ -163,6 +166,7 @@ class OperationFinder extends \Silo\Inventory\Finder\AbstractFinder
             ->select('SUM(batch.quantity)')
             ->from('Inventory:Operation', 'o')
             ->innerJoin('o.batches', 'batch')
+            ->join('o.operationType', 'type')
             ->andWhere('batch.product = :product')
             ->setParameter('product', $product)
         ;
@@ -174,7 +178,9 @@ class OperationFinder extends \Silo\Inventory\Finder\AbstractFinder
     {
         $this->getQuery()
             ->select('COUNT(o)')
-            ->from('Inventory:Operation', 'o');
+            ->from('Inventory:Operation', 'o')
+            ->join('o.operationType', 'type')
+            ;
 
         if ($this->loadBatches) {
             $this->getQuery()
