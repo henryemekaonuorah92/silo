@@ -95,16 +95,6 @@ class OperationCollection extends ArrayCollection implements MarshallableInterfa
         });
     }
 
-    /**
-     * @return static
-     */
-    public function filterUndone()
-    {
-        return $this->filter(function (Operation $operation) {
-            return !$operation->getStatus()->isDone();
-        });
-    }
-
     public function marshall()
     {
         return array_map(
