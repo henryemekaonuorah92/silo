@@ -145,7 +145,7 @@ class OperationFinder extends \Silo\Inventory\Finder\AbstractFinder
             $type = [$type];
         }
         $this->getQuery()
-            ->andWhere('type in (:type)')
+            ->andWhere('type.name in (:type)')
             ->setParameter('type', $type)
         ;
 
