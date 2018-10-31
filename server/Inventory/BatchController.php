@@ -3,24 +3,25 @@
 namespace Silo\Inventory;
 
 use Silex\Application;
-use Silex\Api\ControllerProviderInterface;
 use Silo\Base\JsonRequest;
-use Silo\Inventory\Finder\OperationFinder;
 use Silo\Inventory\Model\Batch;
-use Silo\Inventory\Collection\BatchCollection;
 use Silo\Inventory\Model\Context;
 use Silo\Inventory\Model\Location;
 use Silo\Inventory\Model\Operation;
 use Silo\Inventory\Model\OperationSet;
-use Silo\Inventory\Repository\ModifierRepository;
-use Silo\Inventory\Validator\Constraints\LocationExists;
-use Silo\Inventory\Validator\Constraints\SkuExists;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Silex\Api\ControllerProviderInterface;
+use Silo\Inventory\Finder\OperationFinder;
 use Symfony\Component\HttpFoundation\Request;
+use Silo\Inventory\Collection\BatchCollection;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Validator\Constraints as Constraint;
+use Silo\Inventory\Repository\ModifierRepository;
+use Silo\Inventory\Collection\OperationCollection;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Silo\Inventory\Validator\Constraints\SkuExists;
+use Silo\Inventory\Validator\Constraints\LocationExists;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Constraints as Constraint;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class BatchController implements ControllerProviderInterface
@@ -115,17 +116,56 @@ class BatchController implements ControllerProviderInterface
             $type = $app['em']->getRepository('Inventory:OperationType')->getByName($typeName);
 
             // Create needed Operations
+            $pendingOperations = [];
+            $pendingOperationAction = json_decode($request->get('pendingOperations'), true);
             foreach ($batchMap as $locationCode => $batches) {
                 $location = $app['em']->getRepository('Inventory:Location')->forceFindOneByCode($locationCode);
 
-                $finder = new OperationFinder($app['em']);
-                            $pendingOperationCount = $finder->manipulating($location)
-                                ->isPending()
-                                ->withBatches() // only operation that moves batches are taken into account
-                                ->count();
+                // First check for operation fixing
+                $ignoredOps = new OperationCollection();
+                foreach($pendingOperationAction as $opType => $data) {
+                    $finder = new OperationFinder($app['em']);
+                    $pendingOperationsInLocation = $finder->manipulating($location)
+                        ->isPending()
+                        ->isType($opType)
+                        ->withBatches() // only operation that moves batches are taken into account
+                        ->find();
 
-                if ($pendingOperationCount > 0) {
-                    throw new \Exception("Cannot edit batches for $location, it has pending Operations");
+                    switch($data['action']) {
+                        case 'ignore':
+                            $ignoredOps->merge(new OperationCollection($pendingOperationsInLocation));
+                            break;
+                        case 'execute':
+                            foreach($pendingOperationsInLocation as $op) {
+                                $op->execute($app['current_user']);                                
+                            }
+                            $app['em']->flush();
+                            break;
+                        case 'cancel':
+                            foreach($pendingOperationsInLocation as $op) {
+                                $op->cancel($app['current_user']);                                
+                            }
+                            $app['em']->flush();
+                            break;
+                    }
+                }
+
+                $finder = new OperationFinder($app['em']);
+                $pendingOperationsInLocation = $finder->manipulating($location)
+                    ->isPending()
+                    ->withBatches() // only operation that moves batches are taken into account
+                    ->find();
+                $diffCollection = array_diff($pendingOperationsInLocation, $ignoredOps->toArray());
+
+                if (count($diffCollection)) {
+                    foreach($diffCollection as $operation) {
+                        if(isset($pendingOperations[$operation->getType()]['qty'])) {
+                            $pendingOperations[$operation->getType()]['qty'] += 1;
+                        } else {
+                            $pendingOperations[$operation->getType()]['qty'] = 1;
+                        }
+                    }
+                    continue;
                 }
                 
                 switch ($request->request->get('type')) {
@@ -152,6 +192,10 @@ class BatchController implements ControllerProviderInterface
                 $operation->execute($app['current_user']);
                 $app['em']->persist($operation);
                 $set->add($operation);
+            }
+
+            if(!empty($pendingOperations)) {
+                return new JsonResponse(['errors' => ['pendingOperations' => $pendingOperations]], 400);
             }
 
             if (!$set->isEmpty()) {

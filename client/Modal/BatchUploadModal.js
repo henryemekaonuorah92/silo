@@ -1,6 +1,6 @@
 ;
 const React = require('react');
-const Modal = require('react-bootstrap').Modal;
+import {Modal, Alert, Table, FormControl} from 'react-bootstrap';
 const AjaxButton = require('../Common/AjaxButton');
 const Alerts = require('../Common/Alerts');
 const FieldGroup = require('../Form/FieldGroup');
@@ -10,7 +10,7 @@ module.exports = React.createClass({
 
     getInitialState: ()=>({
         errors: [],
-
+        pendingOperations: {},
         description: "",
         file: null, // FileList
         type: "merge"
@@ -26,6 +26,13 @@ module.exports = React.createClass({
         this.setState(state);
     },
 
+    updateAction(e) {
+        let pendingOperations = this.state.pendingOperations;
+        let type = e.target.name;
+        pendingOperations[type]['action'] = e.target.value;
+        this.setState({pendingOperations});
+    },
+
     render(){
         const rest = Object.assign({}, this.props);
         delete rest.url;
@@ -36,6 +43,24 @@ module.exports = React.createClass({
         data.append('description', this.state.description);
         this.state.file ? data.append('file', this.state.file[0]) : null;
         data.append('type', this.state.type);
+        data.append('pendingOperations', JSON.stringify(this.state.pendingOperations));
+
+        let pendingOperationsTable = [];
+        for(var optype in this.state.pendingOperations) {
+            pendingOperationsTable.push(
+                <tr>
+                    <td>{this.state.pendingOperations[optype]['qty']}</td>
+                    <td>{optype}</td>
+                    <td>
+                        <FormControl name={optype} componentClass="select" placeholder="select" onChange={this.updateAction}>
+                            <option key={optype+"-ignore"} value="ignore">Ignore</option>
+                            <option key={optype+"-execute"} value="execute">Execute</option>
+                            <option key={optype+"-cancel"} value="cancel">Cancel</option>
+                        </FormControl>
+                    </td>
+                </tr>
+            )
+        }
 
         return (
             <Modal {...rest}>
@@ -93,6 +118,25 @@ A-04-A,14-231-21,-2`
                         value={this.state.description}
                     />
 
+                    {(this.state.pendingOperations && Object.keys(this.state.pendingOperations).length > 0) &&
+                        <Alert bsStyle="warning">
+                            <strong>There are pending operations related to this batch adjustment</strong>
+                            <p>What would you like to do with them?</p>
+                            <Table bordered condensed>
+                                <thead>
+                                    <tr>
+                                        <th>Qty</th>
+                                        <th>Type</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {pendingOperationsTable}
+                                </tbody>
+                            </Table>
+                        </Alert>
+                    }
+
                     <FieldGroup
                         onChange={this.handleChange}
                         type="file"
@@ -108,10 +152,25 @@ A-04-A,14-231-21,-2`
                         data={data}
                         processData={false}
                         type="POST"
-                        onSuccess={this.props.onSuccess}
+                        onSuccess={() => {
+                            this.props.onSuccess()
+                            this.setState(this.getInitialState())
+                            }
+                        }
                         url={this.props.url}
                         disabled={this.state.file === null}
-                        onError={(err)=>{this.setState({errors:[err]});}}>
+                        onError={(err)=> {
+                                if(typeof err === 'string' || err instanceof String) {
+                                    this.setState({errors:[err]});
+                                } else if(Object.keys(err).includes('pendingOperations')) {
+                                    let pendingOperations = err.pendingOperations;
+                                    for(var optype in pendingOperations) {
+                                        pendingOperations[optype]['action'] = 'ignore';
+                                    }
+                                    this.setState({pendingOperations:err.pendingOperations});
+                                }
+                            }
+                        }>
                         Upload
                     </AjaxButton>
                 </Modal.Footer>
