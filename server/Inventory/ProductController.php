@@ -12,6 +12,7 @@ use Silo\Inventory\Model\Modifier;
 use Silo\Inventory\Model\Operation;
 use Silo\Inventory\Model\Product;
 use Silo\Inventory\Repository\ModifierRepository;
+use Silo\Middleware\SkuUrlDecode;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -99,7 +100,9 @@ class ProductController implements ControllerProviderInterface
                     ];
                 }, $batches)
             ]);
-        })->convert('product', $productProvider)
+        })
+        ->before(new SkuUrlDecode())
+            ->convert('product', $productProvider)
             ->assert('product', '[\/\w\d-\._%]+');
 
         return $controllers;
