@@ -118,6 +118,7 @@ class BatchController implements ControllerProviderInterface
             // Create needed Operations
             $pendingOperations = [];
             $pendingOperationAction = json_decode($request->get('pendingOperations'), true);
+            $collateralOperationSets = [];
             foreach ($batchMap as $locationCode => $batches) {
                 $location = $app['em']->getRepository('Inventory:Location')->forceFindOneByCode($locationCode);
 
@@ -130,6 +131,15 @@ class BatchController implements ControllerProviderInterface
                         ->isType($opType)
                         ->withBatches() // only operation that moves batches are taken into account
                         ->find();
+                    if(count($pendingOperationsInLocation)) {
+                        // This is to create a context for operations that were pending but
+                        // there was an action to be taken on them
+                        $collateralOperationSets[$data['action']] = new OperationSet($app['current_user']);
+                        foreach($pendingOperationsInLocation as $pendingOp) {
+                            $collateralOperationSets[$data['action']]->add($pendingOp);
+                        }
+                        $app['em']->persist($collateralOperationSets[$data['action']]);
+                    }
 
                     switch($data['action']) {
                         case 'ignore':
@@ -201,7 +211,15 @@ class BatchController implements ControllerProviderInterface
             if (!$set->isEmpty()) {
                 $app['em']->persist($set);
                 $app['em']->flush();
+                if(!empty($collateralOperationSets)) {
+                    foreach($collateralOperationSets as $action => $cSet) {
+                        $cSet->setValue(['description' => sprintf('Operations %sd along operation set %d', $action, $set->getId())]);
+                        $app['em']->persist($cSet);
+                        $app['em']->flush();
+                    }
+                }
             }
+
 
             return new JsonResponse([]);
         });

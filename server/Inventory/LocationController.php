@@ -388,6 +388,7 @@ EOQ;
             // Check for needed operations
             $pendingOperations = [];
             $pendingOperationAction = json_decode($request->get('pendingOperations'), true);
+            $collateralOperationSets = [];
             // First check for operation fixing
             $ignoredOps = new OperationCollection();
             foreach($pendingOperationAction as $opType => $data) {
@@ -397,6 +398,15 @@ EOQ;
                     ->isType($opType)
                     ->withBatches() // only operation that moves batches are taken into account
                     ->find();
+                if(count($pendingOperationsInLocation)) {
+                    // This is to create a context for operations that were pending but
+                    // there was an action to be taken on them
+                    $collateralOperationSets[$data['action']] = new OperationSet($app['current_user']);
+                    foreach($pendingOperationsInLocation as $pendingOp) {
+                        $collateralOperationSets[$data['action']]->add($pendingOp);
+                    }
+                    $app['em']->persist($collateralOperationSets[$data['action']]);
+                }
 
                 switch($data['action']) {
                     case 'ignore':
@@ -443,9 +453,9 @@ EOQ;
             $batches = $app['BatchCollectionFactory']->makeFromArray($csv->data);
 
             // New operation set
-            $set = null;
+            $set = new OperationSet(null);
             if ($description = $request->request->get('description')) {
-                $set = new OperationSet(null, ['description' => $request->request->get('description')]);
+                $set->setValue(['description' => $request->request->get('description')]);
             }
 
             // Find type
@@ -473,9 +483,18 @@ EOQ;
 
             $app['em']->persist($operation);
             $operation->execute($app['current_user']);
-            if ($set) {
-                $set->add($operation);
+            $set->add($operation);
+
+            if (!$set->isEmpty()) {
                 $app['em']->persist($set);
+                $app['em']->flush();
+                if(!empty($collateralOperationSets)) {
+                    foreach($collateralOperationSets as $action => $cSet) {
+                        $cSet->setValue(['description' => sprintf('Operations %sd along operation set %d', $action, $set->getId())]);
+                        $app['em']->persist($cSet);
+                        $app['em']->flush();
+                    }
+                }
             }
             $app['em']->flush();
 
