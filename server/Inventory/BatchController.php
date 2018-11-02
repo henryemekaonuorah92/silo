@@ -99,7 +99,7 @@ class BatchController implements ControllerProviderInterface
             }
 
             // New operation set
-            $set = new OperationSet(null, ['description' => $request->request->get('description')]);
+            $set = new OperationSet(null, $request->request->get('description')? ['description' => $request->request->get('description')] : null);
 
             // Find type
             switch ($request->request->get('type')) {
@@ -134,7 +134,10 @@ class BatchController implements ControllerProviderInterface
                     if(count($pendingOperationsInLocation)) {
                         // This is to create a context for operations that were pending but
                         // there was an action to be taken on them
-                        $collateralOperationSets[$data['action']] = new OperationSet($app['current_user']);
+                        $collateralOperationSets[$data['action']] = isset($collateralOperationSets[$data['action']]) ?
+                            $collateralOperationSets[$data['action']] :
+                            new OperationSet($app['current_user']);
+
                         foreach($pendingOperationsInLocation as $pendingOp) {
                             $collateralOperationSets[$data['action']]->add($pendingOp);
                         }
