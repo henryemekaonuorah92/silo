@@ -141,21 +141,21 @@ class BatchController implements ControllerProviderInterface
                         $app['em']->persist($collateralOperationSets[$data['action']]);
                     }
 
+                    if(!in_array($data['action'], ['ignore', 'execute', 'cancel'])) {
+                        throw new \Exception('Invalid action: '.$data['action']);
+                    }
+                    $ignoredOps->merge(new OperationCollection($pendingOperationsInLocation));
+
                     switch($data['action']) {
-                        case 'ignore':
-                            $ignoredOps->merge(new OperationCollection($pendingOperationsInLocation));
-                            break;
                         case 'execute':
                             foreach($pendingOperationsInLocation as $op) {
                                 $op->execute($app['current_user']);                                
                             }
-                            $app['em']->flush();
                             break;
                         case 'cancel':
                             foreach($pendingOperationsInLocation as $op) {
                                 $op->cancel($app['current_user']);                                
                             }
-                            $app['em']->flush();
                             break;
                     }
                 }
