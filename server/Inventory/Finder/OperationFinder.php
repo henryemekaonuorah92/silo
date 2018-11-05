@@ -180,6 +180,7 @@ class OperationFinder extends \Silo\Inventory\Finder\AbstractFinder
             ->select('COUNT(o)')
             ->from('Inventory:Operation', 'o')
             ->join('o.operationType', 'type')
+            ->leftJoin('o.operationSets', 'operationSet')
             ;
 
         if ($this->loadBatches) {
