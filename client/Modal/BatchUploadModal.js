@@ -160,14 +160,14 @@ A-04-A,14-231-21,-2`
                         url={this.props.url}
                         disabled={this.state.file === null}
                         onError={(err)=> {
-                                if(typeof err === 'string' || err instanceof String) {
-                                    this.setState({errors:[err]});
-                                } else if(Object.keys(err).includes('pendingOperations')) {
+                                if(Object.keys(err).includes('pendingOperations')) {
                                     let pendingOperations = err.pendingOperations;
                                     for(var optype in pendingOperations) {
                                         pendingOperations[optype]['action'] = 'ignore';
                                     }
                                     this.setState({pendingOperations:err.pendingOperations});
+                                } else {
+                                    this.setState({errors:[err]});
                                 }
                             }
                         }>
