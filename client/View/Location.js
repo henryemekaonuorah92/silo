@@ -110,23 +110,27 @@ module.exports = React.createClass({
 
     render: function(){
         let data = this.state.data;
-        let menus = [this.props.menu];
-        menus.push(
-            <li>
-                <DownloadDataLink
-                    filename={'location-'+this.props.code+'-inclusiveBatches.csv'}
-                    exportFile={()=>{
-                        return Api.fetch('/silo/inventory/location/'+this.props.code+'/inclusiveBatches').then(data=>{
-                            let header = "product,sku,quantity\n";
-                            return header + data.map(function(data){
-                                return data.sku+','+data.name+','+data.quantity
-                            }).join("\n")
-                        })
-                    }}>
-                    Save Inclusive CSV
-                </DownloadDataLink>
-            </li>
-        );
+        let menus = Array.isArray(this.props.menu) ? this.props.menu : [this.props.menu];
+        if(!this.props.customInclusiveBatches) {
+            menus.push(
+                <li>
+                    <DownloadDataLink
+                        filename={'location-'+this.props.code+'-inclusiveBatches.csv'}
+                        exportFile={()=>{
+                            return Api.fetch('/silo/inventory/location/'+this.props.code+'/inclusiveBatches').then(data=>{
+                                let header = "product,sku,quantity\n";
+                                return header + data.map(function(data){
+                                    return data.sku+','+data.name+','+data.quantity
+                                }).join("\n")
+                            })
+                        }}>
+                        Save Inclusive CSV
+                    </DownloadDataLink>
+                </li>
+            );
+        } else {
+            menus.push(<li>{this.props.customInclusiveBatches}</li>)
+        }
         if (this.props.writable) {
             menus.push(<li>
                 <a onClick={()=>this.setState({showModal: true})}>Open CSV...</a>
@@ -194,7 +198,9 @@ module.exports = React.createClass({
                     exportFilename={'location-'+this.props.code+'-batches.csv'}
                     data={this.state.batches}
                     menu={menus}
-                    error={null}/>
+                    error={null}
+                    customExportFile={this.props.customExportFile}
+                    />
 
                 <OperationEditor promise={promise} onFilterChange={this.handleChangeFilter} filters={this.state.filters} />
             </div>

@@ -58,7 +58,7 @@ module.exports = React.createClass({
             menu = menu.slice();
             menu.push(<li key="save_as_csv"><DownloadDataLink
                 filename={this.props.exportFilename}
-                exportFile={()=>("product,sku,quantity\n" +
+                exportFile={this.props.customExportFile ? () => this.props.customExportFile(data) : ()=>("product,sku,quantity\n" +
                     data.map(function(d){
                         return d.product+','+d.name+','+d.quantity+"\n"
                     }).join()
