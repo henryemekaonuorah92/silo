@@ -392,13 +392,14 @@ EOQ;
             // First check for operation fixing
             $ignoredOps = new OperationCollection();
             foreach($pendingOperationAction as $opType => $data) {
+
                 $finder = new OperationFinder($app['em']);
                 $pendingOperationsInLocation = $finder->manipulating($location)
                     ->isPending()
                     ->isType($opType)
                     ->withBatches() // only operation that moves batches are taken into account
                     ->find();
-                if(count($pendingOperationsInLocation)) {
+                if(count($pendingOperationsInLocation) && $data['action'] != 'ignore') {
                     // This is to create a context for operations that were pending but
                     // there was an action to be taken on them
                     $collateralOperationSets[$data['action']] = new OperationSet($app['current_user']);

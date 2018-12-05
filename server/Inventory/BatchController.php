@@ -131,7 +131,7 @@ class BatchController implements ControllerProviderInterface
                         ->isType($opType)
                         ->withBatches() // only operation that moves batches are taken into account
                         ->find();
-                    if(count($pendingOperationsInLocation)) {
+                    if(count($pendingOperationsInLocation) && $data['action'] != 'ignore') {
                         // This is to create a context for operations that were pending but
                         // there was an action to be taken on them
                         $collateralOperationSets[$data['action']] = isset($collateralOperationSets[$data['action']]) ?
