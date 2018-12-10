@@ -78,6 +78,7 @@ module.exports = React.createClass({
                                             onChange={this.handleChange}
                                             selected={value}
                                             placeholder="Status...">
+                        <option value={null}>any</option>
                         <option value="cancelled">cancelled</option>
                         <option value="done">done</option>
                         <option value="pending">pending</option>

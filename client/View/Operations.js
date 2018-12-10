@@ -40,7 +40,7 @@ module.exports = React.createClass({
         return (
             <div>
                 <Row><Col xs={3}>
-                    <h3>Operation</h3>
+                    <h3>Operations</h3>
                 </Col><Col xs={9}>
                     <Button bsStyle="default" onClick={()=>{this.setState({showModal: true})}}><Glyphicon glyph="plus" /> Create Operations</Button>
                     <Modal
