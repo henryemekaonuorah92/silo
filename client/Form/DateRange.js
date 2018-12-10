@@ -21,6 +21,9 @@ module.exports = React.createClass({
     }),
 
     handleChange: function(newRange){
+        // localize the dates
+        newRange.startDate = newRange.startDate.local().format('YYYY-MM-DD')
+        newRange.endDate = newRange.endDate.local().format('YYYY-MM-DD')
         this.props.onChange(newRange);
     },
 
