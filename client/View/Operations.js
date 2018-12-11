@@ -5,6 +5,7 @@ const Modal = require('../Modal/OperationUploadModal');
 const BatchModal = require('../Modal/BatchUploadModal');
 const promisify = require('../Common/connectWithPromise');
 const OperationEditor = promisify(require('../Editor/OperationEditor'));
+const moment = require('moment');
 const Api = require('../Api');
 
 // @todo put some proofing in operation screen (no null loca)
@@ -28,6 +29,16 @@ module.exports = React.createClass({
 
     handleChangeFilter: function(filters){
         console.warn("this.props.router.setParams(filters)");
+        for(var i in filters) {
+            if(["cancelledAt", "doneAt", "requestedAt"].includes(filters[i].type)) {
+                if(moment.isMoment(filters[i].value.startDate)) {
+                    filters[i].value.startDate = filters[i].value.startDate.local().format('Y-MM-DD')
+                }
+                if(moment.isMoment(filters[i].value.endDate)) {
+                    filters[i].value.endDate = filters[i].value.endDate.local().format('Y-MM-DD')
+                }
+            }
+        }        
         //this.props.router.setParams(filters);
         this.setState({filters: filters, showModal: false, showModalBis: false});
     },
