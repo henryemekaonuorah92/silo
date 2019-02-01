@@ -424,16 +424,16 @@ class Operation implements MarshallableInterface
     public function marshall()
     {
         return [
-            'id' => $op->getId(),
-            'source' => $op->getSource() ? $op->getSource()->getCode() : null,
-            'target' => $op->getTarget() ? $op->getTarget()->getCode() : null,
-            'type' => $op->getType(),
-            'status' => $op->getStatus()->toArray(),
-            'location' => $op->getLocation() ? $op->getLocation()->getCode() : null,
+            'id' => $this->getId(),
+            'source' => $this->getSource() ? $this->getSource()->getCode() : null,
+            'target' => $this->getTarget() ? $this->getTarget()->getCode() : null,
+            'type' => $this->getType(),
+            'status' => $this->getStatus()->toArray(),
+            'location' => $this->getLocation() ? $this->getLocation()->getCode() : null,
             'contexts' => array_map(function (OperationSet $context) {
                 return $context->marshall();
-            }, $op->getOperationSets()),
-            'batches' => $op->getBatches()->toRawArray(),
+            }, $this->getOperationSets()),
+            'batches' => array_map(function($batch){return $batch->marshall();}, $this->getBatches()->toArray()),
             'isRollbackPart' => $this->isRollbackPart()
         ];
     }
