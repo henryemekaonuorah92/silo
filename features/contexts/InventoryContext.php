@@ -53,7 +53,10 @@ class InventoryContext extends BehatContext implements AppAwareContextInterface,
      */
     public function oneMoveCToB($code, $parentCode)
     {
-        $this->client->request('PATCH', "/silo/inventory/location/$parentCode/child", [$code]);
+        $this->client->request('PATCH', "/silo/inventory/location/$parentCode/child", [
+            'children' => [$code],
+            'forceEmpty' => true    
+        ]);
         $response = $this->client->getResponse();
         $this->assertSuccessful($response);
     }
