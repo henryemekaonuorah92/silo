@@ -158,20 +158,27 @@ class LocationController implements ControllerProviderInterface
             $locations = $app['em']->getRepository('Inventory:Location');
             $type = $app['em']->getRepository('Inventory:OperationType')->getByName('parent assign');
             $operations = [];
-            foreach ($request->request->all() as $childCode) {
-                $child = $locations->forceFindOneByCode($childCode);
+            $errors = [];
+            foreach ($request->request->get('children') as $childCode) {
+                try {
+                    $child = $locations->forceFindOneByCode($childCode);
 
-                // No need to move a child that is already at the right location
-                if ($child->getParent() == $location) {
-                    continue;
+                    // No need to move a child that is already at the right location
+                    if ($child->getParent() == $location) {
+                        continue;
+                    }
+                    if(!$request->request->get('forceEmpty', false) && !$child->getBatches()->getQuantity()) {
+                        throw new \LogicException("$child cannot be moved because it is empty");
+                    }
+                    $op = new Operation($app['current_user'], $child->getParent(), $location, $child);
+                    
+                    $app['OperationValidator']->assertValid($op);
+                    $op->setType($type);
+                    array_push($operations, $op);
+                    $app['em']->persist($op);
+                } catch(\Exception $e) {
+                    $errors[] = sprintf('Error moving location %s to %s: %s', $childCode, $location->getCode(), $e->getMessage());
                 }
-
-                $op = new Operation($app['current_user'], $child->getParent(), $location, $child);
-                $app['OperationValidator']->assertValid($op);
-                $op->setType($type);
-                array_push($operations, $op);
-
-                $app['em']->persist($op);
             }
             $app['em']->flush();
 
@@ -180,7 +187,10 @@ class LocationController implements ControllerProviderInterface
             }
             $app['em']->flush();
 
-            return new JsonResponse([]);
+            return new JsonResponse([
+                'operations' => array_map(function($op) {return $op->marshall();}, $operations),
+                'issues' => $errors
+            ]);
         })
             ->convert('location', $app['location.provider']())
             ->before(new JsonRequest());
