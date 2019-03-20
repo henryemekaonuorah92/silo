@@ -65,6 +65,12 @@ module.exports = React.createClass({
                 )}>
                 Save as CSV
             </DownloadDataLink></li>);
+            if(this.props.bindedMethod) {
+                menu.push(<li>
+                    <a onClick={this.props.bindedMethod.bind(this,data)}>{this.props.bindedMethodLink}</a>
+                </li>)
+            }
+            
         }
 
         let store = new DataStore(data ? data : []);

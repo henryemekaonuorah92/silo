@@ -195,6 +195,8 @@ module.exports = React.createClass({
                 />
 
                 <BatchEditor
+                    bindedMethodLink={this.props.bindedMethodLink}
+                    bindedMethod={this.props.bindedMethod}
                     exportFilename={'location-'+this.props.code+'-batches.csv'}
                     data={this.state.batches}
                     menu={menus}
