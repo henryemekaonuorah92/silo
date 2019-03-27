@@ -119,7 +119,13 @@ module.exports = React.createClass({
                             <p>Scan a child</p>
                             :
                             <div>
-
+                            <Row>
+                                <Col xs={2} xsOffset={5}>
+                                    <Well
+                                        className="shakeOnChange"><b
+                                        style={{fontSize: "2.5em"}}>{this.state.children.length}</b> Locations</Well>
+                                </Col>
+                            </Row>
                                 {this.state.children.map((child, key)=>{
                                     return <div className="well well-sm" key={key}>
                                         <CloseButton onClick={this.clearChild.bind(this, key)} />
